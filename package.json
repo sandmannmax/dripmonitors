@@ -1,0 +1,24 @@
+{
+  "name": "monitor",
+  "version": "1.0.0",
+  "scripts": {
+    "start": "ts-node ./src/index.ts"
+  },
+  "dependencies": {
+    "bull": "^3.20.0",
+    "discord.js": "^12.5.1",
+    "dotenv": "^8.2.0",
+    "handy-redis": "^2.0.3",
+    "jssoup": "0.0.12",
+    "monk": "^7.3.2",
+    "node-fetch": "^2.6.1",
+    "redis": "^3.0.2",
+    "ts-node": "^9.1.1",
+    "typed-promisify": "^0.4.0",
+    "typescript": "^4.1.2"
+  },
+  "devDependencies": {
+    "@types/bull": "^3.15.0",
+    "@types/node": "^14.14.10"
+  }
+}
