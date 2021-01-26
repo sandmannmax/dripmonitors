@@ -1,5 +1,7 @@
+import { Service } from 'typedi';
 import DB, { IMonkManager, ICollection, FindOptions } from 'monk';
 
+@Service()
 export class DatabaseProvider {
   private Database: IMonkManager;
 

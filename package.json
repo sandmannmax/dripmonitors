@@ -2,22 +2,28 @@
   "name": "monitor",
   "version": "1.0.0",
   "scripts": {
-    "start": "ts-node ./src/index.ts"
+    "start": "ts-node ./src/service.ts"
   },
   "dependencies": {
     "bull": "^3.20.0",
+    "cors": "^2.8.5",
     "discord.js": "^12.5.1",
     "dotenv": "^8.2.0",
+    "express": "^4.17.1",
     "handy-redis": "^2.0.3",
     "jssoup": "0.0.12",
     "monk": "^7.3.2",
     "node-fetch": "^2.6.1",
     "redis": "^3.0.2",
-    "ts-node": "^9.1.1",
+    "reflect-metadata": "^0.1.13",
+    "sanitize": "^2.1.0",
     "typed-promisify": "^0.4.0",
-    "typescript": "^4.1.2"
+    "typedi": "^0.8.0",
+    "winston": "^3.3.3"
   },
   "devDependencies": {
+    "typescript": "^4.1.2",
+    "ts-node": "^9.1.1",
     "@types/bull": "^3.15.0",
     "@types/node": "^14.14.10"
   }

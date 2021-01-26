@@ -1,7 +1,7 @@
 FROM node:15.5.1-alpine3.10
 WORKDIR /usr/src/app
 COPY ["./package.json", "./package-lock.json", "./"] 
-RUN npm install --production
+RUN npm install
 COPY ./ ./
-EXPOSE 3000
+EXPOSE 6969
 CMD npm start
