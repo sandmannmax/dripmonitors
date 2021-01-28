@@ -1,19 +1,17 @@
 import fetch from 'node-fetch';
 import JsSoup from 'jssoup';
 import { Product } from '../types/Product';
-import { MonitorModel } from '../model/Monitor';
+import { MonitorModel } from '../models/Monitor';
 import { DiscordService } from '../services/DiscordService';
 import { RedisService } from '../services/RedisService';
 import { GetRandomUserAgent } from '../provider/RandomUserAgentProvider';
 
 export class SnipesMonitor {
   private monitorModel: MonitorModel;
-  private discordService: DiscordService;
   private redisService: RedisService;
 
-  constructor(monitorModel: MonitorModel, discordService: DiscordService, redisService: RedisService) {
+  constructor(monitorModel: MonitorModel, redisService: RedisService) {
     this.monitorModel = monitorModel;
-    this.discordService = discordService;
     this.redisService = redisService;
   }
 
@@ -69,7 +67,7 @@ export class SnipesMonitor {
 
       //     for (let j = 0; j < monitors.length; j++) {
       //       if (monitors[j].webHook)
-      //         await this.discordService.SendMessage({ 
+      //         await DiscordService.SendMessage({ 
       //           monitor: monitors[j], 
       //           product: product,
       //           page: 'Snipes'

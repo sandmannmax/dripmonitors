@@ -3,16 +3,16 @@ import cors from 'cors';
 import { IError } from '../types/IError';
 import api from '../api';
 import { logger } from '../logger';
+import { Queue } from 'bull';
 
-
-export default async (app: Application) => {
+export default async (app: Application, queue: Queue) => {
 
   app.get('/status', (req, res) => { res.status(200).end(); });
   app.head('/status', (req, res) => { res.status(200).end(); });
 
   app.use(json());
   app.use(cors());
-  app.use('/', api());
+  app.use('/', api(queue));
 
   app.use((req: Request, res: Response, next: NextFunction) => {
     let err: IError = {message: 'Not Found', status: 404};

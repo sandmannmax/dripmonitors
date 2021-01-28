@@ -4,6 +4,8 @@ config();
 export default {
   port: process.env.PORT,
   logLevel: process.env.LOGLEVEL,
+  jwtSecret: process.env.TOKEN_SECRET,
+  pepper: process.env.PEPPER,
   dbConnection: process.env.DB_CONNECTION,
   dbUser: process.env.DB_USER,
   dbPassword: process.env.DB_PASS,

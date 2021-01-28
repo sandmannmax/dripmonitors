@@ -1,15 +1,16 @@
 import { Service } from 'typedi';
 import DB, { IMonkManager, ICollection, FindOptions } from 'monk';
+import config from '../config';
 
 @Service()
 export class DatabaseProvider {
   private Database: IMonkManager;
 
-  constructor(connection, username, password) {
-    this.Database = DB(connection, {
+  constructor() {
+    this.Database = DB(config.dbConnection, {
       auth: {
-        user: username,
-        password: password
+        user: config.dbUser,
+        password:  config.dbPassword
       },
       authSource: 'admin'
     });

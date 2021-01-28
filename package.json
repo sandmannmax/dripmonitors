@@ -2,16 +2,19 @@
   "name": "monitor",
   "version": "1.0.0",
   "scripts": {
-    "start": "ts-node ./src/service.ts"
+    "start": "ts-node ./src/index.ts"
   },
   "dependencies": {
     "bull": "^3.20.0",
     "cors": "^2.8.5",
+    "crypto-random-string": "^3.3.0",
     "discord.js": "^12.5.1",
     "dotenv": "^8.2.0",
     "express": "^4.17.1",
     "handy-redis": "^2.0.3",
-    "http-proxy-agent": "^4.0.1",
+    "https-proxy-agent": "^5.0.0",
+    "js-sha3": "^0.8.0",
+    "jsonwebtoken": "^8.5.1",
     "jssoup": "0.0.12",
     "monk": "^7.3.2",
     "node-fetch": "^2.6.1",

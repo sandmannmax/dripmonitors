@@ -1,11 +1,10 @@
 import { MessageEmbed, WebhookClient } from 'discord.js';
-import { Monitor } from '../types/Monitor';
+import { UserMonitor } from '../types/UserMonitor';
 import { Product } from '../types/Product';
 
-export class DiscordService {
-  private webhookClient: WebhookClient;
+export namespace DiscordService {
 
-  async SendMessage({ monitor, product, page }: {monitor: Monitor, product: Product, page: string}) {
+  export async function SendMessage({ monitor, product, page }: {monitor: UserMonitor, product: Product, page: string}) {
     try {
       if (!monitor.botName)
         monitor.botName = 'LSB Monitor';
@@ -23,7 +22,7 @@ export class DiscordService {
       let webHookStrings = monitor.webHook.split('/');
       let id = webHookStrings[webHookStrings.length-2];
       let token = webHookStrings[webHookStrings.length-1];
-      this.webhookClient = new WebhookClient(id, token);
+      let webhookClient = new WebhookClient(id, token);
 
       let colors = ['#0099ff', '#aaee99', '#aaee77', '#d0d000'];
       let index = Math.floor(Math.random() * colors.length);
@@ -37,7 +36,7 @@ export class DiscordService {
         .setTimestamp()
         .setFooter('Powered by LazyShoeBot', 'http://lazyshoebot.com/logoWide.png');
       
-      this.webhookClient.send({
+      webhookClient.send({
         embeds: [message],
         username: monitor.botName,
         avatarURL: monitor.botImage

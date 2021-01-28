@@ -1,6 +1,8 @@
 import { createNodeRedisClient, WrappedNodeRedisClient } from 'handy-redis';
+import { Service } from 'typedi';
 import { Product } from '../types/Product';
 
+@Service()
 export class RedisService {
   private client: WrappedNodeRedisClient;
 

@@ -1,18 +1,16 @@
 import fetch from 'node-fetch';
 import JsSoup from 'jssoup';
 import { Product } from '../types/Product';
-import { MonitorModel } from '../model/Monitor';
+import { MonitorModel } from '../models/Monitor';
 import { DiscordService } from '../services/DiscordService';
 import { RedisService } from '../services/RedisService';
 
 export class SupremeMonitor {
   private monitorModel: MonitorModel;
-  private discordService: DiscordService;
   private redisService: RedisService;
 
-  constructor(monitorModel: MonitorModel, discordService: DiscordService, redisService: RedisService) {
+  constructor(monitorModel: MonitorModel, redisService: RedisService) {
     this.monitorModel = monitorModel;
-    this.discordService = discordService;
     this.redisService = redisService;
   }
 
@@ -65,7 +63,7 @@ export class SupremeMonitor {
             // for (let j = 0; j < users.length; j++) {
             //   let monitor = await this.monitorModel.GetMonitor({ userId: users[j] });
             //   if (monitor && monitor.length == 1 && monitor[0].webHook) {
-            //     await this.discordService.SendMessage({ monitor: monitor[0], shoeName: item.name, price, href: `https://www.supremenewyork.com${products[i].href}`});
+            //     await DiscordService.SendMessage({ monitor: monitor[0], shoeName: item.name, price, href: `https://www.supremenewyork.com${products[i].href}`});
             //   }
             // }
           }
