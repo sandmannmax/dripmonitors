@@ -1,0 +1,5 @@
+apps:
+  - name: frontend
+    script: ./server.js
+    exec_mode: cluster
+    instances: max
