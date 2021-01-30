@@ -7,11 +7,10 @@ import { RedisService } from '../services/RedisService';
 import { GetRandomUserAgent } from '../provider/RandomUserAgentProvider';
 
 export class SnipesMonitor {
-  private monitorModel: MonitorModel;
+  // private monitorModel: MonitorModel;
   private redisService: RedisService;
 
-  constructor(monitorModel: MonitorModel, redisService: RedisService) {
-    this.monitorModel = monitorModel;
+  constructor(redisService: RedisService) {
     this.redisService = redisService;
   }
 

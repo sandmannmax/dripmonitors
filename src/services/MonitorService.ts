@@ -17,9 +17,11 @@ export class MonitorService {
       let results = [];
       let monitors = await MonitorModel.GetMonitors();
       for (let i = 0; i < monitors.length; i++) {
-        let result = { monitor: undefined, jobs: undefined };
+        let result = { monitor: undefined, job: undefined };
         result.monitor = monitors[i];
-        result.jobs = await MonitorModel.GetMonitorJob({ monitorId: monitors[i]._id.toString() });
+        let jobs = await MonitorModel.GetMonitorJob({ monitorId: monitors[i]._id.toString() });
+        if (jobs.length == 1)
+          result.job = jobs[0];
         results.push(result);
       }
       return {success: true, data: {monitors: results}};

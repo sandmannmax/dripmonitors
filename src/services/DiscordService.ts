@@ -34,7 +34,7 @@ export namespace DiscordService {
         .setURL(product.href)
         .setDescription(`**Page:** ${page}\n**Price:** ${product.price}\n**Size:** ${size}`)
         .setTimestamp()
-        .setFooter('Powered by LazyShoeBot', 'http://lazyshoebot.com/logoWide.png');
+        .setFooter('Powered by LazyShoeBot - Still in Beta', 'http://lazyshoebot.com/logoWide.png');
       
       webhookClient.send({
         embeds: [message],

@@ -1,4 +1,4 @@
-import { Application, json, Request, NextFunction, Response } from 'express';
+import express, { Application, json, Request, NextFunction, Response } from 'express';
 import cors from 'cors';
 import { IError } from '../types/IError';
 import api from '../api';
@@ -7,12 +7,12 @@ import { Queue } from 'bull';
 
 export default async (app: Application, queue: Queue) => {
 
-  app.get('/status', (req, res) => { res.status(200).end(); });
-  app.head('/status', (req, res) => { res.status(200).end(); });
+  app.get('/api/status', (req, res) => { res.status(200).end(); });
+  app.head('/api/status', (req, res) => { res.status(200).end(); });
 
   app.use(json());
   app.use(cors());
-  app.use('/', api(queue));
+  app.use('/api', api(queue));
 
   app.use((req: Request, res: Response, next: NextFunction) => {
     let err: IError = {message: 'Not Found', status: 404};

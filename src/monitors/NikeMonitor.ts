@@ -7,6 +7,7 @@ import { GetRandomUserAgent } from '../provider/RandomUserAgentProvider';
 import { logger } from '../logger';
 import { HttpsProxyAgent } from 'https-proxy-agent';
 import { Container } from 'typedi';
+import { ProxyModel } from '../models/Proxy';
 
 export namespace NikeMonitor {
 
@@ -15,79 +16,89 @@ export namespace NikeMonitor {
   }
 
   export async function Run(job) {
-    logger.info("NIKE MONITOR");
+    const redisService = Container.get(RedisService);
 
-    // const redisService = Container.get(RedisService);
-
-    // try {
-    //   const proxy = "";
-
-    //   if (await redisService.GetRunningState('nike'))
-    //     return;
+    try {
+      if (await redisService.GetRunningState('nike'))
+        return;
     
-    //   await redisService.SetRunningState('nike', true);
+      await redisService.SetRunningState('nike', true);
+
+      const proxy = await ProxyModel.GetRandomProxy();
+      let proxyString;
+
+      if (proxy) {
+        proxyString = proxy.address + ":" + proxy.port;
+        logger.info(`Using proxy ${proxyString}`);
+
+      } else
+        logger.warn(`No Proxy Available`);
     
-    //   let products = await GetItems(proxy);
+      let products = await GetItems(proxyString);
 
-    //   let oldProducts = await redisService.GetProductIds('nike');
-    //   let productsStillAvailableStatus = new Array(oldProducts.length);
-    //   productsStillAvailableStatus = productsStillAvailableStatus.fill(false);
+      let oldProducts = await redisService.GetProductIds('nike');
+      let productsStillAvailableStatus = new Array(oldProducts.length);
+      productsStillAvailableStatus = productsStillAvailableStatus.fill(false);
 
-    //   let monitors;
+      let monitors;
     
-    //   for (let i = 0; i < products.length; i++) {
-    //     productsStillAvailableStatus[oldProducts.indexOf(products[i]._id)] = true;
+      for (let i = 0; i < products.length; i++) {
+        let index = oldProducts.indexOf(products[i]._id);
+        if (index != -1)
+          productsStillAvailableStatus[index] = true;
 
-    //     let product = await redisService.GetProduct('nike', products[i]._id);
-    //     let sendMessage = false;
+        let product = await redisService.GetProduct('nike', products[i]._id);
+        let sendMessage = false;
 
-    //     if (product == null) {
-    //       await redisService.AddProduct('nike', products[i]);
+        if (product == null) {
+          await redisService.AddProduct('nike', products[i]);
 
-    //       if (products[i].active && !products[i].soldOut)
-    //         sendMessage = true;
-    //     } else {
-    //       if (product.active != products[i].active) {
-    //         await redisService.ChangeActiveState('nike', products[i]._id, products[i].active);
+          if (products[i].active && !products[i].soldOut)
+            sendMessage = true;
+        } else {
+          await redisService.ChangeSizes('nike', products[i]._id, products[i].sizes, products[i].sizesSoldOut);
 
-    //         if (products[i].active && !products[i].soldOut)
-    //           sendMessage = true;
-    //       }
+          if (product.active != products[i].active) {
+            await redisService.ChangeActiveState('nike', products[i]._id, products[i].active);
 
-    //       if (product.soldOut != products[i].soldOut) {
-    //         await redisService.ChangeSoldOutState('nike', products[i]._id, products[i].soldOut);
+            if (products[i].active && !products[i].soldOut)
+              sendMessage = true;
+          }
 
-    //         if (products[i].active && !products[i].soldOut)
-    //           sendMessage = true;
-    //       }          
-    //     }
+          if (product.soldOut != products[i].soldOut) {
+            await redisService.ChangeSoldOutState('nike', products[i]._id, products[i].soldOut);
 
-    //     if (sendMessage) {
-    //       if (!monitors)
-    //         monitors = await MonitorModel.GetUserMonitors();
+            if (products[i].active && !products[i].soldOut)
+              sendMessage = true;
+          }          
+        }
 
-    //       for (let j = 0; j < monitors.length; j++) {
-    //         if (monitors[j].webHook)
-    //           await DiscordService.SendMessage({ 
-    //             monitor: monitors[j], 
-    //             product: product,
-    //             page: 'Nike SNKRS'
-    //           });
-    //       }
-    //     }
-    //   }
+        if (sendMessage) {
+          if (!monitors)
+            monitors = await MonitorModel.GetUserMonitors();
 
-    //   for (let i = 0; i < oldProducts.length; i++) {
-    //     if (!productsStillAvailableStatus[i])
-    //       await redisService.ChangeActiveState('nike', oldProducts[i], false);
-    //   }
+          for (let j = 0; j < monitors.length; j++) {
+            if (monitors[j].webHook)
+              await DiscordService.SendMessage({ 
+                monitor: monitors[j], 
+                product: products[i],
+                page: 'Nike SNKRS'
+              });
+          }
+        }
+      }
+
+      for (let i = 0; i < oldProducts.length; i++) {
+        if (!productsStillAvailableStatus[i])
+          await redisService.ChangeActiveState('nike', oldProducts[i], false);
+      }
     
-    //   await redisService.SetRunningState('nike', false);
-    // }
-    // catch (e) {
-    //   logger.error('Error in NikeMonitor.Run(): ', e);      
-    //   await redisService.SetRunningState('nike', false);
-    // }    
+      await redisService.SetRunningState('nike', false);
+    }
+    catch (e) {
+      logger.error('Error in NikeMonitor.Run(): ', e);      
+      await redisService.SetRunningState('nike', false);
+    }    
   }  
 }
 

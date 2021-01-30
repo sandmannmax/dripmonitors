@@ -12,8 +12,11 @@ export namespace ProxyModel {
 
   export async function GetRandomProxy(): Promise<Proxy> {
     let result = await dbProvider.Find<Proxy>('m_proxies', {});
-    let index = Math.floor((Math.random() * result.length));
-    return result[index];
+    if (result && result.length > 0) {
+      let index = Math.floor((Math.random() * result.length));
+      return result[index];
+    } else
+      return null;
   }
 
   export async function GetProxy({ _id } : { _id: string }): Promise<Proxy> {

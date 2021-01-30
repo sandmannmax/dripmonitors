@@ -44,6 +44,23 @@ export class RedisService {
   async ChangeActiveState(monitorName: string, productId: string, activeState: boolean) {
     await this.client.hset(`stores:${monitorName}:products:${productId}`, [ 'active', activeState.toString() ]);
   }
+
+  async ChangeSizes(monitorName: string, productId: string, sizes: Array<string>, sizesSoldOut: Array<boolean>) {
+    let sizesString = '';
+    let sizesSoldOutString = ''
+    for (let i = 0; i < sizes.length; i++) {
+      sizesString += sizes[i];
+      sizesSoldOutString += sizesSoldOut[i].toString();
+      if (i != sizes.length - 1) {
+        sizesString += '$';
+        sizesSoldOutString += '$';
+      }
+    }  
+    await this.client.hset(`stores:${monitorName}:products:${productId}`, [ 'sizes', sizesString ]);
+    await this.client.hset(`stores:${monitorName}:products:${productId}`, [ 'sizesSoldOut', sizesSoldOutString ]);
+  }
+
+  
   
   // async GetMonitoredProductIds(monitorName: string) {
   //   return await this.client.smembers(`stores:${monitorName}:monitor:products`);

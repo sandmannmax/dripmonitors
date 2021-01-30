@@ -6,11 +6,9 @@ import { DiscordService } from '../services/DiscordService';
 import { RedisService } from '../services/RedisService';
 
 export class SupremeMonitor {
-  private monitorModel: MonitorModel;
   private redisService: RedisService;
 
-  constructor(monitorModel: MonitorModel, redisService: RedisService) {
-    this.monitorModel = monitorModel;
+  constructor(redisService: RedisService) {
     this.redisService = redisService;
   }
 
