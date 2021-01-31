@@ -3,6 +3,7 @@ import { MonitorModel } from '../models/Monitor';
 import { IResult } from '../types/IResult';
 import { Queue } from 'bull';
 import { logger } from '../logger';
+import { NikeMonitor } from '../monitors/NikeMonitor';
 
 @Service()
 export class MonitorService {
@@ -52,6 +53,8 @@ export class MonitorService {
         }
       }
       
+      if (monitor.page == 'nike')
+        await NikeMonitor.Setup();
       await this.queue.add(monitor.page, null, {repeat: {every: interval * 1000}});
       const monitorJob = await MonitorModel.InsertMonitorJob({ monitorId: monitorId, key: `${monitor.page}:::${interval * 1000}`, interval });
       

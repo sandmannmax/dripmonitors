@@ -11,7 +11,8 @@ import { ProxyModel } from '../models/Proxy';
 
 export namespace NikeMonitor {
 
-  export async function Setup({ redisService } : { redisService: RedisService }) {
+  export async function Setup() {
+    const redisService = Container.get(RedisService);
     redisService.SetRunningState('nike', false);
   }
 
@@ -24,17 +25,27 @@ export namespace NikeMonitor {
     
       await redisService.SetRunningState('nike', true);
 
-      const proxy = await ProxyModel.GetRandomProxy();
+      const proxy = await ProxyModel.GetRandomProxy({ page: 'nike' });
       let proxyString;
 
-      if (proxy) {
-        proxyString = proxy.address + ":" + proxy.port;
-        logger.info(`Using proxy ${proxyString}`);
+      if (!proxy) {
+        logger.error(`NikeMonitor: No Proxy Available`);
+        await redisService.SetRunningState('nike', false);
+        return;
+      }
 
-      } else
-        logger.warn(`No Proxy Available`);
-    
+      proxyString = proxy.address + ":" + proxy.port;
+      logger.info(`NikeMonitor: Using proxy ${proxyString}`);
+
       let products = await GetItems(proxyString);
+
+      if (products == null) {
+        await ProxyModel.SetCooldown({ page: 'nike', proxyId: proxy._id });
+        await redisService.SetRunningState('nike', false);
+        return;
+      }
+
+      await ProxyModel.ResetCooldown({ page: 'nike', proxyId: proxy._id });
 
       let oldProducts = await redisService.GetProductIds('nike');
       let productsStillAvailableStatus = new Array(oldProducts.length);
@@ -108,13 +119,19 @@ const GetItems = async (proxy) => {
   let language = 'de';
   for (let i = 0; i < 180; i += 60) {
     let url = `https://api.nike.com/product_feed/threads/v2/?anchor=${i}&count=60&filter=marketplace%28${location}%29&filter=language%28${language}%29&filter=channelId%28010794e5-35fe-4e32-aaff-cd2c74f89d61%29&filter=exclusiveAccess%28true%2Cfalse%29&fields=active%2Cid%2ClastFetchTime%2CproductInfo%2CpublishedContent.nodes%2CpublishedContent.subType%2CpublishedContent.properties.coverCard%2CpublishedContent.properties.productCard%2CpublishedContent.properties.products%2CpublishedContent.properties.publish.collections%2CpublishedContent.properties.relatedThreads%2CpublishedContent.properties.seo%2CpublishedContent.properties.threadType%2CpublishedContent.properties.custom%2CpublishedContent.properties.title`
-    let response = await fetch(url, {
-      method: 'GET',
-      agent: new HttpsProxyAgent(proxy),
-      headers: {
-        'User-Agent': GetRandomUserAgent()
-      }
-    });
+    let response;
+    try {
+      response = await fetch(url, {
+        method: 'GET',
+        agent: new HttpsProxyAgent(proxy),
+        headers: {
+          'User-Agent': GetRandomUserAgent()
+        }
+      });
+    } catch (e) {
+      logger.error(`NikeMonitor: Error with Proxy ${proxy} - ${e}`)
+      return null;
+    }
     let json = await response.json();
     for (let j = 0; j < json.objects.length; j++) {
       if (json.objects[j].productInfo) {

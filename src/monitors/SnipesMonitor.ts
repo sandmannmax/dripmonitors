@@ -88,9 +88,13 @@ export class SnipesMonitor {
     }    
   }
 
-  private async GetItems() {
+  public async GetItems() {
     let items: Array<Product> = [];
-    let url = 'https://www.snipes.com/c/shoes/topsneakerstyles?sz=1000'
+    let url = 'https://www.snipes.com/c/shoes/topsneakerstyles?sz=1000';
+    // const browser = await launch();
+    // const page = await browser.newPage();
+    // await page.goto(url);
+    // let content = await page.content()
     let response = await fetch(url, {
       method: 'GET',
       headers: {
