@@ -1,47 +1,20 @@
 {
   "paths": {
-    "/user": {
+    "/monitor": {
       "get": {
-        "description": "Get User Object",
-        "parameters": [
-          {
-            "name": "Authentication",
-            "in": "header",
-            "description": "accessToken",
-            "required": true,
-            "type": "string"
-          }
-        ],
+        "description": "Get all Monitors",
+        "parameters": [],
         "responses": {
           "200": {
-            "description": "User Object",
+            "description": "Monitors",
             "schema": {
               "type": "object",
               "properties": {
-                "user": {
-                  "$ref": "#/definitions/UserObject"
-                }
-              }
-            }
-          },
-          "401": {
-            "description": "Token expired | Token invalid | Token missing",
-            "schema": {
-              "type": "object",
-              "properties": {
-                "message": {
-                  "type": "string"
-                }
-              }
-            }
-          },
-          "500": {
-            "description": "Unexpected Server Error",
-            "schema": {
-              "type": "object",
-              "properties": {
-                "message": {
-                  "type": "string"
+                "monitors": {
+                  "type": "array",
+                  "objects": {
+                    "$ref": "#/definitions/Monitor"
+                  }
                 }
               }
             }
@@ -49,43 +22,70 @@
         }
       },
       "post": {
-        "description": "Create a User",
+        "description": "Create new Monitor",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "Created Monitor",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "monitor": {
+                  "$ref": "#/definitions/Monitor"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/monitor/$id": {
+      "patch": {
+        "description": "Update the Monitor",
         "parameters": [
           {
+            "name": "webHook",
             "in": "body",
-            "name": "user",
-            "description": "User to Create",
-            "required": true,
-            "schema": {
-              "$ref": "#/definitions/UserCreate"
-            }
+            "description": "Updated webHook",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "botName",
+            "in": "body",
+            "description": "Updated botName",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "botImage",
+            "in": "body",
+            "description": "Updated botImage",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "running",
+            "in": "body",
+            "description": "Updated running State",
+            "required": false,
+            "type": "boolean"
           }
         ],
         "responses": {
           "200": {
-            "description": "Created User Object",
+            "description": "Updated Monitor",
             "schema": {
               "type": "object",
               "properties": {
-                "user": {
-                  "$ref": "#/definitions/UserObject"
+                "monitor": {
+                  "$ref": "#/definitions/Monitor"
                 }
               }
             }
           },
           "404": {
-            "description": "'activationCode' is invalid or already used | 'username' is already existing | 'mail' is already in use | 'password' must contain at least 10 letters",
-            "schema": {
-              "type": "object",
-              "properties": {
-                "message": {
-                  "type": "string"
-                }
-              }
-            }
-          },
-          "500": {
-            "description": "Unexpected Server Error",
+            "description": "Monitor is not existing",
             "schema": {
               "type": "object",
               "properties": {
@@ -98,108 +98,14 @@
         }
       },
       "delete": {
-        "description": "Delete a User",
-        "parameters": [
-          {
-            "name": "Authentication",
-            "in": "header",
-            "description": "accessToken",
-            "required": true,
-            "type": "string"
-          }
-        ],
+        "description": "Delete the Monitor",
+        "parameters": [],
         "responses": {
           "200": {
-            "description": "Deleted User",
-            "schema": {
-              "type": "object",
-              "properties": {
-                "message": {
-                  "type": "string"
-                }
-              }
-            }
+            "description": "Successfully deleted Monitor Object"
           },
-          "401": {
-            "description": "Token expired | Token invalid | Token missing",
-            "schema": {
-              "type": "object",
-              "properties": {
-                "message": {
-                  "type": "string"
-                }
-              }
-            }
-          },
-          "500": {
-            "description": "Unexpected Server Error",
-            "schema": {
-              "type": "object",
-              "properties": {
-                "message": {
-                  "type": "string"
-                }
-              }
-            }
-          }
-        }
-      },
-      "patch": {
-        "description": "Update a User",
-        "parameters": [
-          {
-            "name": "Authentication",
-            "in": "header",
-            "description": "accessToken",
-            "required": true,
-            "type": "string"
-          },
-          {
-            "in": "body",
-            "name": "user",
-            "description": "User to Update",
-            "required": true,
-            "schema": {
-              "$ref": "#/definitions/UserUpdate"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Updated User Object",
-            "schema": {
-              "type": "object",
-              "properties": {
-                "user": {
-                  "$ref": "#/definitions/UserObject"
-                }
-              }
-            }
-          },
-          "400": {
-            "description": "\\'username\\' is already existing | \\'mail\\' is already in use",
-            "schema": {
-              "type": "object",
-              "properties": {
-                "message": {
-                  "type": "string"
-                }
-              }
-            }
-          },
-          "401": {
-            "description": "Token expired | Token invalid | Token missing",
-            "schema": {
-              "type": "object",
-              "properties": {
-                "message": {
-                  "type": "string"
-                }
-              }
-            }
-          },
-          "500": {
-            "description": "Unexpected Server Error",
+          "404": {
+            "description": "Monitor is not existing",
             "schema": {
               "type": "object",
               "properties": {
@@ -212,298 +118,77 @@
         }
       }
     },
-    "/auth/login": {
-      "post": {
-        "description": "Login for a User",
-        "parameters": [
-          {
-            "in": "body",
-            "name": "user",
-            "description": "User to Login",
-            "required": true,
-            "schema": {
-              "$ref": "#/definitions/UserLogin"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Login Successfull",
-            "schema": {
-              "type": "object",
-              "properties": {
-                "user": {
-                  "$ref": "#/definitions/UserObject"
-                },
-                "accessToken": {
-                  "type": "string"
-                },
-                "refreshToken": {
-                  "type": "string"
-                }
-              }
-            }
-          },
-          "400": {
-            "description": "\\'username\\' or \\'password\\' missing",
-            "schema": {
-              "type": "object",
-              "properties": {
-                "message": {
-                  "type": "string"
-                }
-              }
-            }
-          },
-          "401": {
-            "description": "Invalid credentials",
-            "schema": {
-              "type": "object",
-              "properties": {
-                "message": {
-                  "type": "string"
-                }
-              }
-            }
-          },
-          "500": {
-            "description": "Unexpected Server Error",
-            "schema": {
-              "type": "object",
-              "properties": {
-                "message": {
-                  "type": "string"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/auth/logout": {
-      "post": {
-        "description": "Logout a User",
-        "parameters": [
-          {
-            "name": "Authentication",
-            "in": "header",
-            "description": "accessToken",
-            "required": true,
-            "type": "string"
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Logout Successfull",
-            "schema": {
-              "type": "object",
-              "properties": {
-                "message": {
-                  "type": "string"
-                }
-              }
-            }
-          },
-          "401": {
-            "description": "Token expired | Token invalid | Token missing",
-            "schema": {
-              "type": "object",
-              "properties": {
-                "message": {
-                  "type": "string"
-                }
-              }
-            }
-          },
-          "500": {
-            "description": "Unexpected Server Error",
-            "schema": {
-              "type": "object",
-              "properties": {
-                "message": {
-                  "type": "string"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/auth/refresh": {
-      "post": {
-        "description": "Get a new AccessToken",
-        "parameters": [
-          {
-            "in": "body",
-            "name": "refreshToken",
-            "description": "RefreshToken",
-            "required": true,
-            "type": "string"
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Refresh Successfull",
-            "schema": {
-              "type": "object",
-              "properties": {
-                "accessToken": {
-                  "type": "string"
-                }
-              }
-            }
-          },
-          "400": {
-            "description": "\\'refreshToken\\' expired | \\'refreshToken\\' invalid | \\'refreshToken\\' missing",
-            "schema": {
-              "type": "object",
-              "properties": {
-                "message": {
-                  "type": "string"
-                }
-              }
-            }
-          },
-          "500": {
-            "description": "Unexpected Server Error",
-            "schema": {
-              "type": "object",
-              "properties": {
-                "message": {
-                  "type": "string"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/monitor": {
+    "/monitor/$id/source": {
       "get": {
-        "description": "Get the User specific Monitor Object",
-        "parameters": [
-          {
-            "name": "Authentication",
-            "in": "header",
-            "description": "accessToken",
-            "required": true,
-            "type": "string"
-          }
-        ],
+        "description": "Get all Monitorsources connected to this Monitor",
+        "parameters": [],
         "responses": {
           "200": {
-            "description": "Monitor Object",
+            "description": "Get all Monitorsources",
             "schema": {
               "type": "object",
               "properties": {
-                "monitor": {
-                  "$ref": "#/definitions/MonitorObject"
-                }
-              }
-            }
-          },
-          "401": {
-            "description": "Token expired | Token invalid | Token missing",
-            "schema": {
-              "type": "object",
-              "properties": {
-                "message": {
-                  "type": "string"
-                }
-              }
-            }
-          },
-          "404": {
-            "description": "Object is not existing",
-            "schema": {
-              "type": "object",
-              "properties": {
-                "message": {
-                  "type": "string"
-                }
-              }
-            }
-          },
-          "500": {
-            "description": "Unexpected Server Error",
-            "schema": {
-              "type": "object",
-              "properties": {
-                "message": {
-                  "type": "string"
+                "monitorsources": {
+                  "type": "array",
+                  "objects": {
+                    "$ref": "#/definitions/Monitorsource"
+                  }
                 }
               }
             }
           }
         }
       },
-      "patch": {
-        "description": "Update the User specific Monitor Object",
+      "post": {
+        "description": "Create new Monitorsource",
         "parameters": [
           {
-            "name": "Authentication",
-            "in": "header",
-            "description": "accessToken",
-            "required": true,
+            "name": "productId",
+            "in": "body",
+            "description": "Product as source",
+            "required": false,
             "type": "string"
           },
           {
+            "name": "monitorpage",
             "in": "body",
-            "name": "monitor",
-            "description": "Monitor to Update",
-            "required": true,
-            "schema": {
-              "$ref": "#/definitions/monitor"
-            }
+            "description": "Monitorpage as source",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "all",
+            "in": "body",
+            "description": "Sending everything to this monitor",
+            "required": false,
+            "type": "boolean"
           }
         ],
         "responses": {
           "200": {
-            "description": "Updated User Object",
+            "description": "Created Monitorsource",
             "schema": {
               "type": "object",
               "properties": {
-                "monitor": {
-                  "$ref": "#/definitions/MonitorObject"
+                "monitorsource": {
+                  "$ref": "#/definitions/Monitorsource"
                 }
               }
             }
-          },
-          "400": {
-            "description": "No property of \\'webHook\\', \\'name\\' or \\'imageUrl\\' given",
-            "schema": {
-              "type": "object",
-              "properties": {
-                "message": {
-                  "type": "string"
-                }
-              }
-            }
-          },
-          "401": {
-            "description": "Token expired | Token invalid | Token missing",
-            "schema": {
-              "type": "object",
-              "properties": {
-                "message": {
-                  "type": "string"
-                }
-              }
-            }
+          }
+        }
+      }
+    },
+    "/monitor/$id/source/$id": {
+      "delete": {
+        "description": "Delete the Monitorsource",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "Successfully deleted Monitorsource"
           },
           "404": {
-            "description": "Object is not existing",
-            "schema": {
-              "type": "object",
-              "properties": {
-                "message": {
-                  "type": "string"
-                }
-              }
-            }
-          },
-          "500": {
-            "description": "Unexpected Server Error",
+            "description": "Monitorsource is not existing",
             "schema": {
               "type": "object",
               "properties": {
@@ -516,42 +201,23 @@
         }
       }
     },
-    "/monitor/testmessage": {
+    "/monitor/$id/testmessage": {
       "post": {
         "description": "Send Testmessage to Webhook for Monitor",
         "parameters": [
           {
-            "name": "Authentication",
-            "in": "header",
-            "description": "accessToken",
+            "name": "id",
+            "in": "url",
+            "description": "id of Monitor",
             "required": true,
             "type": "string"
           }
         ],
         "responses": {
           "200": {
-            "description": "Message sent",
-            "schema": {
-              "type": "object",
-              "properties": {
-                "message": {
-                  "type": "string"
-                }
-              }
-            }
+            "description": "Message sent"
           },
-          "401": {
-            "description": "Token expired | Token invalid | Token missing",
-            "schema": {
-              "type": "object",
-              "properties": {
-                "message": {
-                  "type": "string"
-                }
-              }
-            }
-          },
-          "404": {
+          "400": {
             "description": "Monitor Webhook is not configured",
             "schema": {
               "type": "object",
@@ -562,8 +228,8 @@
               }
             }
           },
-          "500": {
-            "description": "Unexpected Server Error",
+          "404": {
+            "description": "Monitor is not existing",
             "schema": {
               "type": "object",
               "properties": {
@@ -576,54 +242,307 @@
         }
       }
     },
-    "/monitor/betaaccess": {
+    "/monitorpage": {
+      "get": {
+        "description": "Get all visible Monitorpages",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "Monitorpages",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "monitors": {
+                  "type": "array",
+                  "objects": {
+                    "$ref": "#/definitions/Monitorpage"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/product": {
+      "get": {
+        "description": "Get all Products",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "Products",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "products": {
+                  "type": "array",
+                  "objects": {
+                    "$ref": "#/definitions/Product"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/admin/monitorpage": {
+      "get": {
+        "description": "Get all Monitorpages",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "Monitorpages",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "monitors": {
+                  "type": "array",
+                  "objects": {
+                    "$ref": "#/definitions/Monitorpage"
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
       "post": {
-        "description": "Requesting Access for Beta-Testing",
+        "description": "Create Monitorpage",
         "parameters": [
           {
-            "name": "mail",
+            "name": "techname",
             "in": "body",
-            "description": "mail",
+            "description": "name of monitorpage for the queue",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "name",
+            "in": "body",
+            "description": "Name of monitorpage",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "url",
+            "in": "body",
+            "description": "URL of monitorpage",
+            "required": false,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Created Monitorpage",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "monitorpage": {
+                  "$ref": "#/definitions/Monitorpage"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/admin/monitorpage/$id": {
+      "patch": {
+        "description": "Update Monitorpage",
+        "parameters": [
+          {
+            "name": "techname",
+            "in": "body",
+            "description": "name of monitorpage for the queue",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "name",
+            "in": "body",
+            "description": "Name of monitorpage",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "visible",
+            "in": "body",
+            "description": "Visible to users",
+            "required": false,
+            "type": "boolean"
+          },
+          {
+            "name": "url",
+            "in": "body",
+            "description": "URL of monitorpage",
+            "required": false,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Updated Monitorpage",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "monitorpage": {
+                  "$ref": "#/definitions/Monitorpage"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Monitorpage is not existing",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "message": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "description": "Delete Monitorpage",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "Successfully deleted Monitorsource"
+          },
+          "404": {
+            "description": "Monitorpage is not existing",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "message": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/admin/monitorpage/$id/start": {
+      "post": {
+        "description": "Start Monitorpage",
+        "parameters": [
+          {
+            "name": "interval",
+            "in": "body",
+            "description": "Interval to run Monitorpage",
+            "required": true,
+            "type": "number"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Started Monitorpage"
+          },
+          "404": {
+            "description": "Monitorpage is not existing",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "message": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/admin/monitorpage/$id/stop": {
+      "post": {
+        "description": "Start Monitorpage",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "Stopped Monitorpage"
+          },
+          "404": {
+            "description": "Monitorpage is not existing",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "message": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/admin/proxy": {
+      "get": {
+        "description": "Get all Proxies",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "Proxies",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "proxies": {
+                  "type": "array",
+                  "objects": {
+                    "$ref": "#/definitions/Proxy"
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "description": "Create Proxy",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "Created Proxy",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "proxy": {
+                  "$ref": "#/definitions/Proxy"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/admin/proxy/$id": {
+      "patch": {
+        "description": "Update Proxy",
+        "parameters": [
+          {
+            "name": "address",
+            "in": "body",
+            "description": "updated address",
             "required": true,
             "type": "string"
           }
         ],
         "responses": {
           "200": {
-            "description": "Request sent successfully",
+            "description": "Updated Proxy",
             "schema": {
               "type": "object",
               "properties": {
-                "message": {
-                  "type": "string"
+                "proxy": {
+                  "$ref": "#/definitions/Proxy"
                 }
               }
             }
           },
-          "404a": {
-            "description": "E-Mail already requested Beta-Testing-Access",
-            "schema": {
-              "type": "object",
-              "properties": {
-                "message": {
-                  "type": "string"
-                }
-              }
-            }
-          },
-          "404b": {
-            "description": "E-Mail missing",
-            "schema": {
-              "type": "object",
-              "properties": {
-                "message": {
-                  "type": "string"
-                }
-              }
-            }
-          },
-          "500": {
-            "description": "Unexpected Server Error",
+          "404": {
+            "description": "Proxy is not existing",
             "schema": {
               "type": "object",
               "properties": {
@@ -634,85 +553,36 @@
             }
           }
         }
-      }  
+      },
+      "delete": {
+        "description": "Delete Proxy",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "Successfully deleted Proxy"
+          },
+          "404": {
+            "description": "Proxy is not existing",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "message": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      }
     }
   },
   "definitions": {
-    "UserObject": {
+    "Monitor": {
       "type": "object",
       "properties": {
-        "_id": {
+        "id": {
           "type": "string"
         },
-        "username": {
-          "type": "string"
-        },
-        "mail": {
-          "type": "string"
-        }
-      }
-    },
-    "UserLogin": {
-      "type": "object",
-      "required": [
-        "password",
-        "username"
-      ],
-      "properties": {
-        "username": {
-          "type": "string"
-        },
-        "password": {
-          "type": "string"
-        }
-      }
-    },
-    "UserCreate": {
-      "type": "object",
-      "required": [
-        "activationCode",
-        "mail",
-        "password",
-        "username"
-      ],
-      "properties": {
-        "activationCode": {
-          "type": "string"
-        },
-        "username": {
-          "type": "string"
-        },
-        "mail": {
-          "type": "string"
-        },
-        "password": {
-          "type": "string"
-        }
-      }
-    },
-    "UserUpdate": {
-      "type": "object",
-      "required": [
-        "oldPassword"
-      ],
-      "properties": {
-        "username": {
-          "type": "string"
-        },
-        "mail": {
-          "type": "string"
-        },
-        "password": {
-          "type": "string"
-        },
-        "oldPassword": {
-          "type": "string"
-        }
-      }
-    },
-    "MonitorObject": {
-      "type": "object",
-      "properties": {
         "webHook": {
           "type": "string"
         },
@@ -720,6 +590,77 @@
           "type": "string"
         },
         "imageUrl": {
+          "type": "string"
+        },
+        "running": {
+          "type": "boolean"
+        }
+      }
+    },
+    "Monitorsource": {
+      "type": "object",
+      "properties": {
+        "product?": {
+          "$ref": "#/definitions/Product"
+        },
+        "monitorpage?": {
+          "$ref": "#/definitions/Monitorpage"
+        },
+        "all": {
+          "type": "boolean"
+        }
+      }
+    },
+    "Product": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "name": {
+          "type": "string"
+        },
+        "monitorpage": {
+          "$ref": "#/definitions/Monitorpage"
+        }
+      }
+    },
+    "Monitorpage": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "techname": {
+          "type": "string"
+        },
+        "name": {
+          "type": "string"
+        },
+        "visible": {
+          "type": "boolean"
+        },
+        "running": {
+          "type": "boolean"
+        },
+        "interval": {
+          "type": "number"
+        },
+        "url": {
+          "type": "string"
+        }
+      }
+    },
+    "Proxy": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "address": {
+          "type": "string"
+        },
+        "cc": {
           "type": "string"
         }
       }

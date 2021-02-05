@@ -7,5 +7,6 @@ export default {
   databaseUser: process.env.MONGO_INITDB_ROOT_USERNAME,
   databasePassword: process.env.MONGO_INITDB_ROOT_PASSWORD,
   jwtSecret: process.env.TOKEN_SECRET,
-  pepper: process.env.PEPPER
+  pepper: process.env.PEPPER,
+  logLevel: process.env.LOG_LEVEL
 }

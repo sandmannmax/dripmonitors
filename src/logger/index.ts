@@ -1,53 +1,34 @@
-import { createLogger, Logger, transports, format } from 'winston';
+import { createLogger, transports, format } from 'winston';
+import config from '../config';
 
-export class Log {
-  public logger: Logger;
 
-  constructor(name) {
-    this.logger = createLogger({
-      level: 'debug',
-      defaultMeta: { service: name },
-      transports: [
-        new transports.File({ 
-          filename: './logs/' + name + '.log',
-          format: format.combine(
-            format.errors({ stack: true }),
-            format.metadata(),
-            format.timestamp(),
-            format.json()
-          )
-        }),
-        new transports.Console({
-          format: format.simple(),
-        })
-      ]
-    });
-  }
+const logFormat = format.printf( ({ level, message, timestamp , metadata}) => {
+  let msg = `${timestamp} [${level}] : ${message} `  
+  if(metadata)
+	  msg += JSON.stringify(metadata)
+  return msg
+});
 
-  debug(log, metadata) {
-    this.logger.debug(log, metadata);
-  }
-
-  info(log, metadata) {
-    this.logger.info(log, metadata);
-  }
-
-  warn(log, metadata) {
-    this.logger.warn(log, metadata);
-  }
-
-  error(log, metadata) {
-    this.logger.error(log, metadata);
-  }
-
-  log(level, log, metadata) {
-      const metadataObject = {metadata: undefined}
-      if (metadata) metadataObject.metadata = metadata
-
-      this.logger[level](log, metadataObject)
-  }
-}
-
-export function getLogger() {
-  return new Log('lazyshoebot');
-}
+export const logger = createLogger({
+  transports: [
+    new transports.File({ 
+      filename: './logs/lazyshoebot.log',
+      level: config.logLevel || 'debug',
+      format: format.combine(
+        format.errors({ stack: true }),
+        format.metadata(),
+        format.timestamp(),
+        format.json()
+      )
+    }),
+    new transports.Console({
+      format: format.combine(
+        format.colorize(),
+        format.splat(),
+        format.timestamp(),
+        logFormat
+      ),
+      level: 'info'
+    })
+  ]
+});

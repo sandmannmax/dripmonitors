@@ -2,9 +2,7 @@ import { Application, json, Request, NextFunction, Response } from 'express';
 import cors from 'cors';
 import { IError } from '../types/IError';
 import api from '../api';
-import { getLogger, Log } from '../logger';
-
-const logger: Log = getLogger();
+import { logger } from '../logger';
 
 export default async (app: Application) => {
 
@@ -20,8 +18,8 @@ export default async (app: Application) => {
     next(err);
   });
   app.use((err: IError, req: Request, res: Response, next: NextFunction) => {
-    if (err['name'] != undefined && err['name'] == 'TokenExpiredError')
-      res.status(401).json({message: 'Token Expired'})
+    if (err.message == 'Insufficient scope')
+      res.status(403).json({message: 'Insufficient scope'})
     else {
       if (err.status == undefined || (err.status && err.status >= 500))
         logger.error('Error', err);
@@ -33,5 +31,5 @@ export default async (app: Application) => {
     }    
   });
 
-  console.log('Express Initialized');
+  logger.info('Express initialized')
 }
