@@ -1,13 +1,7 @@
-import { DatabaseProvider } from '../provider/DatabaseProvider';
-import { Monitorpage } from '../types/Monitorpage';
+import { Monitorpage } from '../../src/types/Monitorpage';
 
 
 export class MonitorpageModel {
-  private dbProvider: DatabaseProvider;
-
-  constructor() {
-    this.dbProvider = DatabaseProvider.getInstance();
-  }
 
   GetMonitorpageVisible = async function ({ id }: { id: string }): Promise<Monitorpage> {
     let result = await this.dbProvider.Get('lsb.monitorpages', { id });
@@ -19,7 +13,7 @@ export class MonitorpageModel {
   }
 
   GetMonitorpagesVisible = async function (): Promise<Array<Monitorpage>> {
-    let result = await this.dbProvider.GetAll('lsb.monitorpages');
+    let result = await this.dbProvider.Find('lsb.monitorpages', "", {});
     let monitorpages = [];
     if (result.Items) {
       result.Items.forEach((item: Monitorpage) => {
@@ -36,7 +30,7 @@ export class MonitorpageModel {
   }
 
   GetMonitorpages = async function (): Promise<Array<Monitorpage>> {
-    let result = await this.dbProvider.GetAll('lsb.monitorpages');
+    let result = await this.dbProvider.Find('lsb.monitorpages', "", {});
     return result.Items as Array<Monitorpage>;
   }
 

@@ -1,6 +1,6 @@
 import { Router } from 'express';
 import Container from 'typedi';
-import { checkPermission } from '../auth/checkPermission';
+import { Auth } from '../auth';
 import { IError } from '../types/IError';
 import { MonitorService } from '../services/MonitorService';
 
@@ -12,7 +12,7 @@ export class ProductRoutes {
     this.router = Router({strict: true});
     this.monitorService = Container.get(MonitorService);
 
-    this.router.get('/', checkPermission('read:product'), async (req, res, next) => {
+    this.router.get('/', Auth.CheckPermission('read:product'), async (req, res, next) => {
       let result = await this.monitorService.GetProducts();
       if (result.success)
         res.json(result.data);

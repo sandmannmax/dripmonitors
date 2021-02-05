@@ -1,13 +1,7 @@
-import { DatabaseProvider } from '../provider/DatabaseProvider';
-import { Monitorsource } from '../types/Monitorsource';
+import { Monitorsource } from '../../src/types/Monitorsource';
 
 
 export class MonitorsourceModel {
-  private dbProvider: DatabaseProvider;
-
-  constructor() {
-    this.dbProvider = DatabaseProvider.getInstance();
-  }
 
   GetMonitorsource = async function ({ id }: { id: string }): Promise<Monitorsource> {
     let result = await this.dbProvider.Get('lsb.monitorsources', { id });

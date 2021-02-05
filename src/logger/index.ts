@@ -1,6 +1,5 @@
-import { createLogger, transports, format } from 'winston';
+import { createLogger, transports, format, transport } from 'winston';
 import config from '../config';
-
 
 const logFormat = format.printf( ({ level, message, timestamp , metadata}) => {
   let msg = `${timestamp} [${level}] : ${message} `  
@@ -9,18 +8,21 @@ const logFormat = format.printf( ({ level, message, timestamp , metadata}) => {
   return msg
 });
 
-export const logger = createLogger({
-  transports: [
-    new transports.File({ 
-      filename: './logs/lazyshoebot.log',
-      level: config.logLevel || 'debug',
-      format: format.combine(
-        format.errors({ stack: true }),
-        format.metadata(),
-        format.timestamp(),
-        format.json()
-      )
-    }),
+let transportArray: transport[] = [
+  new transports.File({ 
+    filename: './logs/logs.log',
+    level: config.logLevel || 'debug',
+    format: format.combine(
+      format.errors({ stack: true }),
+      format.metadata(),
+      format.timestamp(),
+      format.json()
+    )
+  })  
+];
+
+if (process.env.NODE_ENV !== 'production') {
+  transportArray.push(
     new transports.Console({
       format: format.combine(
         format.colorize(),
@@ -29,6 +31,20 @@ export const logger = createLogger({
         logFormat
       ),
       level: 'info'
+    })
+  );
+}
+
+export const logger = createLogger({
+  transports: transportArray
+});
+
+export const httpLogger = createLogger({
+  level: config.httpLogLevel,
+  transports: [
+    new transports.File({ 
+      filename: './logs/http.log',
+      format: format.simple()
     })
   ]
 });

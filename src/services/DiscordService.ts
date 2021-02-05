@@ -1,7 +1,6 @@
 import { Service } from 'typedi';
 import { IResult } from '../types/IResult';
-
-import { MessageEmbed, WebhookClient } from 'discord.js';
+import { WebhookClient } from 'discord.js';
 
 @Service()
 export class DiscordService {
@@ -26,7 +25,7 @@ export class DiscordService {
         username: botName,
         avatarURL: botImage
       });
-      return {success: true, data: {message: 'Send Message successfully'}};  
+      return {success: true, data: {message: 'Send Message successfully'}}; 
     } catch (error) {
       return {success: false, error: {status: 500, message: 'Unexpected Server Error', internalMessage: error}};
     }

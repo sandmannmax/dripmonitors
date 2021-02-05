@@ -1,12 +1,6 @@
-import { DatabaseProvider } from '../provider/DatabaseProvider';
-import { Product } from '../types/Product';
+import { Product } from '../../src/types/Product';
 
 export class ProductModel {
-  private dbProvider: DatabaseProvider;
-
-  constructor() {
-    this.dbProvider = DatabaseProvider.getInstance();
-  }
 
   GetProduct = async function ({ id }: { id: string }): Promise<Product> {
     let result = await this.dbProvider.Get('lsb.products', { id });
@@ -14,7 +8,7 @@ export class ProductModel {
   }
 
   GetProducts = async function (): Promise<Array<Product>> {
-    let result = await this.dbProvider.GetAll('lsb.products');
+    let result = await this.dbProvider.Find('lsb.products', "", {});
     return result.Items as Array<Product>;
   }
 

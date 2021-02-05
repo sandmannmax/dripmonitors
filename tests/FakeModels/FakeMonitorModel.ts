@@ -1,12 +1,8 @@
-import { DatabaseProvider } from '../provider/DatabaseProvider';
-import { Monitor } from '../types/Monitor';
+import { MonitorModel } from '../../src/models/MonitorModel';
+import { Monitor } from '../../src/types/Monitor';
 
-export class MonitorModel {
-  private dbProvider: DatabaseProvider;
+export class FakeMonitorModel extends MonitorModel {
 
-  constructor() {
-    this.dbProvider = DatabaseProvider.getInstance();
-  }
 
   GetMonitor = async function ({ id }: { id: string }): Promise<Monitor> {
     let result = await this.dbProvider.Get('lsb.monitors', { id });
@@ -14,12 +10,11 @@ export class MonitorModel {
   }
 
   GetMonitors = async function ({ userId }: {userId: string}): Promise<Array<Monitor>> {
-    let result = await this.dbProvider.Find('lsb.monitors', "userId = :userId", { ":userId": userId }, "userId-index");
-    return result.Items as Array<Monitor>;
+    return [];
   }
 
   CreateMonitor = async function ({ id, userId }: { id: string, userId: string }): Promise<Monitor> {
-    await this.dbProvider.Insert('lsb.monitors', { id, userId, webHook: '', botName: '', botImage: '', running: false });
+    await this.dbProvider.Insert('lsb.monitors', { id, userId, webHook: '', botName: '', botImage: '' });
     let result = await this.dbProvider.Get('lsb.monitors', { id });
     return result.Item as Monitor;
   }

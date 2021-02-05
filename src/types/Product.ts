@@ -20,9 +20,12 @@ export class Product {
 }
 
 export function GetProduct_O(product: Product, monitorpage: Monitorpage): Product_O {
-  let product_O: Product_O = new Product_O();
-  product_O.id = product.id;
-  product_O.name = product.name;
-  product_O.monitorpage = GetMonitorpage_O(monitorpage);
-  return product_O;
+  if (product && monitorpage) {
+    let product_O: Product_O = new Product_O();
+    product_O.id = product.id;
+    product_O.name = product.name;
+    product_O.monitorpage = GetMonitorpage_O(monitorpage);
+    return product_O;
+  } else
+    return undefined;
 }

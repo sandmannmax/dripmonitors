@@ -15,9 +15,12 @@ export class Monitorpage {
 }
 
 export function GetMonitorpage_O(monitorpage: Monitorpage): Monitorpage_O {
-  let monitorpage_O: Monitorpage_O = new Monitorpage_O();
-  monitorpage_O.id = monitorpage.id;
-  monitorpage_O.name = monitorpage.name;
-  monitorpage_O.url = monitorpage.url;
-  return monitorpage_O;
+  if (monitorpage) {
+    let monitorpage_O: Monitorpage_O = new Monitorpage_O();
+    monitorpage_O.id = monitorpage.id;
+    monitorpage_O.name = monitorpage.name;
+    monitorpage_O.url = monitorpage.url;
+    return monitorpage_O;
+  } else
+    return undefined;
 }

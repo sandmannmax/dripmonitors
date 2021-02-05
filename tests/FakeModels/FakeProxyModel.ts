@@ -1,12 +1,6 @@
-import { DatabaseProvider } from '../provider/DatabaseProvider';
-import { Proxy } from '../types/Proxy';
+import { Proxy } from '../../src/types/Proxy';
 
 export class ProxyModel {
-  private dbProvider: DatabaseProvider;
-
-  constructor() {
-    this.dbProvider = DatabaseProvider.getInstance();
-  }
 
   GetProxy = async function ({ id }: { id: string }): Promise<Proxy> {
     let result = await this.dbProvider.Get('lsb.proxies', { id });
@@ -14,7 +8,7 @@ export class ProxyModel {
   }
 
   GetProxies = async function (): Promise<Array<Proxy>> {
-    let result = await this.dbProvider.GetAll('lsb.proxies');
+    let result = await this.dbProvider.Find('lsb.proxies', "", {});
     return result.Items as Array<Proxy>;
   }
 

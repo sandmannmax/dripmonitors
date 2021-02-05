@@ -1,15 +1,31 @@
-import { Service } from 'typedi';
-import { DynamoDB } from 'aws-sdk';
+import { Credentials, DynamoDB } from 'aws-sdk';
+import config from '../config';
 
-@Service()
 export class DatabaseProvider {
+  private static instance: DatabaseProvider;
+  
   private Database: DynamoDB.DocumentClient;
 
-  constructor() {
-    this.Database = new DynamoDB.DocumentClient({
-      region: "eu-central-1",
-      endpoint: "http://localhost:8000"
-    });
+  private constructor() {
+    if (process.env.NODE_ENV === 'production') {
+      this.Database = new DynamoDB.DocumentClient({
+        region: config.aws_region,
+        credentials: new Credentials({ accessKeyId: config.aws_accessKey, secretAccessKey: config.aws_secretAccessKey })
+      });
+    } else {
+      this.Database = new DynamoDB.DocumentClient({
+        region: config.aws_region,
+        endpoint: 'http://localhost:8000',
+        credentials: new Credentials({ accessKeyId: config.aws_accessKey, secretAccessKey: config.aws_secretAccessKey })
+      });
+    }  
+  }
+
+  public static getInstance(): DatabaseProvider {
+    if (!DatabaseProvider.instance) 
+      DatabaseProvider.instance = new DatabaseProvider();
+
+    return DatabaseProvider.instance;
   }
 
   async Get(tableName: string, key: Object) {
@@ -28,6 +44,13 @@ export class DatabaseProvider {
       ExpressionAttributeValues
     };
     return await this.Database.query(params).promise();
+  }
+
+  async GetAll(TableName: string) {
+    let params: DynamoDB.DocumentClient.ScanInput = {
+      TableName
+    };
+    return await this.Database.scan(params).promise();
   }
 
   async Update(tableName: string, key: Object, updateExpression: string, values: Object, conditionExpression?: string) {

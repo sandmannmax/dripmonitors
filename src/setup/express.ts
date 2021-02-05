@@ -1,16 +1,25 @@
 import { Application, json, Request, NextFunction, Response } from 'express';
 import cors from 'cors';
+import helmet from 'helmet';
+import morgan from 'morgan';
 import { IError } from '../types/IError';
 import api from '../api';
-import { logger } from '../logger';
+import { logger, httpLogger } from '../logger';
 
-export default async (app: Application) => {
+export default (app: Application) => {
+
+  app.use(cors());
+  app.use(helmet());
+  app.use(json());
+  app.use(morgan(
+    'combined', 
+    { "stream": { 
+      write: (message:string, encoding) => httpLogger.info(message.replace('\n','')) 
+    }}
+  ));
 
   app.get('/status', (req, res) => { res.status(200).end(); });
   app.head('/status', (req, res) => { res.status(200).end(); });
-
-  app.use(json());
-  app.use(cors());
   app.use('/', api());
 
   app.use((req: Request, res: Response, next: NextFunction) => {
@@ -30,6 +39,4 @@ export default async (app: Application) => {
         res.json({message: err.message});
     }    
   });
-
-  logger.info('Express initialized')
 }

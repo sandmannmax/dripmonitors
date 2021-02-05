@@ -1,7 +1,5 @@
 import { Service } from 'typedi';
-import { MonitorModel } from '../models/MonitorModel';
 import { IResult } from '../types/IResult';
-import { GetMonitor_O } from '../types/Monitor';
 import { async } from 'crypto-random-string';
 import { logger } from '../logger';
 import { HttpsProxyAgent } from 'https-proxy-agent';
@@ -12,9 +10,14 @@ import { ProxyModel } from '../models/ProxyModel';
 @Service()
 export class AdminService {
 
+  constructor(
+    private monitorpageModel: MonitorpageModel,
+    private proxyModel: ProxyModel
+  ){}
+
   async GetMonitorpages(): Promise<IResult> {
     try {
-      let monitorpages = await MonitorpageModel.GetMonitorpages();
+      let monitorpages = await this.monitorpageModel.GetMonitorpages();
         
       return {success: true, data: { monitorpages }};
     } catch (error) {
@@ -36,9 +39,9 @@ export class AdminService {
       let id;
       do {
         id = await async({length: 24})
-      } while (!await MonitorpageModel.IdUnused(id));      
+      } while (!await this.monitorpageModel.IdUnused({ id }));      
 
-      let monitorpage = await MonitorpageModel.CreateMonitorpage({ id, techname, name, url, visible: false });
+      let monitorpage = await this.monitorpageModel.CreateMonitorpage({ id, techname, name, url, visible: false });
 
       return {success: true, data: { monitorpage }};
     } catch (error) {
@@ -49,38 +52,26 @@ export class AdminService {
   async UpdateMonitorpage({ id, techname, name, visible, url }: { id: string, techname: string, name: string, visible: boolean, url: string }): Promise<IResult> {
     try {
       if (!id)
-        return {success: false, error: {status: 400, message: '\'id\' is missing'}};    
+        return {success: false, error: {status: 400, message: '\'id\' is missing'}};
 
-      if (!techname)
-        return {success: false, error: {status: 400, message: '\'techname\' is missing'}};
-        
-      if (!name)
-        return {success: false, error: {status: 400, message: '\'name\' is missing'}};
-        
-      if (visible == undefined)
-        return {success: false, error: {status: 400, message: '\'visible\' is missing'}};
-      
-      if (!url)
-        return {success: false, error: {status: 400, message: '\'url\' is missing'}};
-
-      let monitorpage = await MonitorpageModel.GetMonitorpage({ id });
+      let monitorpage = await this.monitorpageModel.GetMonitorpage({ id });
 
       if (!monitorpage)
         return {success: false, error: {status: 404, message: 'Monitorpage is not existing'}};
 
       if (techname)
-        await MonitorpageModel.UpdateTechname({ id, techname });
+        await this.monitorpageModel.UpdateTechname({ id, techname });
 
       if (name)
-        await MonitorpageModel.UpdateName({ id, name });
+        await this.monitorpageModel.UpdateName({ id, name });
 
       if (visible != undefined)
-        await MonitorpageModel.UpdateVisible({ id, visible });
+        await this.monitorpageModel.UpdateVisible({ id, visible });
 
       if (url)
-        await MonitorpageModel.UpdateUrl({ id, url });
+        await this.monitorpageModel.UpdateUrl({ id, url });
 
-      monitorpage = await MonitorpageModel.GetMonitorpage({ id });
+      monitorpage = await this.monitorpageModel.GetMonitorpage({ id });
       
       return {success: true, data: {monitorpage: monitorpage}};
     } catch (error) {
@@ -93,12 +84,12 @@ export class AdminService {
       if (!id)
         return {success: false, error: {status: 400, message: '\'id\' is missing'}};    
 
-      let monitorpage = await MonitorpageModel.GetMonitorpage({ id });
+      let monitorpage = await this.monitorpageModel.GetMonitorpage({ id });
 
       if (!monitorpage)
         return {success: false, error: {status: 404, message: 'Monitorpage is not existing'}};
       
-      await MonitorpageModel.DeleteMonitorpage({ id });
+      await this.monitorpageModel.DeleteMonitorpage({ id });
 
       return {success: true};
     } catch (error) {
@@ -137,7 +128,7 @@ export class AdminService {
 
   async GetProxies(): Promise<IResult> {
     try {
-      let proxies = await ProxyModel.GetProxies();
+      let proxies = await this.proxyModel.GetProxies();
         
       return {success: true, data: { proxies }};
     } catch (error) {
@@ -150,7 +141,7 @@ export class AdminService {
       if (!address)
         return {success: false, error: {status: 400, message: '\'address\' is missing'}};
 
-      if (!await ProxyModel.IsProxyUnused({ address }))
+      if (!await this.proxyModel.IsProxyUnused({ address }))
         return {success: false, error: {status: 404, message: 'Proxy is already registered'}};
 
       let response;
@@ -171,11 +162,11 @@ export class AdminService {
       let id;
       do {
         id = await async({length: 24})
-      } while (!await ProxyModel.IdUnused(id));
+      } while (!await this.proxyModel.IdUnused({ id }));
 
       let json = await response.json();
         
-      let proxy = await ProxyModel.CreateProxy({ id, address, cc: json.cc });
+      let proxy = await this.proxyModel.CreateProxy({ id, address, cc: json.cc });
 
       return {success: true, data: { proxy }};
     } catch (error) {
@@ -191,7 +182,7 @@ export class AdminService {
       if (!address)
         return {success: false, error: {status: 400, message: '\'address\' is missing'}};
 
-      if (!await ProxyModel.IsProxyUnused({ address }))
+      if (!await this.proxyModel.IsProxyUnused({ address }))
         return {success: false, error: {status: 404, message: 'Proxy is already registered'}};
 
       let response;
@@ -211,7 +202,7 @@ export class AdminService {
 
       let json = await response.json();
         
-      let proxy = await ProxyModel.UpdateProxy({ id, address, cc: json.cc });
+      let proxy = await this.proxyModel.UpdateProxy({ id, address, cc: json.cc });
 
       // TODO vlt Einschränkungen löschen, wenn Adresse geändert wurde
 
@@ -226,12 +217,12 @@ export class AdminService {
       if (!id)
         return {success: false, error: {status: 400, message: '\'id\' is missing'}};    
 
-      let proxy = await ProxyModel.GetProxy({ id });
+      let proxy = await this.proxyModel.GetProxy({ id });
 
       if (!proxy)
         return {success: false, error: {status: 404, message: 'Proxy is not existing'}};
       
-      await ProxyModel.DeleteProxy({ id });
+      await this.proxyModel.DeleteProxy({ id });
 
       return {success: true};
     } catch (error) {

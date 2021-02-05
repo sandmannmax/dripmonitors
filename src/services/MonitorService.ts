@@ -11,12 +11,18 @@ import { GetMonitorpage_O } from '../types/Monitorpage';
 import { MonitorsourceModel } from '../models/MonitorsourceModel';
 import { ProductModel } from '../models/ProductModel';
 import { MonitorpageModel } from '../models/MonitorpageModel';
+import { logger } from '../logger';
 
 @Service()
 export class MonitorService {
   private discordService: DiscordService;
 
-  constructor() {
+  constructor(
+    private monitorModel: MonitorModel,
+    private monitorsourceModel: MonitorsourceModel,
+    private monitorpageModel: MonitorpageModel,
+    private productModel: ProductModel
+  ){
     this.discordService = Container.get(DiscordService);
   }
 
@@ -27,7 +33,7 @@ export class MonitorService {
 
       let userId = user['sub'].split('|')[1];
 
-      let monitors = await MonitorModel.GetMonitors({ userId });
+      let monitors = await this.monitorModel.GetMonitors({ userId });
       
       let monitorsOut = [];
 
@@ -46,9 +52,7 @@ export class MonitorService {
       if (!user)
         return {success: false, error: {status: 500, message: 'Unexpected Server Error', internalMessage: `MonitorService.CreateMonitor: User empty`}};    
 
-      let permissions = user['permissions'].split(' ');
-
-      console.log(permissions);
+      let permissions = user['permissions'];
 
       let maxNum = 1;
 
@@ -59,18 +63,17 @@ export class MonitorService {
       // }
 
       let userId = user['sub'].split('|')[1];
-      let monitors = await MonitorModel.GetMonitors({ userId });
+      let monitors = await this.monitorModel.GetMonitors({ userId });
       
       if (maxNum <= monitors.length)
         return {success: false, error: {status: 400, message: `You already have ${maxNum} available Monitors for your account`}};    
 
       let id;
       do {
-        id = await async({length: 24})
-      } while (!await MonitorModel.IdUnused(id));
-      
+        id = await async({length: 24});
+      } while (!await this.monitorModel.IdUnused({ id }));      
 
-      let monitor = await MonitorModel.CreateMonitor({ id, userId });
+      let monitor = await this.monitorModel.CreateMonitor({ id, userId });
 
       return {success: true, data: {monitor: GetMonitor_O(monitor)}};
     } catch (error) {
@@ -86,7 +89,7 @@ export class MonitorService {
       if (!id)
         return {success: false, error: {status: 400, message: '\'id\' is missing'}};    
 
-      let monitor = await MonitorModel.GetMonitor({ id });
+      let monitor = await this.monitorModel.GetMonitor({ id });
 
       let userId = user['sub'].split('|')[1];
 
@@ -97,18 +100,18 @@ export class MonitorService {
         return {success: false, error: {status: 404, message: 'Monitor is not existing.'}};
 
       if (webHook)
-        await MonitorModel.UpdateWebhook({ id, webHook });
+        await this.monitorModel.UpdateWebhook({ id, webHook });
 
       if (botName != undefined)
-        await MonitorModel.UpdateBotName({ id, botName });
+        await this.monitorModel.UpdateBotName({ id, botName });
 
       if (botImage != undefined)
-        await MonitorModel.UpdateBotImage({ id, botImage });
+        await this.monitorModel.UpdateBotImage({ id, botImage });
 
       if (running != undefined)
-        await MonitorModel.UpdateRunning({ id, running });
+        await this.monitorModel.UpdateRunning({ id, running });
 
-      monitor = await MonitorModel.GetMonitor({ id });
+      monitor = await this.monitorModel.GetMonitor({ id });
       
       return {success: true, data: {monitor: GetMonitor_O(monitor)}};
     } catch (error) {
@@ -124,7 +127,7 @@ export class MonitorService {
       if (!id)
         return {success: false, error: {status: 400, message: '\'id\' is missing'}};    
 
-      let monitor = await MonitorModel.GetMonitor({ id });
+      let monitor = await this.monitorModel.GetMonitor({ id });
 
       let userId = user['sub'].split('|')[1];
 
@@ -134,12 +137,12 @@ export class MonitorService {
       if (monitor.userId != userId)
         return {success: false, error: {status: 404, message: 'Monitor is not existing'}};
 
-      let monitors = await MonitorModel.GetMonitors({ userId });
+      let monitors = await this.monitorModel.GetMonitors({ userId });
 
       if (monitors.length == 1)
         return {success: false, error: {status: 400, message: 'Can\'t delete your last monitor'}};
       
-      await MonitorModel.DeleteMonitor({ id });
+      await this.monitorModel.DeleteMonitor({ id });
 
       return {success: true};
     } catch (error) {
@@ -155,7 +158,7 @@ export class MonitorService {
       if (!monitorId)
         return {success: false, error: {status: 400, message: '\'monitorId\' is missing'}};    
 
-      let monitor = await MonitorModel.GetMonitor({ id: monitorId });
+      let monitor = await this.monitorModel.GetMonitor({ id: monitorId });
 
       let userId = user['sub'].split('|')[1];
 
@@ -165,8 +168,8 @@ export class MonitorService {
       if (monitor.userId != userId)
         return {success: false, error: {status: 404, message: 'Monitor is not existing.'}};
 
-      let monitorsources = await MonitorsourceModel.GetMonitorsources({ monitorId });
-      
+      let monitorsources = await this.monitorsourceModel.GetMonitorsources({ monitorId });
+
       let monitorsourcesOut = [];
 
       for (let i = 0; i < monitorsources.length; i++) {
@@ -201,7 +204,7 @@ export class MonitorService {
       if (!monitorId)
         return {success: false, error: {status: 400, message: '\'monitorId\' is missing'}};    
 
-      let monitor = await MonitorModel.GetMonitor({ id: monitorId });
+      let monitor = await this.monitorModel.GetMonitor({ id: monitorId });
 
       let userId = user['sub'].split('|')[1];
 
@@ -211,27 +214,39 @@ export class MonitorService {
       if (monitor.userId != userId)
         return {success: false, error: {status: 404, message: 'Monitor is not existing.'}};
 
+      let monitorsources = await this.monitorsourceModel.GetMonitorsources({ monitorId });
+
+      let hasAll = false;
+
+      for (let i = 0; i < monitorsources.length; i++) {
+        if (monitorsources[i].all)
+          hasAll = true;
+      }
+
+      if (hasAll)
+        return {success: false, error: {status: 400, message: 'Monitor is already monitoring all Sources'}};
+
       if (all == undefined)
         all = false;
 
       let id;
       do {
         id = await async({length: 24})
-      } while (!await MonitorsourceModel.IdUnused(id));
+      } while (!await this.monitorsourceModel.IdUnused({ id }));
 
-      let monitorsource = await MonitorsourceModel.CreateMonitorsource({ id, monitorId, productId, monitorpageId, all });
+      let monitorsource = await this.monitorsourceModel.CreateMonitorsource({ id, monitorId, productId, monitorpageId, all });
 
       let product: Product;
       let productMonitorpage;
       let monitorpage;
 
       if (productId) {
-        product = await ProductModel.GetProduct({ id: productId });
-        productMonitorpage = await MonitorpageModel.GetMonitorpageVisible({ id: product.monitorpageId });
+        product = await this.productModel.GetProduct({ id: productId });
+        productMonitorpage = await this.monitorpageModel.GetMonitorpageVisible({ id: product.monitorpageId });
       }
 
       if (monitorpageId) {
-        monitorpage = await MonitorpageModel.GetMonitorpageVisible({ id: monitorpageId });
+        monitorpage = await this.monitorpageModel.GetMonitorpageVisible({ id: monitorpageId });
       }
 
       return {success: true, data: {monitorsource: GetMonitorsource_O(monitorsource, product, productMonitorpage, monitorpage)}};
@@ -251,7 +266,7 @@ export class MonitorService {
       if (!monitorId)
         return {success: false, error: {status: 400, message: '\'monitorId\' is missing'}};    
 
-      let monitor = await MonitorModel.GetMonitor({ id: monitorId });
+      let monitor = await this.monitorModel.GetMonitor({ id: monitorId });
 
       let userId = user['sub'].split('|')[1];
 
@@ -261,7 +276,7 @@ export class MonitorService {
       if (monitor.userId != userId)
         return {success: false, error: {status: 404, message: 'Monitor is not existing.'}};
 
-      let monitorsource = await MonitorsourceModel.GetMonitorsource({ id });
+      let monitorsource = await this.monitorsourceModel.GetMonitorsource({ id });
 
       if (!monitorsource)
         return {success: false, error: {status: 404, message: 'Monitorsource is not existing.'}};
@@ -269,7 +284,7 @@ export class MonitorService {
       if (monitorsource.monitorId != monitorId)
         return {success: false, error: {status: 404, message: 'Monitorsource is not existing.'}};
 
-      await MonitorsourceModel.DeleteMonitorsource({ id });
+      await this.monitorsourceModel.DeleteMonitorsource({ id });
 
       return {success: true};
     } catch (error) {
@@ -285,16 +300,23 @@ export class MonitorService {
       if (!id)
         return {success: false, error: {status: 400, message: '\'id\' is missing'}};  
 
-      let monitor = await MonitorModel.GetMonitor({ id });
+      let monitor = await this.monitorModel.GetMonitor({ id });
 
       if (!monitor)
-        return {success: false, error: {status: 404, message: 'Monitor is not existing.'}};
+        return {success: false, error: {status: 404, message: 'Monitor is not existing'}};
       
-      if (monitor.userId != user.id)
-        return {success: false, error: {status: 404, message: 'Monitor is not existing.'}};
+      let userId = user['sub'].split('|')[1];
+
+      if (monitor.userId != userId)
+        return {success: false, error: {status: 404, message: 'Monitor is not existing'}};
 
       if (!monitor.webHook)
-        return {success: false, error: {status: 404, message: 'Monitor Webhook is not configured.'}};
+        return {success: false, error: {status: 404, message: 'Monitor Webhook is not configured'}};
+
+      let regex = new RegExp(/https?:\/\/\)?((canary|ptb)\.)?discord(app)?\.com\/api\/webhooks\/[0-9]+\/[A-Za-z0-9\.\-\_]+\/?$/);
+
+      if (!regex.test(monitor.webHook))
+        return {success: false, error: {status: 404, message: 'Monitor Webhook is invalid'}};
         
       return this.discordService.SendTestMessage({webHook: monitor.webHook, botName: monitor.botName, botImage: monitor.botImage});
     } catch (error) {
@@ -304,7 +326,7 @@ export class MonitorService {
 
   async GetMonitorpages(): Promise<IResult> {
     try {
-      let monitorpages = await MonitorpageModel.GetMonitorpagesVisible();
+      let monitorpages = await this.monitorpageModel.GetMonitorpagesVisible();
 
       let monitorpages_O = [];
 
@@ -320,12 +342,12 @@ export class MonitorService {
 
   async GetProducts(): Promise<IResult> {
     try {
-      let products = await ProductModel.GetProducts();
+      let products = await this.productModel.GetProducts();
 
       let products_O = [];
 
       for (let i = 0; i < products.length; i++) {
-        let monitorpage = await MonitorpageModel.GetMonitorpageVisible({ id: products[i].monitorpageId });
+        let monitorpage = await this.monitorpageModel.GetMonitorpageVisible({ id: products[i].monitorpageId });
         products_O.push(GetProduct_O(products[i], monitorpage));
       }
         
