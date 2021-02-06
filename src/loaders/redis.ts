@@ -1,10 +1,18 @@
-import { Inject } from 'typedi';
+import redis from 'redis';
+import config from '../config';
 import { logger } from '../logger';
-import { RedisService } from '../services/RedisService';
+import { Run } from '../monitors/Run';
 
 export default () => {
-  const redisService = new RedisService();
-  Inject(RedisService => () => redisService);
+  const redisClient = redis.createClient({
+    host: config.redisHost,
+    port: Number.parseInt(config.redisPort)
+  });
 
-  logger.info('RedisService Initialized');
+  redisClient.on('ready', () => redisClient.subscribe('monitor'));
+  redisClient.on('error', error => logger.error(error));
+
+  redisClient.on('message', (channel, message) => {
+    Run(JSON.parse(message));
+  });
 }

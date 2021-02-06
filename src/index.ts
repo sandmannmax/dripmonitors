@@ -1,4 +1,3 @@
-import 'reflect-metadata';
-import { startServer } from './app';
+import redisLoader from './loaders/redis';
 
-startServer();
+redisLoader();

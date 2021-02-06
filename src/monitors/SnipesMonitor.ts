@@ -2,7 +2,6 @@ import fetch from 'node-fetch';
 import JsSoup from 'jssoup';
 import { Product } from '../types/Product';
 import { MonitorModel } from '../models/Monitor';
-import { DiscordService } from '../services/DiscordService';
 import { RedisService } from '../services/RedisService';
 import { GetRandomUserAgent } from '../provider/RandomUserAgentProvider';
 

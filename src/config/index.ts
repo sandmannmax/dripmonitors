@@ -1,12 +1,15 @@
 import { config } from 'dotenv';
-config();
+
+if (process.env.NODE_ENV === 'production')
+  config();
+else
+  config({ path: '../.env'})
 
 export default {
-  port: process.env.PORT_MONITOR,
-  logLevel: process.env.LOGLEVEL_MONITOR,
-  jwtSecret: process.env.TOKEN_SECRET_MONITOR,
-  pepper: process.env.PEPPER_MONITOR,
-  dbConnection: process.env.DB_CONNECTION,
-  dbUser: process.env.MONGO_INITDB_ROOT_USERNAME,
-  dbPassword: process.env.MONGO_INITDB_ROOT_PASSWORD
+  logLevel: process.env.MONITOR_LOG_LEVEL || 'debug',
+  redisHost: process.env.REDIS_HOST || 'localhost',
+  redisPort: process.env.REDIS_PORT || '6379',
+  aws_region: process.env.AWS_REGION || 'eu-central-1',
+  aws_accessKey: process.env.AWS_ACCESS_KEY,
+  aws_secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY
 }

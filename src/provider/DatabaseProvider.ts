@@ -1,43 +1,83 @@
-import { Service } from 'typedi';
-import DB, { IMonkManager, ICollection, FindOptions } from 'monk';
+import { Credentials, DynamoDB } from 'aws-sdk';
 import config from '../config';
 
-@Service()
 export class DatabaseProvider {
-  private Database: IMonkManager;
+  private static instance: DatabaseProvider;
+  
+  private Database: DynamoDB.DocumentClient;
 
-  constructor() {
-    this.Database = DB(config.dbConnection, {
-      auth: {
-        user: config.dbUser,
-        password:  config.dbPassword
-      },
-      authSource: 'admin'
-    });
+  private constructor() {
+    if (process.env.NODE_ENV === 'production') {
+      this.Database = new DynamoDB.DocumentClient({
+        region: config.aws_region,
+        credentials: new Credentials({ accessKeyId: config.aws_accessKey, secretAccessKey: config.aws_secretAccessKey })
+      });
+    } else {
+      this.Database = new DynamoDB.DocumentClient({
+        region: config.aws_region,
+        endpoint: 'http://localhost:8000',
+        credentials: new Credentials({ accessKeyId: config.aws_accessKey, secretAccessKey: config.aws_secretAccessKey })
+      });
+    }  
   }
 
-  async Find<T>(collectionName: string, query: Object, options?: FindOptions<any>): Promise<Array<T>> {
-    const collection: ICollection = this.Database.get(collectionName);
-    let result = await collection.find(query, options);
-    let resultArray: Array<T> = [];
-    result.forEach(item => {
-      resultArray.push(item);
-    });
-    return resultArray;
+  public static getInstance(): DatabaseProvider {
+    if (!DatabaseProvider.instance) 
+      DatabaseProvider.instance = new DatabaseProvider();
+
+    return DatabaseProvider.instance;
   }
 
-  async Update(collectionName: string, query: Object, update: Object) {
-    const collection: ICollection = this.Database.get(collectionName);
-    await collection.update(query, {$set: {...update}});
+  async Get(tableName: string, key: Object) {
+    let params: DynamoDB.DocumentClient.GetItemInput = {
+      TableName: tableName,
+      Key: key
+    };
+    return await this.Database.get(params).promise();
   }
 
-  async Insert(collectionName: string, object: Object) {
-    const collection: ICollection = this.Database.get(collectionName);
-    await collection.insert(object);
+  async Find(TableName: string, KeyConditionExpression: string, ExpressionAttributeValues: Object, IndexName?: string) {
+    let params: DynamoDB.DocumentClient.QueryInput = {
+      TableName,
+      IndexName,
+      KeyConditionExpression,
+      ExpressionAttributeValues
+    };
+    return await this.Database.query(params).promise();
   }
 
-  async Delete(collectionName: string, query: Object) {
-    const collection: ICollection = this.Database.get(collectionName);
-    await collection.remove(query);
+  async GetAll(TableName: string) {
+    let params: DynamoDB.DocumentClient.ScanInput = {
+      TableName
+    };
+    return await this.Database.scan(params).promise();
+  }
+
+  async Update(tableName: string, key: Object, updateExpression: string, values: Object, conditionExpression?: string) {
+    let params: DynamoDB.DocumentClient.UpdateItemInput = {
+      TableName: tableName,
+      Key: key,
+      UpdateExpression: updateExpression,
+      ConditionExpression: conditionExpression,
+      ExpressionAttributeValues: values,
+      ReturnValues: "UPDATED_NEW"
+    };
+    return await this.Database.update(params).promise();
+  }
+
+  async Insert(tableName: string, item: Object) {
+    let params = {
+      TableName: tableName,
+      Item: item
+    };
+    await this.Database.put(params).promise();
+  }
+
+  async Delete(tableName: string, key: Object) {
+    let params = {
+      TableName: tableName,
+      Key: key
+    };
+    return await this.Database.delete(params).promise();
   }
 }

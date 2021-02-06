@@ -1,4 +1,4 @@
-import { createLogger, transports, format } from 'winston';
+import { createLogger, transports, format, transport } from 'winston';
 import config from '../config';
 
 const logFormat = format.printf( ({ level, message, timestamp , metadata}) => {
@@ -8,18 +8,21 @@ const logFormat = format.printf( ({ level, message, timestamp , metadata}) => {
   return msg
 });
 
-export const logger = createLogger({
-  transports: [
-    new transports.File({ 
-      filename: './logs/lsb-monitor.log',
-      level: config.logLevel || 'debug',
-      format: format.combine(
-        format.errors({ stack: true }),
-        format.metadata(),
-        format.timestamp(),
-        format.json()
-      )
-    }),
+let transportArray: transport[] = [
+  new transports.File({ 
+    filename: './logs/lsb-monitor.log',
+    level: config.logLevel || 'debug',
+    format: format.combine(
+      format.errors({ stack: true }),
+      format.metadata(),
+      format.timestamp(),
+      format.json()
+    )
+  })
+];
+
+if (process.env.NODE_ENV !== 'production') {
+  transportArray.push(
     new transports.Console({
       format: format.combine(
         format.colorize(),
@@ -29,5 +32,9 @@ export const logger = createLogger({
       ),
       level: 'info'
     })
-  ]
+  );
+}
+
+export const logger = createLogger({
+  transports: transportArray
 });

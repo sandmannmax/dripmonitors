@@ -10,7 +10,6 @@
   },
   "files": [
     "./node_modules/@types/node/index.d.ts",
-    "./node_modules/@types/express/index.d.ts",
     "./node_modules/@types/puppeteer/index.d.ts"
   ],
   "include": [

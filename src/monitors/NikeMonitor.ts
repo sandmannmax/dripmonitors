@@ -1,23 +1,21 @@
 import fetch from 'node-fetch';
 import { Product } from '../types/Product';
 import { MonitorModel } from '../models/Monitor';
-import { DiscordService } from '../services/DiscordService';
 import { RedisService } from '../services/RedisService';
 import { GetRandomUserAgent } from '../provider/RandomUserAgentProvider';
 import { logger } from '../logger';
 import { HttpsProxyAgent } from 'https-proxy-agent';
-import { Container } from 'typedi';
-import { ProxyModel } from '../models/Proxy';
+import { ProxyModel } from '../models/ProxyModel';
 
 export namespace NikeMonitor {
 
   export async function Setup() {
-    const redisService = Container.get(RedisService);
+    const redisService = new RedisService();
     redisService.SetRunningState('nike', false);
   }
 
   export async function Run(job) {
-    const redisService = Container.get(RedisService);
+    const redisService = new RedisService();
 
     try {
       if (await redisService.GetRunningState('nike'))
@@ -35,7 +33,7 @@ export namespace NikeMonitor {
       }
 
       proxyString = proxy.address + ":" + proxy.port;
-      logger.info(`NikeMonitor: Using proxy ${proxyString}`);
+      logger.debug(`NikeMonitor: Using proxy ${proxyString}`);
 
       let products = await GetItems(proxyString);
 
@@ -89,12 +87,12 @@ export namespace NikeMonitor {
             monitors = await MonitorModel.GetUserMonitors();
 
           for (let j = 0; j < monitors.length; j++) {
-            if (monitors[j].webHook)
-              await DiscordService.SendMessage({ 
-                monitor: monitors[j], 
-                product: products[i],
-                page: 'Nike SNKRS'
-              });
+            // if (monitors[j].webHook)
+              // await DiscordService.SendMessage({ 
+              //   monitor: monitors[j], 
+              //   product: products[i],
+              //   page: 'Nike SNKRS'
+              // });
           }
         }
       }

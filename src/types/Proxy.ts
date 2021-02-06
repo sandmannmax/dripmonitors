@@ -1,5 +1,5 @@
 export class Proxy {
-  public _id: string;
+  public id: string;
   public address: string;
-  public port: number;
+  public cc: string;
 }

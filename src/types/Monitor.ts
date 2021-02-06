@@ -1,4 +1,4 @@
-export class Monitor {
-  public _id: string;
-  public page: string;
+export class Monitorpage {
+  public id: string;
+  public techname: string;
 }
