@@ -1,4 +1,5 @@
 import { Credentials, DynamoDB } from 'aws-sdk';
+import { ExpressionAttributeNameMap } from 'aws-sdk/clients/dynamodb';
 import config from '../config';
 
 export class DatabaseProvider {
@@ -53,13 +54,14 @@ export class DatabaseProvider {
     return await this.Database.scan(params).promise();
   }
 
-  async Update(tableName: string, key: Object, updateExpression: string, values: Object, conditionExpression?: string) {
+  async Update(tableName: string, key: Object, updateExpression: string, values: Object, conditionExpression?: string, expressenAttributeNames?: ExpressionAttributeNameMap) {
     let params: DynamoDB.DocumentClient.UpdateItemInput = {
       TableName: tableName,
       Key: key,
       UpdateExpression: updateExpression,
       ConditionExpression: conditionExpression,
       ExpressionAttributeValues: values,
+      ExpressionAttributeNames: expressenAttributeNames,
       ReturnValues: "UPDATED_NEW"
     };
     return await this.Database.update(params).promise();

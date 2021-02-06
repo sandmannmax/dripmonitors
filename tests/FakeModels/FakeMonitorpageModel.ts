@@ -1,67 +1,51 @@
+import { MonitorpageModel } from '../../src/models/MonitorpageModel';
 import { Monitorpage } from '../../src/types/Monitorpage';
 
 
-export class MonitorpageModel {
+export class FakeMonitorpageModel extends MonitorpageModel {
+
+  private static monitorpageArray: Array<Monitorpage> = [{ id: '4321', name: 'nike', techname: 'nike', visible: false, running: false, interval: undefined, url: 'https://nike.com' }]
 
   GetMonitorpageVisible = async function ({ id }: { id: string }): Promise<Monitorpage> {
-    let result = await this.dbProvider.Get('lsb.monitorpages', { id });
-    let monitorpage = result.Item as Monitorpage;
-    if (monitorpage != null && monitorpage.visible)
-      return monitorpage;
-    else
-      return null;
+    return FakeMonitorpageModel.monitorpageArray.find(item => item.id === id && item.visible === true);
   }
 
   GetMonitorpagesVisible = async function (): Promise<Array<Monitorpage>> {
-    let result = await this.dbProvider.Find('lsb.monitorpages', "", {});
-    let monitorpages = [];
-    if (result.Items) {
-      result.Items.forEach((item: Monitorpage) => {
-        if (item.visible)
-          monitorpages.push(item);
-      });
-    }    
-    return monitorpages;
+    return FakeMonitorpageModel.monitorpageArray.filter(item => item.visible === true);
   }
 
   GetMonitorpage = async function ({ id }: { id: string }): Promise<Monitorpage> {
-    let result = await this.dbProvider.Get('lsb.monitorpages', { id });
-    return result.Item as Monitorpage;
+    return FakeMonitorpageModel.monitorpageArray.find(item => item.id === id);
   }
 
   GetMonitorpages = async function (): Promise<Array<Monitorpage>> {
-    let result = await this.dbProvider.Find('lsb.monitorpages', "", {});
-    return result.Items as Array<Monitorpage>;
+    return FakeMonitorpageModel.monitorpageArray;
   }
 
-  CreateMonitorpage = async function ({ id, techname, name, url, visible }: { id: string, techname: string, name: string, url: string, visible: boolean }): Promise<Monitorpage> {
-    await this.dbProvider.Insert('lsb.monitorpages', { id, techname, name, url, visible });
-    let result = await this.dbProvider.Get('lsb.monitorpages', { id });
-    return result.Item as Monitorpage;
+  CreateMonitorpage = async function ({ id, techname, name, url, visible }: { id: string, techname: string, name: string, url: string, visible: boolean }): Promise<Monitorpage> {    
+    FakeMonitorpageModel.monitorpageArray.push({ id, name, techname, visible, running: false, interval: undefined, url })
+    return FakeMonitorpageModel.monitorpageArray.find(item => item.id === id);
   }
 
-  DeleteMonitorpage = async function ({ id }: { id: string }) {
-    await this.dbProvider.Delete('lsb.monitorpages', { id });
-  }
+  DeleteMonitorpage = async function ({ id }: { id: string }) { }
 
   UpdateTechname = async function ({ id, techname }: { id: string, techname: string }) {
-    await this.dbProvider.Update('lsb.monitorpages', { id }, "set techname = :techname", { ":techname": techname });
+    FakeMonitorpageModel.monitorpageArray[FakeMonitorpageModel.monitorpageArray.findIndex(item => item.id === id)].techname = techname;
   }
 
   UpdateName = async function ({ id, name }: { id: string, name: string }) {
-    await this.dbProvider.Update('lsb.monitorpages', { id }, "set name = :name", { ":name": name });
+    FakeMonitorpageModel.monitorpageArray[FakeMonitorpageModel.monitorpageArray.findIndex(item => item.id === id)].name = name;
   }
 
   UpdateVisible = async function ({ id, visible }: { id: string, visible: boolean }) {
-    await this.dbProvider.Update('lsb.monitorpages', { id }, "set visible = :visible", { ":visible": visible });
+    FakeMonitorpageModel.monitorpageArray[FakeMonitorpageModel.monitorpageArray.findIndex(item => item.id === id)].visible = visible;
   }
 
   UpdateUrl = async function ({ id, url }: { id: string, url: string }) {
-    await this.dbProvider.Update('lsb.monitorpages', { id }, "set url = :url", { ":url": url });
+    FakeMonitorpageModel.monitorpageArray[FakeMonitorpageModel.monitorpageArray.findIndex(item => item.id === id)].url = url;
   }
 
   IdUnused = async function ({ id }: { id: string }): Promise<boolean> {
-    let result = await this.dbProvider.Get('lsb.products', { id });
-    return result.Item == null;
+    return FakeMonitorpageModel.monitorpageArray.findIndex(item => item.id === id) == -1;
   }
 }

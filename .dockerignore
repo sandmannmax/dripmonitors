@@ -1,6 +1,6 @@
 logs
 node_modules
 _documentation.json
-.env
 .gitignore
+dynamosetup.bash
 tsconfig.json

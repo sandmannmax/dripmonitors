@@ -4,14 +4,14 @@ import express from 'express';
 import { Server } from 'http';
 import { logger } from './logger';
 
-export function getApp() {
+export async function getApp() {
   const app = express();  
   expressSetup(app);
   return app;
 }
 
 export async function startServer() {  
-  const app = getApp();
+  const app = await getApp();
 
   const server = new Server(app);
   server.listen(config.port, () => {

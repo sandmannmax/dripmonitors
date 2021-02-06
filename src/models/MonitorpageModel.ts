@@ -66,6 +66,10 @@ export class MonitorpageModel {
     await this.dbProvider.Update('lsb.monitorpages', { id }, "set url = :url", { ":url": url });
   }
 
+  UpdateRunning = async function ({ id, running, interval }: { id: string, running: boolean, interval: number }) {
+    await this.dbProvider.Update('lsb.monitorpages', { id }, "set running = :running, #iv = :interval", { ":running": running, ":interval": interval }, null, { "#iv": "interval" });
+  }
+
   IdUnused = async function ({ id }: { id: string }): Promise<boolean> {
     let result = await this.dbProvider.Get('lsb.products', { id });
     return result.Item == null;

@@ -1,4 +1,4 @@
-import { Service } from 'typedi';
+import { Service, Container, Inject } from 'typedi';
 import { IResult } from '../types/IResult';
 import { async } from 'crypto-random-string';
 import { logger } from '../logger';
@@ -6,14 +6,19 @@ import { HttpsProxyAgent } from 'https-proxy-agent';
 import fetch from 'node-fetch';
 import { MonitorpageModel } from '../models/MonitorpageModel';
 import { ProxyModel } from '../models/ProxyModel';
+import { Queue } from 'bull';
+import { QueueProvider } from '../provider/QueueProvider';
 
 @Service()
 export class AdminService {
+  private queue: Queue;
 
   constructor(
     private monitorpageModel: MonitorpageModel,
     private proxyModel: ProxyModel
-  ){}
+  ) {
+    this.queue = QueueProvider.GetQueue();
+  }
 
   async GetMonitorpages(): Promise<IResult> {
     try {
@@ -103,9 +108,23 @@ export class AdminService {
         return {success: false, error: {status: 400, message: '\'id\' is missing'}};
         
       if (!interval)
-        return {success: false, error: {status: 400, message: '\'interval\' is missing'}};   
+        return {success: false, error: {status: 400, message: '\'interval\' is missing'}};  
 
-      // TODO
+      let monitorpage = await this.monitorpageModel.GetMonitorpage({ id });
+
+      if (!monitorpage)
+        return {success: false, error: {status: 404, message: 'Monitorpage is not existing'}};
+
+      let jobs = await this.queue.getRepeatableJobs();
+
+      for (let i = 0; i < jobs.length; i++) {
+        if (jobs[i].id == id)
+          await this.queue.removeRepeatableByKey(jobs[i].key);
+      }
+
+      await this.queue.add('monitor', { id: id, techname: monitorpage.techname }, { repeat: { every: interval * 1000 }, jobId: id });
+
+      await this.monitorpageModel.UpdateRunning({ id, running: true, interval });
 
       return {success: true};
     } catch (error) {
@@ -118,7 +137,14 @@ export class AdminService {
       if (!id)
         return {success: false, error: {status: 400, message: '\'id\' is missing'}};
 
-      // TODO
+      let jobs = await this.queue.getRepeatableJobs();
+
+      for (let i = 0; i < jobs.length; i++) {
+        if (jobs[i].id == id)
+          await this.queue.removeRepeatableByKey(jobs[i].key);
+      }
+
+      await this.monitorpageModel.UpdateRunning({ id, running: false, interval: 0 });
 
       return {success: true};
     } catch (error) {

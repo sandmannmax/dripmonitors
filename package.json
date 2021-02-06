@@ -2,15 +2,15 @@
   "name": "api",
   "version": "1.0.0",
   "scripts": {
-    "test": "ts-mocha ./tests/functionality.ts",
-    "test-auth": "ts-mocha ./tests/authentication.ts",
-    "test-perm": "ts-mocha ./tests/permission.ts",
+    "test": "ts-mocha ./tests/*.test.ts",
     "start": "ts-node ./src/index.ts",
     "build": "tsc --build"
   },
   "dependencies": {
+    "@types/bull": "^3.15.0",
     "@types/sinon": "^9.0.10",
     "aws-sdk": "^2.834.0",
+    "bull": "^3.20.0",
     "cluster": "^0.7.7",
     "cors": "^2.8.5",
     "crypto-random-string": "^3.3.0",
@@ -28,6 +28,7 @@
     "monk": "^7.3.2",
     "morgan": "^1.10.0",
     "os": "^0.1.1",
+    "redis": "^3.0.2",
     "reflect-metadata": "^0.1.13",
     "sanitize": "^2.1.0",
     "typedi": "^0.8.0",
