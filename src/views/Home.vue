@@ -15,11 +15,9 @@
 
 <script lang="ts">
 import { Component, Vue } from 'vue-property-decorator';
-import { Getter, Action } from 'vuex-class';
 
 @Component
-export default class Home extends Vue {
-}
+export default class Home extends Vue { }
 </script>
 
 <style scoped>

@@ -36,11 +36,9 @@
 
 <script lang="ts">
 import { Component, Vue } from 'vue-property-decorator';
-import { Getter, Action } from 'vuex-class';
 
 @Component
-export default class AGB extends Vue {
-}
+export default class AGB extends Vue { }
 </script>
 
 <style scoped>

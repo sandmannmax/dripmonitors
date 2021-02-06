@@ -11,11 +11,6 @@ const routes: Array<RouteConfig> = [
     component: Home
   },
   {
-    path: '/monitor',
-    name: 'monitor',
-    component: () => import('../views/Monitor.vue')
-  },
-  {
     path: '/terms',
     name: 'terms',
     component: () => import('../views/Terms.vue')

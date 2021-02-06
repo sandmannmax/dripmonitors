@@ -10,7 +10,6 @@
 
 <script>
 import { Component, Vue } from 'vue-property-decorator';
-import { Getter, Action } from 'vuex-class';
 import ControlBar from './components/ControlBar'
 import Footer from './components/Footer'
 
