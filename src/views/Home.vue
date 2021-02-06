@@ -6,11 +6,11 @@
         <h3 class="text-center">lazyshoebot - Monitor</h3>
         <div id="monitorConfiguration">
           <div class="col-sm-11 col-md-9 col-lg-7 mx-auto">
-            <div class="monitor" v-if="monitor">
+            <div class="monitor" v-if="monitors">
               <div id="botContainer">
-                <b-img v-bind:src="monitor.botImage" id="botImage"/>
+                <b-img v-bind:src="monitors[0].botImage" id="botImage"/>
               </div>            
-              <h4 id="botName">{{ monitor.botName }}</h4>
+              <h4 id="botName">{{ monitors[0].botName }}</h4>
             </div>
             <button class="btn btn-sm btnClass btn-block text-uppercase" v-on:click="editMonitor()">Edit</button>
             <button class="btn btn-sm btnClass btn-block text-uppercase" v-on:click="sendTestMessage()">Send Testmessage</button>     
@@ -52,11 +52,11 @@ import Footer from '../components/Footer.vue';
   components: { ControlBar, Footer }
 })
 export default class Home extends Vue {
-  @Action getMonitor;
+  @Action getMonitors;
   @Action sendTestmessage;
   @Action updateMonitor;
   @Getter user;
-  @Getter monitor;
+  @Getter monitors;
 
   webHook = '';
   botName = '';
@@ -65,20 +65,23 @@ export default class Home extends Vue {
   editMonitorError = '';
 
   async mounted() {
-    if (!this.user)
-      this.$router.push({ name: 'login' });
-    else
-      await this.getMonitor({ accessToken: this.user.accessToken, refreshToken: this.user.refreshToken });
+    let accessToken = await this.$auth.getTokenSilently();
+    console.log(accessToken);
+    await this.getMonitors({ accessToken });
+    // if (!this.user)
+    //   this.$router.push({ name: 'login' });
+    // else
+    //   await this.getMonitors({ accessToken: this.user.accessToken, refreshToken: this.user.refreshToken });
   }
 
   sendTestMessage() {
-    this.sendTestmessage({ accessToken: this.user.accessToken, refreshToken: this.user.refreshToken });
+    this.sendTestmessage({ id: this.monitors[0].id, accessToken: this.user.accessToken, refreshToken: this.user.refreshToken });
   }
 
   editMonitor() {
-    this.webHook = this.monitor.webHook;
-    this.botName = this.monitor.botName;
-    this.botImage = this.monitor.botImage;
+    this.webHook = this.monitors[0].webHook;
+    this.botName = this.monitors[0].botName;
+    this.botImage = this.monitors[0].botImage;
     this.$bvModal.show('editMonitor');
   }
 

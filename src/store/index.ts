@@ -21,13 +21,13 @@ const refresh = async (refreshToken) => {
   return { data, error };
 }
 
-const getMonitor = async accessToken => {
+const getMonitors = async accessToken => {
   let response, data, error;
   let api_url = config.api_url ? config.api_url : 'https://api.lazyshoebot.com'
   try {
     response = await axios.get(api_url + '/monitor', {headers: {'Authorization': `Bearer ${accessToken}`}});
     if (response && response.status == 200)
-      data = response.data.monitor;
+      data = response.data.monitors;
     else
       error = { message: 'Failed loading response in getMonitor', response };
   } catch (err) {
@@ -36,11 +36,11 @@ const getMonitor = async accessToken => {
   return { data, error };
 }
 
-const updateMonitor = async ({ webHook, name, imageUrl, accessToken }) => {
+const updateMonitor = async ({ id, webHook, name, imageUrl, accessToken }) => {
   let response, data, error;
   let api_url = config.api_url ? config.api_url : 'https://api.lazyshoebot.com'
   try {
-    response = await axios.patch(api_url + '/monitor', {webHook, name, imageUrl}, {headers: {'Authorization': `Bearer ${accessToken}`}});
+    response = await axios.patch(api_url + '/monitor', { id, webHook, name, imageUrl }, {headers: {'Authorization': `Bearer ${accessToken}`}});
     if (response && response.status == 200)
       data = response.data.monitor;
     else
@@ -51,11 +51,11 @@ const updateMonitor = async ({ webHook, name, imageUrl, accessToken }) => {
   return { data, error };
 }
 
-const sendTestmessage = async accessToken => {
+const sendTestmessage = async ({ id, accessToken }) => {
   let response, data, error;
   let api_url = config.api_url ? config.api_url : 'https://api.lazyshoebot.com'
   try {
-    response = await axios.post(api_url + '/monitor/testmessage', null, {headers: {'Authorization': `Bearer ${accessToken}`}});
+    response = await axios.post(api_url + '/monitor/testmessage', { id }, {headers: {'Authorization': `Bearer ${accessToken}`}});
     if (response && response.status == 200)
       data = 'Success';
     else
@@ -74,11 +74,11 @@ export default new Vuex.Store({
   ],
   state: {
     user: undefined,
-    monitor: undefined,
+    monitors: undefined,
   },
   getters: {
     user: state => state.user,
-    monitor: state => state.monitor,
+    monitors: state => state.monitors,
   },
   actions: {
     async login({ commit }, { username, password }) {
@@ -205,19 +205,19 @@ export default new Vuex.Store({
         }
       }
     },
-    async getMonitor({ commit }, { accessToken, refreshToken }) {
-      let response = await getMonitor(accessToken);
+    async getMonitors({ commit }, { accessToken, refreshToken }) {
+      let response = await getMonitors(accessToken);
       if (response.data) {
-        commit('setMonitorObject', response.data);
+        commit('setMonitorObjects', response.data);
         return '';
       } else if (response.error) {
         if (response.error.err.response.data.message === 'Token Expired') {
           let responseRefresh = await refresh(refreshToken);
           if (responseRefresh.data) {
             commit('setAccessToken', responseRefresh.data);
-            response = await getMonitor(accessToken);
+            response = await getMonitors(accessToken);
             if (response.data) {
-              commit('setMonitorObject', response.data);
+              commit('setMonitorObjects', response.data);
               return '';
             } else if (response.error) {
               console.log(response.error);
@@ -241,8 +241,8 @@ export default new Vuex.Store({
         return 'Fehler';
       }
     },
-    async updateMonitor({ commit }, { webHook, botName, botImage, accessToken, refreshToken }) {
-      let response = await updateMonitor({ webHook, name: botName, imageUrl: botImage, accessToken });
+    async updateMonitor({ commit }, { id, webHook, botName, botImage, accessToken, refreshToken }) {
+      let response = await updateMonitor({ id, webHook, name: botName, imageUrl: botImage, accessToken });
       if (response.data) {
         commit('setMonitorObject', response.data);
         return '';
@@ -251,7 +251,7 @@ export default new Vuex.Store({
           let responseRefresh = await refresh(refreshToken);
           if (responseRefresh.data) {
             commit('setAccessToken', responseRefresh.data);
-            response = await updateMonitor({ webHook, name: botName, imageUrl: botImage, accessToken });
+            response = await updateMonitor({ id, webHook, name: botName, imageUrl: botImage, accessToken });
             if (response.data) {
               commit('setMonitorObject', response.data);
               return '';
@@ -277,8 +277,8 @@ export default new Vuex.Store({
         return 'Fehler';
       }
     },
-    async sendTestmessage({ commit }, { accessToken, refreshToken }) {
-      let { data, error } = await sendTestmessage(accessToken);
+    async sendTestmessage({ commit }, { id, accessToken, refreshToken }) {
+      let { data, error } = await sendTestmessage({ id, accessToken });
       if (data) {
         return '';
       } else if (error) {
@@ -296,8 +296,8 @@ export default new Vuex.Store({
     setAccessToken: (state: any, accessToken) => { 
       state.user.accessToken = accessToken;
     },
-    setMonitorObject: (state: any, monitor) => {
-      state.monitor = monitor;
+    setMonitorObjects: (state: any, monitors) => {
+      state.monitors = monitors;
     },
   }
 });

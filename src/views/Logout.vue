@@ -11,15 +11,15 @@
 import { Component, Vue } from 'vue-property-decorator';
 
 @Component
-export default class Login extends Vue {
+export default class Logout extends Vue {
   mounted() {
     if (!this.$auth.isLoading)
-      this.$auth.loginWithRedirect();
+      this.$auth.logout();
     else {
       this.$auth.$watch("isLoading", isLoading => {
         console.log(isLoading)
         if (isLoading === false) {
-          this.$auth.loginWithRedirect();
+          this.$auth.logout();
         }
       });
     }    

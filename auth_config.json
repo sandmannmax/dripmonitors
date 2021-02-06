@@ -1,0 +1,6 @@
+{
+  "domain": "lazyshoebot.eu.auth0.com",
+  "clientId": "OZkYHf34LvEOpBfwC5T4pdixyjRIfaQA",
+  "audience": "https://api.lazyshoebot.com",
+  "serverUrl": "https://api.lazyshoebot.com"
+}

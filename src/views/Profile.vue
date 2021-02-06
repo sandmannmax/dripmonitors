@@ -70,11 +70,6 @@ export default class Profile extends Vue {
   changePassword = false;
   passwordOld = '';
   error = '';
-  
-  mounted() {
-    if (!this.user)
-      this.$router.push({ name: 'login' });
-  }
 
   async logoutForm() {
     await this.logout({ accessToken: this.user.accessToken, refreshToken: this.user.refreshToken });

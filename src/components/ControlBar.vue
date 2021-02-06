@@ -4,12 +4,13 @@
       <b-navbar-nav>
         <router-link to="/" class="navbar-brand title" id="title"><img src="logo.png" width="60"/></router-link>
       </b-navbar-nav>
-      <b-navbar-toggle target="nav-collapse" v-if="user"></b-navbar-toggle>
-      <b-collapse id="nav-collapse" is-nav v-if="user">
-        <b-navbar-nav class="ml-auto">
-          <router-link class="link" to="/profile">Hello, {{ user.name }}</router-link>
-        </b-navbar-nav>
-      </b-collapse>
+      <b-navbar-nav class="ml-auto" v-if="$auth.isAuthenticated">
+        <b-nav-item-dropdown right>
+          <template #button-content><span id="user-dropdown">{{ $auth.user.nickname }}</span></template>
+          <b-dropdown-item class="link" to="/profile">Profile</b-dropdown-item>
+          <b-dropdown-item class="link" to="/logout">Log Out</b-dropdown-item>
+        </b-nav-item-dropdown>
+      </b-navbar-nav>
     </b-container>
   </b-navbar>
 </template>
@@ -22,19 +23,29 @@ import { Getter } from 'vuex-class';
 export default class ControlBar extends Vue {
   @Getter user;
   @Getter hasMonitor;
+  
+  logout() { 
+    this.$auth.logout();
+  }
 }
 </script>
 
 <style scoped>
 
 .link {
-  color: white;
+  color: black;
   margin: auto 10px;
+  transition: 250ms;
 }
 
-.btnCall {
-  color: white;
-  background-color: #db3e3e;
+.link:hover {
+  text-decoration: underline;
+  transition: 250ms;
+  cursor: pointer;
+}
+
+.r-link {
+  color: black;
 }
 
 #navbar {
@@ -46,6 +57,10 @@ export default class ControlBar extends Vue {
   font-weight: 700;
   letter-spacing: 0.25em;
   color: #db3e3e;
+}
+
+#user-dropdown {
+  color: white;
 }
 
 </style>
