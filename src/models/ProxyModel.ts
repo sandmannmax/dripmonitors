@@ -10,7 +10,7 @@ export class ProxyModel {
     let result = await dbProvider.GetAll('lsb.proxies');
     if (result && result.Items.length > 0) {     
       let proxies: Array<Proxy> = result.Items as Array<Proxy>; 
-      let resultCooldowns = await dbProvider.Find('lsb.proxy_cooldowns', "monitorpageId = :monitorpageId", { ":monitorpageId": monitorpageId });
+      let resultCooldowns = await dbProvider.Find('lsb.proxy_cooldowns', "monitorpageId = :monitorpageId", { ":monitorpageId": monitorpageId }, "monitorpageId-index");
       resultCooldowns.Items.forEach(async (proxyCooldown: Cooldown) => {
         if (proxyCooldown.remaining > 0) {          
           let index = proxies.findIndex(item => item.id == proxyCooldown.proxyId);
