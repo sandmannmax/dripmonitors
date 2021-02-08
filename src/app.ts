@@ -4,7 +4,7 @@ import express from 'express';
 import { Server } from 'http';
 import { logger } from './logger';
 
-export async function getApp() {
+export function getApp() {
   const app = express();  
   expressSetup(app);
   return app;

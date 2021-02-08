@@ -150,7 +150,7 @@
             "type": "string"
           },
           {
-            "name": "monitorpage",
+            "name": "monitorpageId",
             "in": "body",
             "description": "Monitorpage as source",
             "required": false,

@@ -173,7 +173,15 @@ export class MonitorService {
       let monitorsourcesOut = [];
 
       for (let i = 0; i < monitorsources.length; i++) {
-        monitorsourcesOut.push(GetMonitorsource_O(monitorsources[i]));
+        if (monitorsources[i].productId) {
+          let product = await this.productModel.GetProduct({ id: monitorsources[i].productId });
+          let productMonitorpage = await this.monitorpageModel.GetMonitorpage({ id: product.monitorpageId });
+          monitorsourcesOut.push(GetMonitorsource_O(monitorsources[i], product, productMonitorpage));
+        } else if (monitorsources[i].monitorpageId) {
+          let monitorpage = await this.monitorpageModel.GetMonitorpage({ id: monitorsources[i].monitorpageId });
+          monitorsourcesOut.push(GetMonitorsource_O(monitorsources[i], null, null, monitorpage));
+        } else
+          monitorsourcesOut.push(GetMonitorsource_O(monitorsources[i]));
       }
 
       return {success: true, data: {monitorsources: monitorsourcesOut}};
@@ -221,6 +229,10 @@ export class MonitorService {
       for (let i = 0; i < monitorsources.length; i++) {
         if (monitorsources[i].all)
           hasAll = true;
+        else if (productId && monitorsources[i].productId == productId)
+          return {success: false, error: {status: 400, message: 'Monitor is already monitoring this Product'}};
+        else if (monitorpageId && monitorsources[i].monitorpageId == monitorpageId)
+          return {success: false, error: {status: 400, message: 'Monitor is already monitoring this Page'}};
       }
 
       if (hasAll)
@@ -311,7 +323,7 @@ export class MonitorService {
         return {success: false, error: {status: 404, message: 'Monitor is not existing'}};
 
       if (!monitor.webHook)
-        return {success: false, error: {status: 404, message: 'Monitor Webhook is not configured'}};
+        return {success: false, error: {status: 400, message: 'Monitor Webhook is not configured'}};
 
       let regex = new RegExp(/https?:\/\/\)?((canary|ptb)\.)?discord(app)?\.com\/api\/webhooks\/[0-9]+\/[A-Za-z0-9\.\-\_]+\/?$/);
 
