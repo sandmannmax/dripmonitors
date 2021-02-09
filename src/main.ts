@@ -12,7 +12,7 @@ import { Auth0Plugin } from "./auth";
 Vue.use(Auth0Plugin, {
   domain,
   clientId,
-  audience
+  audience,
 });
 
 Vue.config.productionTip = false

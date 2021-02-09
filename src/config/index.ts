@@ -2,6 +2,6 @@ import { config } from 'dotenv';
 config();
 
 export default {
-  base_url: process.env.VUE_APP_BASE_URL,
-  api_url: 'http://localhost:3000'
+  api_url: 'http://localhost:3000', //'https://api.lazyshoebot.com',
+  return_url: 'http://localhost:8080' //'https://lazyshoebot.com'
 }

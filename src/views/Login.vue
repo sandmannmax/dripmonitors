@@ -12,6 +12,8 @@ import { Component, Vue } from 'vue-property-decorator';
 
 @Component
 export default class Login extends Vue {
+  $auth;
+  
   mounted() {
     if (!this.$auth.isLoading)
       this.$auth.loginWithRedirect();

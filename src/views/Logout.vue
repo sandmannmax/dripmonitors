@@ -9,17 +9,20 @@
 
 <script lang="ts">
 import { Component, Vue } from 'vue-property-decorator';
+import config from '../config';
 
 @Component
 export default class Logout extends Vue {
+  $auth;
+  
   mounted() {
     if (!this.$auth.isLoading)
-      this.$auth.logout();
+      this.$auth.logout({ returnTo: config.return_url });
     else {
       this.$auth.$watch("isLoading", isLoading => {
         console.log(isLoading)
         if (isLoading === false) {
-          this.$auth.logout();
+          this.$auth.logout({ returnTo: config.return_url });
         }
       });
     }    

@@ -23,11 +23,6 @@ const routes: Array<RouteConfig> = [
     component: () => import('../views/Logout.vue')
   },
   {
-    path: '/activate',
-    name: 'activate',
-    component: () => import('../views/Activate.vue')
-  },
-  {
     path: '/profile',
     name: 'profile',
     component: () => import('../views/Profile.vue')

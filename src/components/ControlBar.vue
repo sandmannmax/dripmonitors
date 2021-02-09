@@ -17,16 +17,10 @@
 
 <script lang="ts">
 import { Component, Vue } from 'vue-property-decorator';
-import { Getter } from 'vuex-class';
 
 @Component
 export default class ControlBar extends Vue {
-  @Getter user;
-  @Getter hasMonitor;
-  
-  logout() { 
-    this.$auth.logout();
-  }
+  $auth;
 }
 </script>
 

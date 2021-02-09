@@ -3,6 +3,27 @@
     <ControlBar/>
     <div class="main-content">
       <div class="container">
+        <div class="col-md-5 mb-3">
+          <img
+            :src="$auth.user.picture"
+            alt="User's profile picture"
+            class="rounded-circle img-fluid profile-picture"
+          />
+        </div>
+        <div class="col-md text-center text-md-left">
+          <h2>{{ $auth.user.nickname }}</h2>
+          <p class="lead text-muted">{{ $auth.user.email }}</p>
+        </div>
+      </div>
+
+    <!-- <div class="row">
+      <pre class="col-12 text-light bg-dark p-4">{{
+        JSON.stringify($auth.user, null, 2)
+      }}</pre>
+    </div> -->
+  </div>
+    <!-- <div class="main-content">
+      <div class="container">
         <div class="col-sm-11 col-md-9 col-lg-7 mx-auto" v-if="user">
           <h3 class="text-center">Profile</h3>
           <div class="content" v-if="!editStatus">Username: {{ user.name }}</div>
@@ -42,7 +63,7 @@
           <button class="btn btn-sm btnClass btn-block text-uppercase" v-on:click="logoutForm">Logout</button>
         </div>
       </div>
-    </div>
+    </div> -->
     <Footer/>
   </div>
 </template>

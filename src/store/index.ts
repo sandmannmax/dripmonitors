@@ -6,66 +6,6 @@ import config from '../config';
 
 Vue.use(Vuex);
 
-const refresh = async (refreshToken) => {
-  let response, data, error;
-  let api_url = config.api_url ? config.api_url : 'https://api.lazyshoebot.com'
-  try {
-    response = await axios.post(api_url + '/auth/refresh', { refreshToken });
-    if (response && response.status == 200)
-      data = response.data.accessToken;
-    else
-      error = { message: 'Failed loading response in getMonitor', response };
-  } catch (err) {
-    error = { message: 'Error refresh', err };
-  }
-  return { data, error };
-}
-
-const getMonitors = async accessToken => {
-  let response, data, error;
-  let api_url = config.api_url ? config.api_url : 'https://api.lazyshoebot.com'
-  try {
-    response = await axios.get(api_url + '/monitor', {headers: {'Authorization': `Bearer ${accessToken}`}});
-    if (response && response.status == 200)
-      data = response.data.monitors;
-    else
-      error = { message: 'Failed loading response in getMonitor', response };
-  } catch (err) {
-    error = { message: 'Error getMonitor', err };
-  }
-  return { data, error };
-}
-
-const updateMonitor = async ({ id, webHook, name, imageUrl, accessToken }) => {
-  let response, data, error;
-  let api_url = config.api_url ? config.api_url : 'https://api.lazyshoebot.com'
-  try {
-    response = await axios.patch(api_url + '/monitor', { id, webHook, name, imageUrl }, {headers: {'Authorization': `Bearer ${accessToken}`}});
-    if (response && response.status == 200)
-      data = response.data.monitor;
-    else
-      error = { message: 'Failed response updating Monitor', response };
-  } catch (err) {
-    error = { message: 'Error updateMonitor', err };
-  }
-  return { data, error };
-}
-
-const sendTestmessage = async ({ id, accessToken }) => {
-  let response, data, error;
-  let api_url = config.api_url ? config.api_url : 'https://api.lazyshoebot.com'
-  try {
-    response = await axios.post(api_url + '/monitor/testmessage', { id }, {headers: {'Authorization': `Bearer ${accessToken}`}});
-    if (response && response.status == 200)
-      data = 'Success';
-    else
-      error = { message: 'Failed loading response in sendTestmessage', response };
-  } catch (err) {
-    error = { message: 'Error sendTestmessage', err };
-  }
-  return { data, error };
-}
-
 export default new Vuex.Store({
   plugins: [
     createPersistedState({
@@ -73,231 +13,302 @@ export default new Vuex.Store({
     }),
   ],
   state: {
-    user: undefined,
     monitors: undefined,
+    products: undefined,
+    monitorpages: undefined
   },
   getters: {
-    user: state => state.user,
     monitors: state => state.monitors,
+    products: state => state.products,
+    monitorpages: state => state.monitorpages
   },
   actions: {
-    async login({ commit }, { username, password }) {
-      let user, error, response;
-      let api_url = config.api_url ? config.api_url : 'https://api.lazyshoebot.com'
+    async getMonitors({ commit }, { accessToken }) {
+      let response, data;
       try {
-        response = await axios.post(api_url + '/auth/login', {username, password});
-        if (response && response.status == 200) {
-          user = {
-            name: response.data.user.username,
-            id: response.data.user._id,
-            mail: response.data.user.mail,
-            accessToken: response.data.accessToken,
-            refreshToken: response.data.refreshToken
-          };
-          commit('setUser', user);
-        } else
-          console.log(response);
-        return '';
-      }
-      catch (err) {
-        if (err.response) {
-          console.log(err.response);
-          error = err.response.data.message;
-        } else {
-          error = 'Unexpected Error with connecting to the API';
-        }
-        return error;
-      };
-    },
-    async activate({ commit }, { activationCode, username, mail, password }) {
-      let user, error, response;
-      let api_url = config.api_url ? config.api_url : 'https://api.lazyshoebot.com'
-      try {
-        response = await axios.post(api_url + '/user', { activationCode, username, mail, password });
-        console.log(response)
-        if (response && response.status == 200) {
-          user = {
-            name: response.data.user.username,
-            id: response.data.user._id,
-            mail: response.data.user.mail,
-            accessToken: response.data.accessToken,
-            refreshToken: response.data.refreshToken
-          };
-          commit('setUser', user);
-        } else
-          console.log(response);
-        return '';    
-      }
-      catch (err) {
-        if (err.response) {
-          console.log(err.response);
-          error = err.response.data.message;
-        } else {
-          error = 'Unexpected Error with connecting to the API';
-        }
-        return error;
-      };
-    },
-    async updateUser({ commit }, { username, mail, password, oldPassword, accessToken, refreshToken }) {
-      let user, error, response;
-      let api_url = config.api_url ? config.api_url : 'https://api.lazyshoebot.com'
-      try {
-        response = await axios.patch(api_url + '/user', {username, mail, password, oldPassword}, {headers: {'Authorization': `Bearer ${accessToken}`}});
-        console.log(response)
-        if (response && response.status == 200) {
-          user = {
-            name: response.data.user.username,
-            id: response.data.user._id,
-            mail: response.data.user.mail,
-            accessToken: accessToken,
-            refreshToken: refreshToken
-          };
-          commit('setUser', user);
-        } else
-          console.log(response);
-        return '';    
-      }
-      catch (err) {
-        if (err.response) {
-          if (err.response.data.message == '\'oldPassword\' wrong')
-            error = 'Altes Passwort ist falsch.';
-          else if (err.response.data.message == 'Username already in use')
-            error = 'Benutzername wird schon verwendet';
-          else if (err.response.data.message == 'Mail already in use')
-            error = 'E-Mail Adresse wird schon verwendet';
-          else {
-            console.log(err.response);
-            error = 'Update fehlgeschlagen';
-          }
-        } else {
-          error = 'Unerwarteter Fehler beim erreichen der API ist aufgetreten.';
-        }
-        return error;
-      };
-    },
-    async logout({ commit }, { accessToken, refreshToken }) {
-      let response;
-      let api_url = config.api_url ? config.api_url : 'https://api.lazyshoebot.com'
-      try {
-        response = await axios.post(api_url + '/auth/logout', null, {headers: {'Authorization': `Bearer ${accessToken}`}});
-        if (response && response.status == 200) {
-          commit('setUser', undefined);
-        } else
-          console.log(response);
-        return '';
+        response = await axios.get(config.api_url + '/monitor', {headers: {'Authorization': `Bearer ${accessToken}`}});
+        if (response && response.status == 200)
+          data = response.data.monitors;
+        else if (response && response.data && response.data.message)
+          return response.data.message;
+        else
+          return `Error ${JSON.stringify(response)}`;
       } catch (err) {
-        if (err.response) {
-          console.log(err.response);
-          let r = await refresh(refreshToken);
-          if (r.data) {
-            accessToken = r.data;
-            commit('setAccessToken', accessToken);
-            response = await axios.post(api_url + '/auth/logout', null, {headers: {'Authorization': `Bearer ${accessToken}`}})
-            if (response && response.status == 200) {
-              commit('setUser', undefined);
-              commit('setServicesAccess', []);
-              return '';
-            } else
-              console.log(response);
-            return 'Fehler';
-          } else
-            return 'Refresh not working';
-        }
+        if (err && err.response && err.response.data && err.response.data.message)
+          return err.response.data.message;
+        return JSON.stringify(err);
       }
-    },
-    async getMonitors({ commit }, { accessToken, refreshToken }) {
-      let response = await getMonitors(accessToken);
-      if (response.data) {
-        commit('setMonitorObjects', response.data);
+      if (data) {
+        commit('setMonitors', data);
         return '';
-      } else if (response.error) {
-        if (response.error.err.response.data.message === 'Token Expired') {
-          let responseRefresh = await refresh(refreshToken);
-          if (responseRefresh.data) {
-            commit('setAccessToken', responseRefresh.data);
-            response = await getMonitors(accessToken);
-            if (response.data) {
-              commit('setMonitorObjects', response.data);
-              return '';
-            } else if (response.error) {
-              console.log(response.error);
-            } else {
-              console.log('Unbekannter Fehler in getMonitor');
-              return 'Fehler';
-            }
-          } else if (responseRefresh.error) {
-            console.log(responseRefresh.error);
-            return 'Fehler';
-          } else {
-            console.log('Unbekannter Fehler in getMonitor-Refresh');
-            return 'Fehler';
-          }
-        } else {
-          console.log(response.error);
-          return 'Fehler';
-        }
-      } else {
-        console.log('Unbekannter Fehler in getMonitor');
-        return 'Fehler';
       }
+      return 'Unexpected Error';
     },
-    async updateMonitor({ commit }, { id, webHook, botName, botImage, accessToken, refreshToken }) {
-      let response = await updateMonitor({ id, webHook, name: botName, imageUrl: botImage, accessToken });
-      if (response.data) {
-        commit('setMonitorObject', response.data);
+    async getMonitorsources({ commit }, { id, accessToken }) {
+      let response, data;
+      try {
+        response = await axios.get(config.api_url + '/monitor/' + id + '/source', {headers: {'Authorization': `Bearer ${accessToken}`}});
+        if (response && response.status == 200)
+          data = response.data.monitorsources;
+        else if (response && response.data && response.data.message)
+          return response.data.message;
+        else
+          return `Error ${JSON.stringify(response)}`;
+      } catch (err) {
+        if (err && err.response && err.response.data && err.response.data.message)
+          return err.response.data.message;
+        return JSON.stringify(err);
+      }
+      if (data) {
+        commit('setMonitorsources', { id, monitorsources: data });
         return '';
-      } else if (response.error) {
-        if (response.error.err.response.data.message === 'Token Expired') {
-          let responseRefresh = await refresh(refreshToken);
-          if (responseRefresh.data) {
-            commit('setAccessToken', responseRefresh.data);
-            response = await updateMonitor({ id, webHook, name: botName, imageUrl: botImage, accessToken });
-            if (response.data) {
-              commit('setMonitorObject', response.data);
-              return '';
-            } else if (response.error) {
-              console.log(response.error);
-            } else {
-              console.log('Unbekannter Fehler in updateMonitor');
-              return 'Fehler';
-            }
-          } else if (responseRefresh.error) {
-            console.log(responseRefresh.error);
-            return 'Fehler';
-          } else {
-            console.log('Unbekannter Fehler in updateMonitor-Refresh');
-            return 'Fehler';
-          }
-        } else {
-          console.log(response.error);
-          return 'Fehler';
-        }
-      } else {
-        console.log('Unbekannter Fehler in updateMonitor');
-        return 'Fehler';
       }
+      return 'Unexpected Error';
     },
-    async sendTestmessage({ commit }, { id, accessToken, refreshToken }) {
-      let { data, error } = await sendTestmessage({ id, accessToken });
+    async updateMonitor({ commit }, { id, webHook, botName, botImage, accessToken }) {
+      let response, data, error;
+      try {
+        response = await axios.patch(config.api_url + '/monitor/' + id, { webHook, botName, botImage }, {headers: {'Authorization': `Bearer ${accessToken}`}});
+        if (response && response.status == 200)
+          data = response.data.monitor;
+        else if (response && response.data && response.data.message)
+          return response.data.message;
+        else
+          return `Error ${JSON.stringify(response)}`;
+      } catch (err) {
+        if (err && err.response && err.response.data && err.response.data.message)
+          return err.response.data.message;
+        return JSON.stringify(err);
+      }
+      if (data) {
+        commit('updateMonitor', data);
+        return '';
+      }
+      return 'Unexpected Error';
+    },
+    async updateMonitorRunning({ commit }, { id, running, accessToken }) {
+      let response, data, error;
+      try {
+        response = await axios.patch(config.api_url + '/monitor/' + id, { running }, {headers: {'Authorization': `Bearer ${accessToken}`}});
+        if (response && response.status == 200)
+          data = response.data.monitor;
+        else if (response && response.data && response.data.message)
+          return response.data.message;
+        else
+          return `Error ${JSON.stringify(response)}`;
+      } catch (err) {
+        if (err && err.response && err.response.data && err.response.data.message)
+          return err.response.data.message;
+        return JSON.stringify(err);
+      }
+      if (data) {
+        commit('updateMonitor', data);
+        return '';
+      }
+      return 'Unexpected Error';
+    },
+    async addMonitor({ commit }, { accessToken }) {
+      let response, data, error;
+      try {
+        response = await axios.post(config.api_url + '/monitor', null, {headers: {'Authorization': `Bearer ${accessToken}`}});
+        if (response && response.status == 200)
+          data = response.data.monitor;
+        else if (response && response.data && response.data.message)
+          return response.data.message;
+        else
+          return `Error ${JSON.stringify(response)}`;
+      } catch (err) {
+        if (err && err.response && err.response.data && err.response.data.message)
+          return err.response.data.message;
+        return JSON.stringify(err);
+      }
+      if (data) {
+        commit('addMonitor', data);
+        return '';
+      }
+      return 'Unexpected Error';
+    },
+    async deleteMonitor({ commit }, { id, accessToken }) {
+      let response, data, error;
+      try {
+        response = await axios.delete(config.api_url + '/monitor/' + id, {headers: {'Authorization': `Bearer ${accessToken}`}});
+        if (response && response.status == 200)
+          data = 'Success';
+        else if (response && response.data && response.data.message)
+          return response.data.message;
+        else
+          return `Error ${JSON.stringify(response)}`;
+      } catch (err) {
+        if (err && err.response && err.response.data && err.response.data.message)
+          return err.response.data.message;
+        return JSON.stringify(err);
+      }
+      if (data) {
+        commit('deleteMonitor', id);
+        return '';
+      }
+      return 'Unexpected Error';
+    },
+    async sendTestmessage({ commit }, { id, accessToken }) {
+      let response, data;
+      try {
+        response = await axios.post(config.api_url + '/monitor/' + id + '/testmessage', null, {headers: {'Authorization': `Bearer ${accessToken}`}});
+        if (response && response.status == 200)
+          data = 'Success';
+        else if (response && response.data && response.data.message)
+          return response.data.message;
+        else
+          return `Error ${JSON.stringify(response)}`;
+      } catch (err) {
+        if (err && err.response && err.response.data && err.response.data.message)
+          return err.response.data.message;
+        return JSON.stringify(err);
+      }
       if (data) {
         return '';
-      } else if (error) {
-        console.log(error);
-      } else {
-        console.log('Unbekannter Fehler in sendTestmessage');
-        return 'Fehler';
       }
+      return 'Unexpected Error';
+    },
+    async getProducts({ commit }, { accessToken }) {
+      let response, data;
+      try {
+        response = await axios.get(config.api_url + '/product', {headers: {'Authorization': `Bearer ${accessToken}`}});
+        if (response && response.status == 200)
+          data = response.data.products;
+        else if (response && response.data && response.data.message)
+          return response.data.message;
+        else
+          return `Error ${JSON.stringify(response)}`;
+      } catch (err) {
+        if (err && err.response && err.response.data && err.response.data.message)
+          return err.response.data.message;
+        return JSON.stringify(err);
+      }
+      if (data) {
+        commit('setProducts', data);
+        return '';
+      }
+      return 'Unexpected Error';
+    },
+    async getMonitorpages({ commit }, { accessToken }) {
+      let response, data;
+      try {
+        response = await axios.get(config.api_url + '/monitorpage', {headers: {'Authorization': `Bearer ${accessToken}`}});
+        if (response && response.status == 200)
+          data = response.data.monitorpages;
+        else if (response && response.data && response.data.message)
+          return response.data.message;
+        else
+          return `Error ${JSON.stringify(response)}`;
+      } catch (err) {
+        if (err && err.response && err.response.data && err.response.data.message)
+          return err.response.data.message;
+        return JSON.stringify(err);
+      }
+      if (data) {
+        commit('setMonitorpages', data);
+        return '';
+      }
+      return 'Unexpected Error';
+    },
+    async addMonitorsource({ commit }, { id, all, productId, monitorpageId, accessToken }) {
+      let response, data, error;
+      try {
+        response = await axios.post(config.api_url + '/monitor/' + id + '/source', { all, productId, monitorpageId }, {headers: {'Authorization': `Bearer ${accessToken}`}});
+        if (response && response.status == 200)
+          data = response.data.monitorsource;
+        else if (response && response.data && response.data.message)
+          return response.data.message;
+        else
+          return `Error ${JSON.stringify(response)}`;
+      } catch (err) {
+        if (err && err.response && err.response.data && err.response.data.message)
+          return err.response.data.message;
+        return JSON.stringify(err);
+      }
+      if (data) {
+        commit('addMonitorsource', { id, monitorsource: data });
+        return '';
+      }
+      return 'Unexpected Error';
+    },
+    async deleteMonitorsource({ commit }, { id, monitorsourceId, accessToken }) {
+      let response, data, error;
+      try {
+        response = await axios.delete(config.api_url + '/monitor/' + id + '/source/' + monitorsourceId, {headers: {'Authorization': `Bearer ${accessToken}`}});
+        if (response && response.status == 200)
+          data = 'Success';
+        else if (response && response.data && response.data.message)
+          return response.data.message;
+        else
+          return `Error ${JSON.stringify(response)}`;
+      } catch (err) {
+        if (err && err.response && err.response.data && err.response.data.message)
+          return err.response.data.message;
+        return JSON.stringify(err);
+      }
+      if (data) {
+        commit('deleteMonitorsource', { id, monitorsourceId });
+        return '';
+      }
+      return 'Unexpected Error';
     },
   },  
   mutations: {
-    setUser: (state: any, user) => { 
-      state.user = user;
-    },
-    setAccessToken: (state: any, accessToken) => { 
-      state.user.accessToken = accessToken;
-    },
-    setMonitorObjects: (state: any, monitors) => {
+    setMonitors: (state: any, monitors) => {
+      monitors.forEach(monitor => {
+        if (!monitor.monitorsources)
+          monitor.monitorsources = [];
+      });
       state.monitors = monitors;
+    },
+    setMonitorsources: (state: any, { id, monitorsources }) => {
+      let monitors = state.monitors;
+      monitors[monitors.findIndex(item => item.id === id)].monitorsources = monitorsources;
+      state.monitors = [...monitors];
+    },
+    updateMonitor: (state: any, monitor) => {
+      if (!monitor.monitorsources)
+          monitor.monitorsources = [];
+      let monitors = state.monitors;
+      let index = monitors.findIndex(item => item.id === monitor.id);
+      monitors[index].running = monitor.running;
+      monitors[index].botName = monitor.botName;
+      monitors[index].botImage = monitor.botImage;
+      monitors[index].webHook = monitor.webHook;
+      state.monitors = [...monitors];
+    },
+    addMonitor: (state: any, monitor) => {
+      if (!monitor.monitorsources)
+          monitor.monitorsources = [];
+      let monitors = state.monitors;
+      state.monitors = [...monitors, monitor];
+    },
+    deleteMonitor: (state: any, id) => {
+      let monitors = state.monitors;
+      monitors.splice(monitors.findIndex(item => item.id === id), 1);
+      state.monitors = [...monitors];
+    },
+    setProducts: (state: any, products) => {
+      state.products = products;
+    },
+    setMonitorpages: (state: any, monitorpages) => {
+      state.monitorpages = monitorpages;
+    },
+    addMonitorsource: (state: any, { id, monitorsource }) => {
+      let monitors = state.monitors;
+      let index = monitors.findIndex(item => item.id === id);
+      let monitorsources = monitors[index].monitorsources;
+      monitors[index].monitorsources = [...monitorsources, monitorsource];
+      state.monitors = [...monitors];
+    },
+    deleteMonitorsource: (state: any, { id, monitorsourceId }) => {
+      let monitors = state.monitors;
+      let index = monitors.findIndex(item => item.id === id);
+      let monitorsources = monitors[index].monitorsources;
+      monitorsources.splice(monitorsources.findIndex(item => item.id == monitorsourceId), 1);
+      monitors[index].monitorsources = [...monitorsources];
+      state.monitors = [...monitors];
     },
   }
 });
