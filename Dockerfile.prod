@@ -31,5 +31,4 @@ COPY --chown=node:node package*.json process.yml ./
 USER node
 RUN npm install --only=production
 COPY --chown=node:node --from=builder /app/dist ./dist
-EXPOSE 6970
 ENTRYPOINT ["pm2-runtime", "./process.yml"]
