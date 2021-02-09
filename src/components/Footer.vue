@@ -20,8 +20,8 @@ export default class Footer extends Vue { }
 <style scoped>
   .main-div {
     height: 80px;
-    color: white;
-    background-color: rgb(22, 21, 21);
+    color: #fafafa;
+    background-color: #2c3e50;
     text-decoration: none;
     padding: 5px 0px;
   }
