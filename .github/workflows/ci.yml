@@ -6,7 +6,6 @@ name: LSB-API CI
 on:
   push:
     tags: v[0-9]+.[0-9]+.[0-9]
-    branches: [ master ]
 
 jobs:
   build:
@@ -24,6 +23,6 @@ jobs:
       uses: actions/setup-node@v1
       with:
         node-version: ${{ matrix.node-version }}
+    - run: npm install
     - name: Run Tests
-      run: npm install
       run: npm test
