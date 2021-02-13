@@ -122,7 +122,7 @@ export class AdminService {
           await this.queue.removeRepeatableByKey(jobs[i].key);
       }
 
-      await this.queue.add('monitor', { id: id, techname: monitorpage.techname }, { repeat: { every: interval * 1000 }, jobId: id });
+      await this.queue.add('monitor', { id: id, techname: monitorpage.techname, name: monitorpage.name }, { repeat: { every: interval * 1000 }, jobId: id });
 
       await this.monitorpageModel.UpdateRunning({ id, running: true, interval });
 
