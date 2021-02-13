@@ -16,7 +16,7 @@ export class ProxyModel {
           let index = proxies.findIndex(item => item.id == proxyCooldown.proxyId);
           if (index !== -1)
             proxies.splice(index, 1);
-          await dbProvider.Update('lsb.proxy_cooldowns', { proxyId: proxyCooldown.proxyId , monitorpageId: proxyCooldown.monitorpageId }, "set remaining = remaining - 1", {});
+          await dbProvider.Update('lsb.proxy_cooldowns', { proxyId: proxyCooldown.proxyId , monitorpageId: proxyCooldown.monitorpageId }, "set remaining = :remaining", { ':remaining': proxyCooldown.remaining - 1 });
         }
       });
       let index = Math.floor((Math.random() * proxies.length));
