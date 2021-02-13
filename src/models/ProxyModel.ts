@@ -30,7 +30,7 @@ export class ProxyModel {
     if (result && result.Item) {
       let cooldown = result.Item as Cooldown;
       let counter = cooldown.counter + 1;
-      await dbProvider.Update('lsb.proxy_cooldowns', { proxyId, monitorpageId }, "set remaining = :counter, counter = :counter", { ":counter": counter });
+      await dbProvider.Update('lsb.proxy_cooldowns', { proxyId, monitorpageId }, "set remaining = :counter, #c = :counter", { ":counter": counter }, null, { '#c': 'counter' });
     } else {
       let cooldown = new Cooldown();
       cooldown.proxyId = proxyId;
@@ -42,7 +42,7 @@ export class ProxyModel {
   }
 
   public static ResetCooldown = async function ({ proxyId, monitorpageId }: { proxyId: string, monitorpageId: string }): Promise<void> {
-    await dbProvider.Update('lsb.proxy_cooldowns', { proxyId, monitorpageId }, "set remaining = :counter, counter = :counter", { ":counter": 0 });
+    await dbProvider.Update('lsb.proxy_cooldowns', { proxyId, monitorpageId }, "set remaining = :counter, #c = :counter", { ":counter": 0 }, null, { '#c': 'counter' });
   }
 
   public static IsCooldown = async function ({ proxyId, monitorpageId }: { proxyId: string, monitorpageId: string }) {
