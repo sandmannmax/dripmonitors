@@ -9,6 +9,9 @@ import { describe, it } from 'mocha';
 import sinon from 'sinon';
 import { Auth } from '../src/auth';
 import { MonitorService } from '../src/services/MonitorService';
+import { QueueProvider } from '../src/provider/QueueProvider';
+
+sinon.stub(QueueProvider, 'GetQueue').returns(null);
 
 sinon.stub(Auth, 'CheckJWT').callsFake((req, res, next) => { 
   req['user'] = {name: 'user', sub: 'lsb|1234', permissions: ['read:monitor', 'create:monitor']};
