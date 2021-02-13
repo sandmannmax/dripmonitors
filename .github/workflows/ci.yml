@@ -46,8 +46,7 @@ jobs:
         ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
         IMAGE: ${{ steps.docker_meta.outputs.tags }}
       run: |
-        echo $IMAGE
         docker build -t $ECR_REGISTRY/lsb-api:latest .
         docker push $ECR_REGISTRY/lsb-api:latest
-        docker tag $ECR_REGISTRY/lsb-api:latest $IMAGE
-        docker push $IMAGE
+        docker tag $ECR_REGISTRY/lsb-api:latest $ECR_REGISTRY/$IMAGE
+        docker push $ECR_REGISTRY/$IMAGE
