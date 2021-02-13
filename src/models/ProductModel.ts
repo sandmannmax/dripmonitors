@@ -11,10 +11,12 @@ export class ProductModel {
   }
 
   public static AddProduct = async function ({ product, monitorpageId }: { product: Product, monitorpageId: string }) {
+    product.monitorpageId = monitorpageId;
     await dbProvider.Insert('lsb.products', product.ToDBObject());
   }
 
   public static UpdateProduct = async function ({ product, monitorpageId }: { product: Product, monitorpageId: string }) {
+    product.monitorpageId = monitorpageId;
     let update = product.ToDBUpdate();
     await dbProvider.Update('lsb.products', update.key, update.expression, update.values, null, update.names);
   }
