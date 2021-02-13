@@ -5,16 +5,18 @@ const dbProvider = DatabaseProvider.getInstance();
 
 export class ProductModel {
 
-  public static SetProducts = async function ({ products, monitorpageId }: { products: Array<Product>, monitorpageId: string }) {
-    products.forEach(async (product) => {
-      product.monitorpageId = monitorpageId;
-      let result = await dbProvider.Get('lsb.products', { id: product.id });
-      if (result && result.Item) {
-        let update = product.ToDBUpdate();
-        await dbProvider.Update('lsb.products', update.key, update.expression, update.values, null, update.names);
-      } else
-        await dbProvider.Insert('lsb.products', product.ToDBObject());
-    });
+  public static GetProduct = async function ({ id }: { id: string }) {
+    let result = await dbProvider.Get('lsb.products', { id });
+    return result.Item as Product;
+  }
+
+  public static AddProduct = async function ({ product, monitorpageId }: { product: Product, monitorpageId: string }) {
+    await dbProvider.Insert('lsb.products', product.ToDBObject());
+  }
+
+  public static UpdateProduct = async function ({ product, monitorpageId }: { product: Product, monitorpageId: string }) {
+    let update = product.ToDBUpdate();
+    await dbProvider.Update('lsb.products', update.key, update.expression, update.values, null, update.names);
   }
 
 }

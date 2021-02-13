@@ -47,6 +47,17 @@ export class DatabaseProvider {
     return await this.Database.query(params).promise();
   }
 
+  async Scan(TableName: string, FilterExpression: string, ExpressionAttributeValues: Object, ExpressionAttributeNames?: ExpressionAttributeNameMap, IndexName?: string) {
+    let params: DynamoDB.DocumentClient.ScanInput = {
+      TableName,
+      FilterExpression,
+      ExpressionAttributeValues,
+      ExpressionAttributeNames,
+      IndexName
+    };
+    return await this.Database.scan(params).promise();
+  }
+
   async GetAll(TableName: string) {
     let params: DynamoDB.DocumentClient.ScanInput = {
       TableName

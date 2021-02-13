@@ -1,4 +1,8 @@
-export class Monitorpage {
+export class Monitor {
   public id: string;
-  public techname: string;
+  public userId: string;
+  public webHook: string;
+  public botName: string;
+  public botImage: string;
+  public running: boolean;
 }
