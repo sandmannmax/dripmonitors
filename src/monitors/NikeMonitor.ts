@@ -25,53 +25,56 @@ export class NikeMonitor {
       } catch (e) {
         return null;
       }
-      if (response.ok) {
-        let json = await response.json();
-        for (let j = 0; j < json.objects.length; j++) {
-          if (json.objects[j].productInfo) {
-            let name = `${json.objects[j].publishedContent.properties.title} ${json.objects[j].publishedContent.properties.coverCard.properties.title}`;
-            let href = `https://www.nike.com/${location.toLowerCase()}/launch/t/${json.objects[j].publishedContent.properties.seo.slug}`;
-            try {
-              for (let k = 0; k < json.objects[j].productInfo.length; k++) {
-                let productJson = json.objects[j].productInfo[k];
-                let product: Product = new Product();
-                product.id = productJson.merchProduct.id;
-                product.active = productJson.merchProduct.status == 'ACTIVE';
-                if (productJson.launchView) {
-                  let launchDate = new Date(productJson.launchView.startEntryDate);
-                  if (launchDate > new Date(Date.now()))
-                    product.active = false;
-                }
-                product.href = productJson.productContent ? `https://www.nike.com/${location.toLowerCase()}/launch/t/${productJson.productContent.slug}` : href;
-                product.img = productJson.imageUrls.productImageUrl;
-                product.name = productJson.productContent ? productJson.productContent.fullTitle : name;
-                product.price = `${productJson.merchPrice.currentPrice} ${productJson.merchPrice.currency}`;
-                product.soldOut = !productJson.availability.available;
-                product.sizes = [];
-                product.sizesSoldOut = [];
-                if (productJson.skus) {
-                  let skuIds = [];
-                  for (let l = 0; l < productJson.skus.length; l++) {
-                    skuIds.push(productJson.skus[l].id);
-                    product.sizes.push(productJson.skus[l].nikeSize);
-                    product.sizesSoldOut.push(true);
-                  }
-                  if (productJson.availableSkus)
-                  for (let l = 0; l < productJson.availableSkus.length; l++) {
-                    product.sizesSoldOut[skuIds.indexOf(productJson.availableSkus[l].id)] = !productJson.availableSkus[l].available;
-                  }
-                }
-                items.push(product);
+
+      if (!response.ok) {
+        logger.error('Error in NikeMonitor.GetItems() - Request to Nike failed with status code ' + response.status + ' - ' + response.statusText) + '; Proxy: ' + proxy.address;
+        return items;
+      }
+
+      let json = await response.json();
+      for (let j = 0; j < json.objects.length; j++) {
+        if (json.objects[j].productInfo) {
+          let name = `${json.objects[j].publishedContent.properties.title} ${json.objects[j].publishedContent.properties.coverCard.properties.title}`;
+          let href = `https://www.nike.com/${location.toLowerCase()}/launch/t/${json.objects[j].publishedContent.properties.seo.slug}`;
+          try {
+            for (let k = 0; k < json.objects[j].productInfo.length; k++) {
+              let productJson = json.objects[j].productInfo[k];
+              let product: Product = new Product();
+              product.id = productJson.merchProduct.id;
+              product.active = productJson.merchProduct.status == 'ACTIVE';
+              if (productJson.launchView) {
+                let launchDate = new Date(productJson.launchView.startEntryDate);
+                if (launchDate > new Date(Date.now()))
+                  product.active = false;
               }
+              product.href = productJson.productContent ? `https://www.nike.com/${location.toLowerCase()}/launch/t/${productJson.productContent.slug}` : href;
+              product.img = productJson.imageUrls.productImageUrl;
+              product.name = productJson.productContent ? productJson.productContent.fullTitle : name;
+              product.price = `${productJson.merchPrice.currentPrice} ${productJson.merchPrice.currency}`;
+              product.soldOut = !productJson.availability.available;
+              product.sizes = [];
+              product.sizesSoldOut = [];
+              if (productJson.skus) {
+                let skuIds = [];
+                for (let l = 0; l < productJson.skus.length; l++) {
+                  skuIds.push(productJson.skus[l].id);
+                  product.sizes.push(productJson.skus[l].nikeSize);
+                  product.sizesSoldOut.push(true);
+                }
+                if (productJson.availableSkus)
+                for (let l = 0; l < productJson.availableSkus.length; l++) {
+                  product.sizesSoldOut[skuIds.indexOf(productJson.availableSkus[l].id)] = !productJson.availableSkus[l].available;
+                }
+              }
+              items.push(product);
             }
-            catch (e) {
-              logger.error('Error in NikeMonitor.GetItems(): ', e);
-            } 
-          }         
-        }
-      } else {
-        logger.error('Error in NikeMonitor.GetItems() - Request to Nike failed with status code ' + response.status + ' - ' + response.statusText);
-      }      
+          }
+          catch (e) {
+            logger.error('Error in NikeMonitor.GetItems(): ', e);
+          } 
+        }         
+      }
+
       Sleep(1000);
     }
     return items;
