@@ -1,3 +1,4 @@
+import { logger } from '../logger';
 import { DatabaseProvider } from '../provider/DatabaseProvider';
 import { Monitor } from '../types/Monitor';
 import { Monitorsource } from '../types/Montiorsource';
@@ -15,11 +16,15 @@ export class MonitorModel {
     if (result.Items != null)
       monitorsources.push(...(result.Items as Array<Monitorsource>));
 
+    logger.info(JSON.stringify(result.Items));
+
     if (product) {
       result = await dbProvider.Scan('lsb.monitorsources', "monitorpageId = :monitorpageId", { ":monitorpageId": monitorpageId });
       if (result.Items != null)
       monitorsources.push(...(result.Items as Array<Monitorsource>));
     }
+
+    logger.info(JSON.stringify(result.Items));
 
     if (product) {
       result = await dbProvider.Scan('lsb.monitorsources', "productId = :productId", { ":productId": product.id });
@@ -27,11 +32,14 @@ export class MonitorModel {
       monitorsources.push(...(result.Items as Array<Monitorsource>));
     }
 
+    logger.info(JSON.stringify(result.Items));
+
     monitorsources.forEach(async (monitorsource) => {
       let index = monitors.findIndex(monitor => monitor.id == monitorsource.id);
-
+      logger.info(index);
       if (index === -1) {
         let result = await dbProvider.Get('lsb.monitors', { id: monitorsource.monitorId });
+        logger.info(JSON.stringify(result));
         monitors.push(result.Item as Monitor);
       }
     });
