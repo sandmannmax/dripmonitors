@@ -51,8 +51,6 @@ export const Run = async function ({ id, techname, name }: { id: string, technam
 
     let isMonitorpageVisible = await MonitorpageModel.IsVisible({ id });
 
-    logger.warn('Monitorvisible ' + id + ' ' + isMonitorpageVisible);
-
     for (let i = 0; i < products.length; i++) {
       let product = products[i];
       let oldProduct = await ProductModel.GetProduct({ id: product.id });
@@ -64,9 +62,9 @@ export const Run = async function ({ id, techname, name }: { id: string, technam
 
         if (product.active && !product.soldOut) { // If active and not sold out send all sizes
           sendMessage = true;
-          for (let i = 0; i < product.sizes.length; i++) {
-            if (!product.sizesSoldOut[i])
-              size += product.sizes[i] + ' - '; 
+          for (let j = 0; j < product.sizes.length; j++) {
+            if (!product.sizesSoldOut[j])
+              size += product.sizes[j] + ' - '; 
           }
           size = size.substr(0, size.length - 3);
         }
@@ -76,32 +74,32 @@ export const Run = async function ({ id, techname, name }: { id: string, technam
           if (!oldProduct.active || oldProduct.soldOut) { // If the old Product was inactive or soldout send all and update
             await ProductModel.UpdateProduct({ product, monitorpageId: id });
             sendMessage = true;
-            for (let i = 0; i < product.sizes.length; i++) {
-              if (!product.sizesSoldOut[i])
-                size += product.sizes[i] + ' - '; 
+            for (let j = 0; j < product.sizes.length; j++) {
+              if (!product.sizesSoldOut[j])
+                size += product.sizes[j] + ' - '; 
             }
             size = size.substr(0, size.length - 3);
           } else if (oldProduct.active && !oldProduct.soldOut) { // If the old Product also was active and not sold out then
             let update = false;
 
-            for (let i = 0; i < product.sizes.length; i++) { // Iterate over all sizes in new Product
-              let index = oldProduct.sizes.findIndex(item => item == product.sizes[i]); // Find index of same size
+            for (let j = 0; j < product.sizes.length; j++) { // Iterate over all sizes in new Product
+              let index = oldProduct.sizes.findIndex(item => item == product.sizes[j]); // Find index of same size
 
               if (index != -1) { // if same size was found on old Product
-                if (product.sizesSoldOut[i] != oldProduct.sizesSoldOut[index]) { // and the soldout state changed
+                if (product.sizesSoldOut[j] != oldProduct.sizesSoldOut[index]) { // and the soldout state changed
                   update = true; // then update
 
-                  if (!product.sizesSoldOut[i]) { // if its not sold out then send size with message
+                  if (!product.sizesSoldOut[j]) { // if its not sold out then send size with message
                     sendMessage = true;
-                    size += product.sizes[i] + ' - ';
+                    size += product.sizes[j] + ' - ';
                   }
                 }
               } else { // if new size then update
                 update = true;
 
-                if (!product.sizesSoldOut[i]) { // if this size is not sold out sent size with message
+                if (!product.sizesSoldOut[j]) { // if this size is not sold out sent size with message
                   sendMessage = true;
-                  size += product.sizes[i] + ' - ';
+                  size += product.sizes[j] + ' - ';
                 }
               }
             }
@@ -118,11 +116,11 @@ export const Run = async function ({ id, techname, name }: { id: string, technam
           if (product.soldOut != oldProduct.soldOut)
             update = true;
 
-          for (let i = 0; i < product.sizes.length; i++) { // Iterate over all sizes in new Product
-            let index = oldProduct.sizes.findIndex(item => item == product.sizes[i]); // Find index of same size
+          for (let j = 0; j < product.sizes.length; j++) { // Iterate over all sizes in new Product
+            let index = oldProduct.sizes.findIndex(item => item == product.sizes[j]); // Find index of same size
 
             if (index != -1) { // if same size was found on old Product
-              if (product.sizesSoldOut[i] != oldProduct.sizesSoldOut[index]) // and the soldout state changed
+              if (product.sizesSoldOut[j] != oldProduct.sizesSoldOut[index]) // and the soldout state changed
                 update = true; // then update
             } else // if new size then update
               update = true;
