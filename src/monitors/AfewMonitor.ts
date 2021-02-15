@@ -24,7 +24,7 @@ export class AfewMonitor {
     }
 
     if (!response.ok) {
-      logger.error('Error in AfewMonitor.GetItems() - Request to Afew failed with status code ' + response.status + ' - ' + response.statusText);
+      logger.error('Error in AfewMonitor.GetItems() - Request to Afew failed with status code ' + response.status + ' - ' + response.statusText + '; Proxy: ' + proxy.address);
       return items;
     }
     
@@ -38,6 +38,27 @@ export class AfewMonitor {
         product.id = item.id;
         product.name = item.title;
         product.href = `https://afew-store.com/products/${item.handle}`;
+        product.sizes = [];
+        product.sizesSoldOut = [];
+        product.active = false;
+        product.soldOut = true;
+        product.price = '';
+
+        if (item.images.length > 0)
+          product.img = item.images[0].src;
+
+        item.variants.forEach(variant => {
+          if (product.price === '')
+            product.price = variant.price + ' EUR';
+          
+          product.sizes.push(variant.title);
+          product.sizesSoldOut.push(variant.available);
+
+          if (variant.available) {
+            product.active = true;
+            product.soldOut = false;
+          }
+        });
 
         items.push(product);
       } catch (e) {

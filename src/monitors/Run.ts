@@ -6,6 +6,7 @@ import { ProxyModel } from "../models/ProxyModel";
 import { DiscordService } from "../services/DiscordService";
 import { RunningTrackerService } from "../services/RunningTrackerService";
 import { Product } from "../types/Product";
+import { AfewMonitor } from "./AfewMonitor";
 import { NikeMonitor } from "./NikeMonitor";
 
 export const Run = async function ({ id, techname, name }: { id: string, techname: string, name: string}) {
@@ -28,6 +29,9 @@ export const Run = async function ({ id, techname, name }: { id: string, technam
     switch(techname) {
       case 'nike':
         products = await NikeMonitor.GetProducts({ proxy });
+        break;
+      case 'afew':
+        products = await AfewMonitor.GetProducts({ proxy });
         break;
       default:
         products = [];
