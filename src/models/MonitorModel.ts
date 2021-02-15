@@ -9,7 +9,7 @@ export class MonitorModel {
   public static GetMonitors = async function ({ product, monitorpageId }: { product: Product, monitorpageId: string }): Promise<Array<Monitor>> {
     let monitors: Array<Monitor> = [];
 
-    let result = await dbProvider.Scan('lsb.monitors', "all = :all", { ":all": true });
+    let result = await dbProvider.Scan('lsb.monitors', "#a = :all", { ":all": true }, { '#a': 'all' });
     if (result.Items != null)
       monitors.push(...(result.Items as Array<Monitor>));
 
