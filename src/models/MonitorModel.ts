@@ -34,15 +34,15 @@ export class MonitorModel {
 
     logger.info(JSON.stringify(result.Items));
 
-    await monitorsources.forEach(async (monitorsource) => {
-      let index = monitors.findIndex(monitor => monitor.id == monitorsource.id);
+    for (let i = 0; i < monitorsources.length; i++) { 
+      let index = monitors.findIndex(monitor => monitor.id == monitorsources[i].id);
       logger.info(index);
       if (index === -1) {
-        let result = await dbProvider.Get('lsb.monitors', { id: monitorsource.monitorId });
+        let result = await dbProvider.Get('lsb.monitors', { id: monitorsources[i].monitorId });
         logger.info(JSON.stringify(result));
         monitors.push(result.Item as Monitor);
       }
-    });
+    }
 
     return monitors;
   }
