@@ -99,6 +99,27 @@ export const Run = async function ({ id, techname, name }: { id: string, technam
             if (update)
               await ProductModel.UpdateProduct({ product, monitorpageId: id});
           }  
+        } else {
+          let update = false;
+
+          if (product.active != oldProduct.active)
+            update = true;
+
+          if (product.soldOut != oldProduct.soldOut)
+            update = true;
+
+          for (let i = 0; i < product.sizes.length; i++) { // Iterate over all sizes in new Product
+            let index = oldProduct.sizes.findIndex(item => item == product.sizes[i]); // Find index of same size
+
+            if (index != -1) { // if same size was found on old Product
+              if (product.sizesSoldOut[i] != oldProduct.sizesSoldOut[index]) // and the soldout state changed
+                update = true; // then update
+            } else // if new size then update
+              update = true;
+          }
+
+          if (update)
+            await ProductModel.UpdateProduct({ product, monitorpageId: id});
         }
       }
 
