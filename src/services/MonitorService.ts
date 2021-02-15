@@ -360,12 +360,11 @@ export class MonitorService {
 
       for (let i = 0; i < products.length; i++) {
         if (products[i].monitorpageId) {
-
           let monitorpage = await this.monitorpageModel.GetMonitorpageVisible({ id: products[i].monitorpageId });
           if (monitorpage != null)
             products_O.push(GetProduct_O(products[i], monitorpage));
         } else
-          logger.error('NO MONITORPAGEID ' + JSON.stringify(products[i]));
+          logger.error('Product has no monitorpageId. product id: ' + products[i].id);
       }
         
       return {success: true, data: { products: products_O}};
