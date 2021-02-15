@@ -13,13 +13,17 @@ export class MonitorModel {
     if (result.Items != null)
       monitors.push(...(result.Items as Array<Monitor>));
 
-    result = await dbProvider.Scan('lsb.monitors', "monitorpageId = :monitorpageId", { ":monitorpageId": monitorpageId });
-    if (result.Items != null)
-      monitors.push(...(result.Items as Array<Monitor>));
+    if (product) {
+      result = await dbProvider.Scan('lsb.monitors', "monitorpageId = :monitorpageId", { ":monitorpageId": monitorpageId });
+      if (result.Items != null)
+        monitors.push(...(result.Items as Array<Monitor>));
+    }
 
-    result = await dbProvider.Scan('lsb.monitors', "productId = :productId", { ":productId": product.id });
-    if (result.Items != null)
-      monitors.push(...(result.Items as Array<Monitor>));
+    if (product) {
+      result = await dbProvider.Scan('lsb.monitors', "productId = :productId", { ":productId": product.id });
+      if (result.Items != null)
+        monitors.push(...(result.Items as Array<Monitor>));
+    }
 
     return monitors;
   }

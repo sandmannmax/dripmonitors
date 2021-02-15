@@ -132,6 +132,8 @@ export const Run = async function ({ id, techname, name }: { id: string, technam
         DiscordService.SendMessage({ monitors, product, size, page: name });
       }
     });
+
+    logger.info(JSON.stringify(await MonitorModel.GetMonitors({ product: null, monitorpageId: '' })));
   
     RunningTrackerService.Stop(id);
   }
