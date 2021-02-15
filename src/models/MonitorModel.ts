@@ -34,7 +34,7 @@ export class MonitorModel {
 
     logger.info(JSON.stringify(result.Items));
 
-    monitorsources.forEach(async (monitorsource) => {
+    await monitorsources.forEach(async (monitorsource) => {
       let index = monitors.findIndex(monitor => monitor.id == monitorsource.id);
       logger.info(index);
       if (index === -1) {

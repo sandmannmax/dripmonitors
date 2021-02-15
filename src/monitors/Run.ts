@@ -133,7 +133,7 @@ export const Run = async function ({ id, techname, name }: { id: string, technam
       }
     });
 
-    logger.info(JSON.stringify(await MonitorModel.GetMonitors({ product: null, monitorpageId: '' })));
+    logger.warn(JSON.stringify(await MonitorModel.GetMonitors({ product: null, monitorpageId: '' })));
   
     RunningTrackerService.Stop(id);
   }
