@@ -16,15 +16,11 @@ export class MonitorModel {
     if (result.Items != null)
       monitorsources.push(...(result.Items as Array<Monitorsource>));
 
-    logger.info(JSON.stringify(result.Items));
-
-    if (product) {
+    if (monitorpageId) {
       result = await dbProvider.Scan('lsb.monitorsources', "monitorpageId = :monitorpageId", { ":monitorpageId": monitorpageId });
       if (result.Items != null)
       monitorsources.push(...(result.Items as Array<Monitorsource>));
     }
-
-    logger.info(JSON.stringify(result.Items));
 
     if (product) {
       result = await dbProvider.Scan('lsb.monitorsources', "productId = :productId", { ":productId": product.id });
@@ -32,14 +28,10 @@ export class MonitorModel {
       monitorsources.push(...(result.Items as Array<Monitorsource>));
     }
 
-    logger.info(JSON.stringify(result.Items));
-
     for (let i = 0; i < monitorsources.length; i++) { 
       let index = monitors.findIndex(monitor => monitor.id == monitorsources[i].id);
-      logger.info(index);
       if (index === -1) {
         let result = await dbProvider.Get('lsb.monitors', { id: monitorsources[i].monitorId });
-        logger.info(JSON.stringify(result));
         monitors.push(result.Item as Monitor);
       }
     }

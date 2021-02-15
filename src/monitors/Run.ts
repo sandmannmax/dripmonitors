@@ -1,6 +1,7 @@
 import { product } from "puppeteer";
 import { logger } from "../logger";
 import { MonitorModel } from "../models/MonitorModel";
+import { MonitorpageModel } from "../models/MonitorpageModel";
 import { ProductModel } from "../models/ProductModel";
 import { ProxyModel } from "../models/ProxyModel";
 import { DiscordService } from "../services/DiscordService";
@@ -48,7 +49,12 @@ export const Run = async function ({ id, techname, name }: { id: string, technam
     if (await ProxyModel.IsCooldown({ proxyId: proxy.id, monitorpageId: id }))
       await ProxyModel.ResetCooldown({ proxyId: proxy.id, monitorpageId: id });
 
-    products.forEach(async (product) => {
+    let isMonitorpageVisible = await MonitorpageModel.IsVisible({ id });
+
+    logger.warn('Monitorvisible ' + id + ' ' + isMonitorpageVisible);
+
+    for (let i = 0; i < products.length; i++) {
+      let product = products[i];
       let oldProduct = await ProductModel.GetProduct({ id: product.id });
       let sendMessage = false;
       let size = '';
@@ -127,13 +133,11 @@ export const Run = async function ({ id, techname, name }: { id: string, technam
         }
       }
 
-      if (sendMessage) {
+      if (sendMessage && isMonitorpageVisible) {
         let monitors = await MonitorModel.GetMonitors({ product, monitorpageId: id });
         DiscordService.SendMessage({ monitors, product, size, page: name });
       }
-    });
-
-    logger.warn(JSON.stringify(await MonitorModel.GetMonitors({ product: null, monitorpageId: '' })));
+    }
   
     RunningTrackerService.Stop(id);
   }
