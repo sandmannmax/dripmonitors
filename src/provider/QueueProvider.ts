@@ -14,7 +14,7 @@ export class QueueProvider {
       });
 
       QueueProvider.queue.process('monitor', job => {
-        redisClient.publish('monitor', JSON.stringify({ id: job.data.id, techname: job.data.techname }));
+        redisClient.publish('monitor', JSON.stringify({ id: job.data.id, techname: job.data.techname, name: job.data.name }));
       });
     }
     
