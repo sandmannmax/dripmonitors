@@ -52,11 +52,14 @@ export const Run = async function ({ id, techname, name }: { id: string, technam
 
     logger.info('monitor visbile ' + isMonitorpageVisible);
 
-    for (let i = 0; i < products.length; i++) {
+    for (let i = 0; i < 1; i++) {
       let product = products[i];
       let oldProduct = await ProductModel.GetProduct({ id: product.id });
       let sendMessage = false;
       let size = '';
+
+      logger.info(JSON.stringify(product))
+      logger.info(JSON.stringify(oldProduct))
 
       if (oldProduct == null) { // New Product
         await ProductModel.AddProduct({ product, monitorpageId: id });
@@ -108,6 +111,7 @@ export const Run = async function ({ id, techname, name }: { id: string, technam
             if (update) {
               logger.info(JSON.stringify(product));
               await ProductModel.UpdateProduct({ product, monitorpageId: id});
+              size = size.substr(0, size.length - 3);
             }
           }  
         } else {
