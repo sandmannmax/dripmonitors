@@ -1,4 +1,3 @@
-import { product } from "puppeteer";
 import { logger } from "../logger";
 import { MonitorModel } from "../models/MonitorModel";
 import { MonitorpageModel } from "../models/MonitorpageModel";
@@ -51,11 +50,15 @@ export const Run = async function ({ id, techname, name }: { id: string, technam
 
     let isMonitorpageVisible = await MonitorpageModel.IsVisible({ id });
 
+    logger.info('monitor visbile ' + isMonitorpageVisible);
+
     for (let i = 0; i < products.length; i++) {
       let product = products[i];
-      if (i == 0)
-        logger.info(JSON.stringify(product));
       let oldProduct = await ProductModel.GetProduct({ id: product.id });
+      if (i == 0) {
+        logger.info(JSON.stringify(product));
+        logger.info(JSON.stringify(oldProduct));
+      }
       let sendMessage = false;
       let size = '';
 

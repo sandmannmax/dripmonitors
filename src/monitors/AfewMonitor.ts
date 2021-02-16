@@ -11,15 +11,20 @@ export class AfewMonitor {
     let items: Array<Product> = [];
     let url = `https://afew-store.com/collections/sneakers/products.json/`
     let response: Response;
+    const controller = new AbortController();
+    const timeout = setTimeout(() => controller.abort(), 10000);
     try {
       response = await fetch(url, {
         method: 'GET',
         agent: new HttpsProxyAgent(proxy.address),
         headers: {
           'User-Agent': GetRandomUserAgent()
-        }
+        },
+        signal: controller.signal
       });
+      clearTimeout(timeout);
     } catch (e) {
+      clearTimeout(timeout);
       return null;
     }
 

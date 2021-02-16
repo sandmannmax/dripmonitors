@@ -7,23 +7,19 @@
     "build": "tsc --build"
   },
   "dependencies": {
+    "abort-controller": "^3.0.0",
     "aws-sdk": "^2.839.0",
     "discord.js": "^12.5.1",
     "dotenv": "^8.2.0",
     "https-proxy-agent": "^5.0.0",
     "jssoup": "0.0.12",
     "node-fetch": "^2.6.1",
-    "puppeteer": "^5.5.0",
-    "puppeteer-extra": "^3.1.16",
-    "puppeteer-extra-plugin-stealth": "^2.6.7",
-    "puppeteer-page-proxy": "^1.2.8",
     "redis": "^3.0.2",
     "winston": "^3.3.3"
   },
   "devDependencies": {
     "@types/node": "^14.14.10",
     "@types/node-fetch": "^2.5.8",
-    "@types/puppeteer": "^5.4.2",
     "ts-node": "^9.1.1",
     "typescript": "^4.1.2"
   }

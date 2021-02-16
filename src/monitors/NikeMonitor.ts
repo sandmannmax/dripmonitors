@@ -4,6 +4,7 @@ import { GetRandomUserAgent } from '../provider/RandomUserAgentProvider';
 import { logger } from '../logger';
 import { HttpsProxyAgent } from 'https-proxy-agent';
 import { Proxy } from '../types/Proxy'
+import { AbortController } from 'abort-controller';
 
 export class NikeMonitor {
 
@@ -14,15 +15,20 @@ export class NikeMonitor {
     for (let i = 0; i < 180; i += 60) {
       let url = `https://api.nike.com/product_feed/threads/v2/?anchor=${i}&count=60&filter=marketplace%28${location}%29&filter=language%28${language}%29&filter=channelId%28010794e5-35fe-4e32-aaff-cd2c74f89d61%29&filter=exclusiveAccess%28true%2Cfalse%29&fields=active%2Cid%2ClastFetchTime%2CproductInfo%2CpublishedContent.nodes%2CpublishedContent.subType%2CpublishedContent.properties.coverCard%2CpublishedContent.properties.productCard%2CpublishedContent.properties.products%2CpublishedContent.properties.publish.collections%2CpublishedContent.properties.relatedThreads%2CpublishedContent.properties.seo%2CpublishedContent.properties.threadType%2CpublishedContent.properties.custom%2CpublishedContent.properties.title`
       let response: Response;
+      const controller = new AbortController();
+      const timeout = setTimeout(() => controller.abort(), 10000);
       try {
         response = await fetch(url, {
           method: 'GET',
           agent: new HttpsProxyAgent(proxy.address),
           headers: {
             'User-Agent': GetRandomUserAgent()
-          }
+          },
+          signal: controller.signal
         });
+        clearTimeout(timeout);
       } catch (e) {
+        clearTimeout(timeout);
         return null;
       }
 
