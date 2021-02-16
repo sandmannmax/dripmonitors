@@ -53,7 +53,7 @@ import SupportedSite from "../components/SupportedSite.vue";
   components: { SupportedSite }
 })
 export default class Index extends Vue {
-  supported_sites = ["Nike SNKRS"]; //, 'Supreme', 'FootLocker'];
+  supported_sites = ['Nike SNKRS', 'Afew Store', 'Supreme'];
 
   monitorBetaAccess() {
     window.location = "https://app.lazyshoebot.com";

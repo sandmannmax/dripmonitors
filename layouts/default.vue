@@ -18,15 +18,7 @@ import Footer from "../components/Footer.vue";
 @Component({
   components: { NavBar, Footer }
 })
-export default class Default extends Vue {
-  items = [
-    {
-      title: "Home",
-      icon: "home",
-      to: { name: "index" }
-    }
-  ];
-}
+export default class Default extends Vue { }
 </script>
 
 <style scoped>
