@@ -35,7 +35,7 @@ export class AfewMonitor {
         let product = new Product();
         let item = json.products[i];
   
-        product.id = item.id;
+        product.id = item.id.toString() + 'afew';
         product.name = item.title;
         product.href = `https://afew-store.com/products/${item.handle}`;
         product.sizes = [];
@@ -52,7 +52,7 @@ export class AfewMonitor {
             product.price = variant.price + ' EUR';
           
           product.sizes.push(variant.title);
-          product.sizesSoldOut.push(variant.available);
+          product.sizesSoldOut.push(!variant.available);
 
           if (variant.available) {
             product.active = true;
