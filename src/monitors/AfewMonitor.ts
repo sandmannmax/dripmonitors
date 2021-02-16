@@ -51,6 +51,8 @@ export class AfewMonitor {
 
         if (item.images.length > 0)
           product.img = item.images[0].src;
+        else
+          product.img = ''
 
         item.variants.forEach(variant => {
           if (product.price === '')
