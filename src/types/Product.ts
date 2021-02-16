@@ -32,7 +32,9 @@ export class Product {
     product.img = img;
     product.price = price;
     product.sizes = sizes.split('$');
-    product.sizesSoldOut = sizesSoldOut.split('$');
+    let sizesSoldOutStrings = sizesSoldOut.split('$'); 
+    product.sizesSoldOut = [];
+    sizesSoldOutStrings.forEach(s => product.sizesSoldOut.push(s === "true"));
     product.soldOut = soldOut;
     product.active = active;
     return product;
