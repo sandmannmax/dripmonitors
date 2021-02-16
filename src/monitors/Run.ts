@@ -55,10 +55,6 @@ export const Run = async function ({ id, techname, name }: { id: string, technam
     for (let i = 0; i < products.length; i++) {
       let product = products[i];
       let oldProduct = await ProductModel.GetProduct({ id: product.id });
-      if (i == 0) {
-        logger.info(JSON.stringify(product));
-        logger.info(JSON.stringify(oldProduct));
-      }
       let sendMessage = false;
       let size = '';
 
@@ -109,8 +105,10 @@ export const Run = async function ({ id, techname, name }: { id: string, technam
               }
             }
 
-            if (update)
+            if (update) {
+              logger.info(JSON.stringify(product));
               await ProductModel.UpdateProduct({ product, monitorpageId: id});
+            }
           }  
         } else {
           let update = false;
@@ -131,8 +129,10 @@ export const Run = async function ({ id, techname, name }: { id: string, technam
               update = true;
           }
 
-          if (update)
+          if (update) {
+            logger.info(JSON.stringify(product));
             await ProductModel.UpdateProduct({ product, monitorpageId: id});
+          }
         }
       }
 
