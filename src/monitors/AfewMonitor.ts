@@ -9,69 +9,71 @@ export class AfewMonitor {
 
   public static GetProducts = async function ({ proxy }: { proxy: Proxy }): Promise<Array<Product>> {
     let items: Array<Product> = [];
-    let url = `https://afew-store.com/collections/sneakers/products.json/`
-    let response: Response;
-    const controller = new AbortController();
-    const timeout = setTimeout(() => controller.abort(), 10000);
-    try {
-      response = await fetch(url, {
-        method: 'GET',
-        agent: new HttpsProxyAgent(proxy.address),
-        headers: {
-          'User-Agent': GetRandomUserAgent()
-        },
-        signal: controller.signal
-      });
-      clearTimeout(timeout);
-    } catch (e) {
-      clearTimeout(timeout);
-      return null;
-    }
-
-    if (!response.ok) {
-      logger.error('Error in AfewMonitor.GetItems() - Request to Afew failed with status code ' + response.status + ' - ' + response.statusText + '; Proxy: ' + proxy.address);
-      return items;
-    }
-    
-    let json = await response.json();
-
-    for (let i = 0; i < json.products.length; i++) {
+    for (let page = 1; page < 7; page++) {
+      let url = `https://afew-store.com/collections/sneakers/products.json?page=${page}`
+      let response: Response;
+      const controller = new AbortController();
+      const timeout = setTimeout(() => controller.abort(), 10000);
       try {
-        let product = new Product();
-        let item = json.products[i];
-  
-        product.id = item.id.toString() + 'afew';
-        product.name = item.title;
-        product.href = `https://afew-store.com/products/${item.handle}`;
-        product.sizes = [];
-        product.sizesSoldOut = [];
-        product.active = false;
-        product.soldOut = true;
-        product.price = '';
-
-        if (item.images.length > 0)
-          product.img = item.images[0].src;
-        else
-          product.img = ''
-
-        item.variants.forEach(variant => {
-          if (product.price === '')
-            product.price = variant.price + ' EUR';
-          
-          product.sizes.push(variant.title);
-          product.sizesSoldOut.push(!variant.available);
-
-          if (variant.available) {
-            product.active = true;
-            product.soldOut = false;
-          }
+        response = await fetch(url, {
+          method: 'GET',
+          agent: new HttpsProxyAgent(proxy.address),
+          headers: {
+            'User-Agent': GetRandomUserAgent()
+          },
+          signal: controller.signal
         });
-
-        items.push(product);
+        clearTimeout(timeout);
       } catch (e) {
-        logger.error('Error in AfewMonitor.GetItems(): ', e);
+        clearTimeout(timeout);
+        return null;
       }
-    }
+
+      if (!response.ok) {
+        logger.error('Error in AfewMonitor.GetItems() - Request to Afew failed with status code ' + response.status + ' - ' + response.statusText + '; Proxy: ' + proxy.address);
+        return items;
+      }
+      
+      let json = await response.json();
+
+      for (let i = 0; i < json.products.length; i++) {
+        try {
+          let product = new Product();
+          let item = json.products[i];
+    
+          product.id = item.id.toString() + 'afew';
+          product.name = item.title;
+          product.href = `https://afew-store.com/products/${item.handle}`;
+          product.sizes = [];
+          product.sizesSoldOut = [];
+          product.active = false;
+          product.soldOut = true;
+          product.price = '';
+
+          if (item.images.length > 0)
+            product.img = item.images[0].src;
+          else
+            product.img = ''
+
+          item.variants.forEach(variant => {
+            if (product.price === '')
+              product.price = variant.price + ' EUR';
+            
+            product.sizes.push(variant.title);
+            product.sizesSoldOut.push(!variant.available);
+
+            if (variant.available) {
+              product.active = true;
+              product.soldOut = false;
+            }
+          });
+
+          items.push(product);
+        } catch (e) {
+          logger.error('Error in AfewMonitor.GetProducts(): ', e);
+        }
+      }
+    }    
 
     return items;
   }  

@@ -50,8 +50,6 @@ export const Run = async function ({ id, techname, name }: { id: string, technam
 
     let isMonitorpageVisible = await MonitorpageModel.IsVisible({ id });
 
-    logger.info('monitor visbile ' + isMonitorpageVisible);
-
     for (let i = 0; i < products.length; i++) {
       let product = products[i];
       let oldProduct = await ProductModel.GetProduct({ id: product.id });
