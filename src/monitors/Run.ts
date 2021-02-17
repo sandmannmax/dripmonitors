@@ -39,7 +39,6 @@ export const Run = async function ({ id, techname, name }: { id: string, technam
     }
 
     if (products == null) {
-      logger.error(`${techname} - ${id}: Error with Proxy ${proxy.address}`);
       await ProxyModel.SetCooldown({ proxyId: proxy.id, monitorpageId: id });
       RunningTrackerService.Stop(id);
       return;
