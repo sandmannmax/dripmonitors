@@ -54,7 +54,7 @@ export class MonitorService {
 
       let permissions = user['permissions'];
 
-      let maxNum = 1;
+      let maxNum = 3;
 
       // for (let i = 0; i < roles.length; i++) {
       //   let num = MonitorModel.GetRoleMonitorCount(roles[i]);
