@@ -54,12 +54,38 @@ describe("Monitor", () => {
             done();
         });
     });
-    it("should return 400 - Already have 1 monitor", (done) => {
+    it("should return 200 and the created Monitor", (done) => {
+      chai.request(app)
+        .post('/monitor')
+        .end((err, res) => {
+            res.should.have.status(200);
+            res.body.monitor.id.should.be.an('string');
+            res.body.monitor.botImage.should.be.an('string');
+            res.body.monitor.botName.should.be.an('string');
+            res.body.monitor.webHook.should.be.an('string');
+            res.body.monitor.running.should.be.an('boolean');
+            done();
+        });
+    });
+    it("should return 200 and the created Monitor", (done) => {
+      chai.request(app)
+        .post('/monitor')
+        .end((err, res) => {
+            res.should.have.status(200);
+            res.body.monitor.id.should.be.an('string');
+            res.body.monitor.botImage.should.be.an('string');
+            res.body.monitor.botName.should.be.an('string');
+            res.body.monitor.webHook.should.be.an('string');
+            res.body.monitor.running.should.be.an('boolean');
+            done();
+        });
+    });
+    it("should return 400 - Already have 3 monitor", (done) => {
       chai.request(app)
         .post('/monitor')
         .end((err, res) => {
             res.should.have.status(400);
-            res.body.message.should.be.equal('You already have 1 available Monitors for your account');
+            res.body.message.should.be.equal('You already have 3 available Monitors for your account');
             done();
         });
     });
