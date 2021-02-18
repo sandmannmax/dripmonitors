@@ -33,7 +33,7 @@ export class NikeMonitor {
       }
 
       if (!response.ok) {
-        logger.error('Error in NikeMonitor.GetItems() - Request to Nike failed with status code ' + response.status + ' - ' + response.statusText + '; Proxy: ' + proxy.address);
+        logger.error('Error in NikeMonitor.GetProducts() - Request to Nike failed with status code ' + response.status + ' - ' + response.statusText + '; Proxy: ' + proxy.address);
         return items;
       }
 
@@ -84,7 +84,7 @@ export class NikeMonitor {
       Sleep(1000);
     }
     return items;
-  }  
+  }
 
 }
 

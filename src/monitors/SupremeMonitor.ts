@@ -1,142 +1,117 @@
-// import fetch from 'node-fetch';
-// import JsSoup from 'jssoup';
-// import { Product } from '../types/Product';
+import fetch, { Response } from 'node-fetch';
+import JsSoup from 'jssoup';
+import { Product } from '../types/Product';
+import { Proxy } from '../types/Proxy';
+import { HttpsProxyAgent } from 'https-proxy-agent';
+import { GetRandomUserAgent } from '../provider/RandomUserAgentProvider';
+import { logger } from '../logger';
 
-// export class SupremeMonitor {
-//   private redisService: RedisService;
+export class SupremeMonitor {
 
-//   constructor(redisService: RedisService) {
-//     this.redisService = redisService;
-//   }
+  public static GetProducts = async function ({ proxy }: { proxy: Proxy }): Promise<Array<Product>> {
+    let items: Array<Product> = [];
 
-//   async Setup() {
-//     this.redisService.SetRunningState('supreme', false);
-//   }
+    let url = 'https://www.supremenewyork.com/shop/all';
+    let response: Response;
+    const controller = new AbortController();
+    const timeout = setTimeout(() => controller.abort(), 10000);
+    try {
+      response = await fetch(url, {
+        method: 'GET',
+        agent: new HttpsProxyAgent(proxy.address),
+        headers: {
+          'User-Agent': GetRandomUserAgent()
+        },
+        signal: controller.signal
+      });
+      clearTimeout(timeout);
+    } catch (e) {
+      clearTimeout(timeout);
+      return null;
+    }
 
-//   async Run() {
-//     try {
-//       if (await this.redisService.GetRunningState('supreme'))
-//         return;
+    if (!response.ok) {
+      logger.error('Error in SupremeMonitor.GetProducts() - Request to Supreme failed with status code ' + response.status + ' - ' + response.statusText + '; Proxy: ' + proxy.address);
+      return items;
+    }
+
+    let html = await response.text();
+    let soup = new JsSoup(html);
+    let articles = soup.findAll('article');
+    for (let i = 0; i < 1; i++) {
+      let item = new Product();
+      let href = articles[i].find('a').attrs.href;
+      item.href = 'https://www.supremenewyork.com' + href;
+      let img = articles[i].find('img').attrs.src;
+      item.img = img;
+      let parts = href.split('/');
+      item.id = parts[parts.length - 2] + parts[parts.length - 1];
+      item.active = true;
+      item.soldOut = articles[i].text.toLowerCase() === 'sold out'
+      item.sizes = [];
+      item.sizesSoldOut = [];
+      items.push(item);
+    }
+    return items;
+  }
+
+  public static ComplementProduct = async function ({ product, proxy }: { product: Product, proxy: Proxy }) {
+    await SupremeMonitor.Sleep(1000);
+
+    let response: Response;
+    const controller = new AbortController();
+    const timeout = setTimeout(() => controller.abort(), 10000);
+    try {
+      response = await fetch(product.href, {
+        method: 'GET',
+        agent: new HttpsProxyAgent(proxy.address),
+        headers: {
+          'User-Agent': GetRandomUserAgent()
+        },
+        signal: controller.signal
+      });
+      clearTimeout(timeout);
+    } catch (e) {
+      clearTimeout(timeout);
+      return null;
+    }
+
+    if (!response.ok) {
+      logger.error('Error in SupremeMonitor.ComplementProduct() - Request to Supreme failed with status code ' + response.status + ' - ' + response.statusText + '; Proxy: ' + proxy.address);
+      return null;
+    }
+
+    let data = await response.text();
+    let soup = new JsSoup(data);
+    let elem = soup.findAll('p');
+    for (let i = 0; i < elem.length; i++) {
+      if (elem[i].attrs.class.includes('price')) {
+        let priceString = elem[i].findAll('span')[0].text;
+        product.price = priceString.split('€')[1] + ' EUR'; 
+      }
+    }
     
-//       await this.redisService.SetRunningState('supreme', true);
-    
-//       let products = await this.GetItems();
+    elem = soup.findAll('h1');
+    let name = '';
+    for (let i = 0; i < elem.length; i++) {
+      if (elem[i].attrs.class == 'protect')
+        name += elem[i].text + ' - ';
+    }
+    elem = soup.findAll('p');
+    for (let i = 0; i < elem.length; i++) {
+      if (elem[i].attrs.class.includes('protect'))
+        name += elem[i].text;
+    }
+    product.name = name;
 
-//       let oldProducts = await this.redisService.GetProductIds('supreme');
-//       let productsStillAvailableStatus = new Array(oldProducts.length);
-//       productsStillAvailableStatus = productsStillAvailableStatus.fill(false);
-    
-//       for (let i = 0; i < products.length; i++) {
-//         productsStillAvailableStatus[oldProducts.indexOf(products[i].id)] = true;
-
-//         let item = await this.redisService.GetProduct('supreme', products[i].id);
-    
-//         if (item == null) {
-//           products[i].name = await this.GetName(products[i].href);
-//           await this.redisService.AddProduct('supreme', products[i]);
-//         } else {
-//           let sendMessage = false;
-//           let oldSoldOutState = item.soldOut;
-//           if (oldSoldOutState != products[i].soldOut) {              
-//             await this.redisService.ChangeSoldOutState('supreme', products[i].id, products[i].soldOut);
-//           }  
-//           if (item.active) {
-//             await this.redisService.ChangeActiveState('supreme', products[i].id, true);            
-//             // if (!products[i].soldOut && await this.redisService.IsMonitoredProduct('supreme', products[i].id)) {
-//             //   sendMessage = true;
-//             // }
-//           } else {
-//             if (oldSoldOutState != products[i].soldOut) {
-//               // if (!products[i].soldOut && await this.redisService.IsMonitoredProduct('supreme', products[i].id)) {
-//               //   sendMessage = true;
-//               // }
-//             }  
-//           }  
-//           if (sendMessage) {
-//             let price = await this.GetPrice(products[i].href);
-//             // let users = await this.redisService.GetUserIdsMonitoringProduct('supreme', products[i].id, price);
-//             // for (let j = 0; j < users.length; j++) {
-//             //   let monitor = await this.monitorModel.GetMonitor({ userId: users[j] });
-//             //   if (monitor && monitor.length == 1 && monitor[0].webHook) {
-//             //     await DiscordService.SendMessage({ monitor: monitor[0], shoeName: item.name, price, href: `https://www.supremenewyork.com${products[i].href}`});
-//             //   }
-//             // }
-//           }
-//         }
-//       }
-
-//       for (let i = 0; i < oldProducts.length; i++) {
-//         if (!productsStillAvailableStatus[i])
-//           await this.redisService.ChangeActiveState('supreme', oldProducts[i], false);
-//       }
-    
-//       await this.redisService.SetRunningState('supreme', false);
-//     }
-//     catch (e) {
-//       console.log('Fehler in SupremeMonitor.Run(): ', e);      
-//       await this.redisService.SetRunningState('supreme', false);
-//     }    
-//   }
-
-//   private async GetItems() {
-//     let response = await fetch('https://www.supremenewyork.com/shop/all');
-//     let html = await response.text();
-//     let soup = new JsSoup(html);
-//     let articles = soup.findAll('article');
-//     let items: Array<Product> = []
-//     for (let i = 0; i < articles.length; i++) {
-//       let item = new Product();
-//       let href = articles[i].find('a').attrs.href;
-//       item.href = href;
-//       let parts = href.split('/');
-//       item.id = parts[parts.length - 2] + parts[parts.length - 1];
-//       item.active = true;
-//       item.soldOut = articles[i].text.toLowerCase() === 'sold out'
-//       items.push(item);
-//     }
-//     return items;
-//   }
+    return product;
+  }
   
-//   private async GetPrice(href) {
-//     await this.Sleep(5000);
-//     let result = await fetch('https://www.supremenewyork.com' + href);
-//     let data = await result.text();
-//     let soup = new JsSoup(data);
-//     let elem = soup.findAll('p');
-//     let price: number;
-//     for (let i = 0; i < elem.length; i++) {
-//       if (elem[i].attrs.class.includes('price')) {
-//         let priceString = elem[i].findAll('span')[0].text;
-//         price = Number(priceString.split('€')[1]); 
-//       }
-//     }
-//     return price;
-//   }
-  
-//   private async GetName(href) {
-//     await this.Sleep(5000);
-//     let result = await fetch('https://www.supremenewyork.com' + href);
-//     let data = await result.text();
-//     let soup = new JsSoup(data);
-//     let elem = soup.findAll('h1');
-//     let name = '';
-//     for (let i = 0; i < elem.length; i++) {
-//       if (elem[i].attrs.class == 'protect')
-//         name += elem[i].text + ' - ';
-//     }
-//     elem = soup.findAll('p');
-//     for (let i = 0; i < elem.length; i++) {
-//       if (elem[i].attrs.class.includes('protect'))
-//         name += elem[i].text;
-//     }
-//     return name;
-//   }  
-  
-//   private async Sleep(ms) {
-//     return new Promise((resolve) => {
-//       setTimeout(resolve, ms);
-//     });
-//   }   
-// }
+  private static Sleep = async function (ms) {
+    return new Promise((resolve) => {
+      setTimeout(resolve, ms);
+    });
+  }   
+}
 
 

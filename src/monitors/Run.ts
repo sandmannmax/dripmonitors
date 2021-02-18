@@ -8,6 +8,7 @@ import { RunningTrackerService } from "../services/RunningTrackerService";
 import { Product } from "../types/Product";
 import { AfewMonitor } from "./AfewMonitor";
 import { NikeMonitor } from "./NikeMonitor";
+import { SupremeMonitor } from "./SupremeMonitor";
 
 export const Run = async function ({ id, techname, name }: { id: string, techname: string, name: string}) {
   try {
@@ -33,6 +34,9 @@ export const Run = async function ({ id, techname, name }: { id: string, technam
       case 'afew':
         products = await AfewMonitor.GetProducts({ proxy });
         break;
+      case 'supreme':
+        products = await SupremeMonitor.GetProducts({ proxy });
+        break;
       default:
         products = [];
         logger.warn(`${techname} - ${id}: No Handler in Monitor`);
@@ -56,17 +60,29 @@ export const Run = async function ({ id, techname, name }: { id: string, technam
       let size = '';
 
       if (oldProduct == null) { // New Product
-        await ProductModel.AddProduct({ product, monitorpageId: id });
 
-        if (product.active && !product.soldOut) { // If active and not sold out send all sizes
-          sendMessage = true;
-          for (let j = 0; j < product.sizes.length; j++) {
-            if (!product.sizesSoldOut[j])
-              size += product.sizes[j] + ' - '; 
+        if (techname === 'supreme')
+          product = await SupremeMonitor.ComplementProduct({ product, proxy });
+
+        if (product) {
+          await ProductModel.AddProduct({ product, monitorpageId: id });
+
+          if (product.active && !product.soldOut) { // If active and not sold out send all sizes
+            sendMessage = true;
+            for (let j = 0; j < product.sizes.length; j++) {
+              if (!product.sizesSoldOut[j])
+                size += product.sizes[j] + ' - '; 
+            }
+            if (size.length > 3)
+              size = size.substr(0, size.length - 3);
           }
-          size = size.substr(0, size.length - 3);
-        }
+        }        
       } else { // Product already in DB
+        if (techname === 'supreme') {
+          product.name = oldProduct.name;
+          product.price = oldProduct.price;
+        }
+
         if (product.active && !product.soldOut) { // If active and not sold out then
 
           if (!oldProduct.active || oldProduct.soldOut) { // If the old Product was inactive or soldout send all and update
@@ -76,7 +92,8 @@ export const Run = async function ({ id, techname, name }: { id: string, technam
               if (!product.sizesSoldOut[j])
                 size += product.sizes[j] + ' - '; 
             }
-            size = size.substr(0, size.length - 3);
+            if (size.length > 3)
+              size = size.substr(0, size.length - 3);
           } else if (oldProduct.active && !oldProduct.soldOut) { // If the old Product also was active and not sold out then
             let update = false;
 
@@ -104,7 +121,8 @@ export const Run = async function ({ id, techname, name }: { id: string, technam
 
             if (update) {
               await ProductModel.UpdateProduct({ product, monitorpageId: id});
-              size = size.substr(0, size.length - 3);
+              if (size.length > 3)
+                size = size.substr(0, size.length - 3);
             }
           }  
         } else {

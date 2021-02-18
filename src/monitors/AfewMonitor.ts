@@ -30,7 +30,7 @@ export class AfewMonitor {
       }
 
       if (!response.ok) {
-        logger.error('Error in AfewMonitor.GetItems() - Request to Afew failed with status code ' + response.status + ' - ' + response.statusText + '; Proxy: ' + proxy.address);
+        logger.error('Error in AfewMonitor.GetProducts() - Request to Afew failed with status code ' + response.status + ' - ' + response.statusText + '; Proxy: ' + proxy.address);
         return items;
       }
       
