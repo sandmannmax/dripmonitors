@@ -38,7 +38,7 @@ export class SupremeMonitor {
     let html = await response.text();
     let soup = new JsSoup(html);
     let articles = soup.findAll('article');
-    for (let i = 0; i < 1; i++) {
+    for (let i = 0; i < articles.length; i++) {
       let item = new Product();
       let href = articles[i].find('a').attrs.href;
       item.href = 'https://www.supremenewyork.com' + href;
