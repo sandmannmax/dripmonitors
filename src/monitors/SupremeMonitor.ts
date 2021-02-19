@@ -44,7 +44,7 @@ export class SupremeMonitor {
       let item = new Product();
       let href = articles[i].find('a').attrs.href;
       item.href = 'https://www.supremenewyork.com' + href;
-      let img = articles[i].find('img').attrs.src;
+      let img = 'https:' + articles[i].find('img').attrs.src;
       item.img = img;
       let parts = href.split('/');
       item.id = parts[parts.length - 2] + parts[parts.length - 1];

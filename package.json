@@ -2,7 +2,7 @@
   "name": "monitor",
   "version": "1.0.0",
   "scripts": {
-    "sim": "ts-node ./src/monitors/FootLockerMonitor.ts",
+    "sim": "ts-node ./src/monitors/ZalandoMonitor.ts",
     "start": "ts-node ./src/index.ts",
     "build": "tsc --build"
   },
