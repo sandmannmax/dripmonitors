@@ -31,7 +31,7 @@ export class AfewMonitor {
 
       if (!response.ok) {
         logger.error('Error in AfewMonitor.GetProducts() - Request to Afew failed with status code ' + response.status + ' - ' + response.statusText + '; Proxy: ' + proxy.address);
-        return items;
+        return null;
       }
       
       let json = await response.json();
@@ -49,6 +49,7 @@ export class AfewMonitor {
           product.active = false;
           product.soldOut = true;
           product.price = '';
+          product.hasSizes = true;
 
           if (item.images.length > 0)
             product.img = item.images[0].src;

@@ -34,7 +34,7 @@ export class NikeMonitor {
 
       if (!response.ok) {
         logger.error('Error in NikeMonitor.GetProducts() - Request to Nike failed with status code ' + response.status + ' - ' + response.statusText + '; Proxy: ' + proxy.address);
-        return items;
+        return null;
       }
 
       let json = await response.json();
@@ -60,6 +60,7 @@ export class NikeMonitor {
               product.soldOut = !productJson.availability.available;
               product.sizes = [];
               product.sizesSoldOut = [];
+              product.hasSizes = true;
               if (productJson.skus) {
                 let skuIds = [];
                 for (let l = 0; l < productJson.skus.length; l++) {

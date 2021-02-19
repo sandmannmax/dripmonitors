@@ -8,7 +8,7 @@ export class ProductModel {
   public static GetProduct = async function ({ id }: { id: string }) {
     let result = await dbProvider.Get('lsb.products', { id });
     if (result.Item != null)
-      return Product.FromDBObject({ id: result.Item.id, name: result.Item.name, monitorpageId: result.Item.monitorpageId, href: result.Item.href, img: result.Item.img, price: result.Item.price, sizes: result.Item.sizes, sizesSoldOut: result.Item.sizesSoldOut, soldOut: result.Item.soldOut, active: result.Item.active });
+      return Product.FromDBObject({ id: result.Item.id, name: result.Item.name, monitorpageId: result.Item.monitorpageId, href: result.Item.href, img: result.Item.img, price: result.Item.price, sizes: result.Item.sizes, sizesSoldOut: result.Item.sizesSoldOut, soldOut: result.Item.soldOut, active: result.Item.active, hasSizes: result.Item.hasSizes });
     else
       return null;
   }

@@ -32,7 +32,7 @@ export class SupremeMonitor {
 
     if (!response.ok) {
       logger.error('Error in SupremeMonitor.GetProducts() - Request to Supreme failed with status code ' + response.status + ' - ' + response.statusText + '; Proxy: ' + proxy.address);
-      return items;
+      return null;
     }
 
     let html = await response.text();
@@ -50,6 +50,7 @@ export class SupremeMonitor {
       item.soldOut = articles[i].text.toLowerCase() === 'sold out'
       item.sizes = [];
       item.sizesSoldOut = [];
+      item.hasSizes = false;
       items.push(item);
     }
     return items;

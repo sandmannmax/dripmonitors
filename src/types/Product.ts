@@ -9,21 +9,22 @@ export class Product {
   public sizesSoldOut: Array<boolean>;
   public soldOut: boolean;
   public active: boolean;
+  public hasSizes: boolean;
 
   public ToDBObject = () => {
-    return { id: this.id, name: this.name, monitorpageId: this.monitorpageId, href: this.href, img: this.img, price: this.price, sizes: this.sizes.join('$'), sizesSoldOut: this.sizesSoldOut.join('$'), soldOut: this.soldOut, active: this.active };
+    return { id: this.id, name: this.name, monitorpageId: this.monitorpageId, href: this.href, img: this.img, price: this.price, sizes: this.sizes.join('$'), sizesSoldOut: this.sizesSoldOut.join('$'), soldOut: this.soldOut, active: this.active, hasSizes: this.hasSizes };
   }
 
   public ToDBUpdate = () => {
     return { 
       key: { id: this.id }, 
-      expression: 'set #n = :name, monitorpageId = :monitorpageId, href = :href, img = :img, price = :price, sizes = :sizes, sizesSoldOut = :sizesSoldOut, soldOut = :soldOut, active = :active',
-      values: { ':name': this.name, ':monitorpageId': this.monitorpageId, ':href': this.href, ':img': this.img, ':price': this.price, ':sizes': this.sizes.join('$'), ':sizesSoldOut': this.sizesSoldOut.join('$'), ':soldOut': this.soldOut, ':active': this.active }, 
+      expression: 'set #n = :name, monitorpageId = :monitorpageId, href = :href, img = :img, price = :price, sizes = :sizes, sizesSoldOut = :sizesSoldOut, soldOut = :soldOut, active = :active, hasSizes = :hasSizes',
+      values: { ':name': this.name, ':monitorpageId': this.monitorpageId, ':href': this.href, ':img': this.img, ':price': this.price, ':sizes': this.sizes.join('$'), ':sizesSoldOut': this.sizesSoldOut.join('$'), ':soldOut': this.soldOut, ':active': this.active, ':hasSizes': this.hasSizes }, 
       names: { '#n': 'name'}
     };
   }
 
-  public static FromDBObject = ({ id, name, monitorpageId, href, img, price, sizes, sizesSoldOut, soldOut, active }) => {
+  public static FromDBObject = ({ id, name, monitorpageId, href, img, price, sizes, sizesSoldOut, soldOut, active, hasSizes }) => {
     let product = new Product();
     product.id = id;
     product.name = name;
@@ -37,6 +38,7 @@ export class Product {
     sizesSoldOutStrings.forEach(s => product.sizesSoldOut.push(s === "true"));
     product.soldOut = soldOut;
     product.active = active;
+    product.hasSizes = hasSizes;
     return product;
   }
 }
