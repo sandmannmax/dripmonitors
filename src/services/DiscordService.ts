@@ -1,4 +1,5 @@
 import { MessageEmbed, WebhookClient } from 'discord.js';
+import { logger } from '../logger';
 import { Monitor } from '../types/Monitor';
 import { Product } from '../types/Product';
 
@@ -41,6 +42,7 @@ export namespace DiscordService {
           avatarURL: monitor.botImage
         });
       } catch (error) {
+        logger.error(`Error in DiscordService with ${monitor.id} ${product.id}: ${JSON.stringify(error)}`);
       }
     });    
   }
