@@ -31,7 +31,9 @@ export class SupremeMonitor {
     }
 
     if (!response.ok) {
-      logger.error('Error in SupremeMonitor.GetProducts() - Request to Supreme failed with status code ' + response.status + ' - ' + response.statusText + '; Proxy: ' + proxy.address);
+      if (response.status != 403) {
+        logger.error('Error in SupremeMonitor.GetProducts() - Request to Supreme failed with status code ' + response.status + ' - ' + response.statusText + '; Proxy: ' + proxy.address);
+      }
       return null;
     }
 
