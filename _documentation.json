@@ -1,5 +1,41 @@
 {
   "paths": {
+    "/scope": {
+      "get": {
+        "description": "Get Users scope",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "Monitors",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "scope": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "description": "Set User Scope to Beta-Tester",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "Set User Scope to Beta-Tester",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "message": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/monitor": {
       "get": {
         "description": "Get all Monitors",

@@ -5,11 +5,15 @@ import sanitize from 'sanitize';
 import { Auth } from '../auth';
 import { ProductRoutes } from './ProductRoutes';
 import { MonitorpageRoutes } from './MonitorpageRoutes';
+import { ScopeRoutes } from './ScopeRoutes';
 
 let router = Router({strict: true});
 
 router.use(sanitize.middleware);
 router.use(Auth.CheckJWT);
+
+let scopeRoutes = new ScopeRoutes();
+router.use('/scope', scopeRoutes.GetRouter());
 
 let monitorRoutes = new MonitorRoutes();
 router.use('/monitor', monitorRoutes.GetRouter());
