@@ -2,8 +2,7 @@
   <div>
     <div class="mx-auto max-w-2xl sm:px-8 px-4 sm:py-10 py-6 flex flex-col">
       <h1 class="sm:text-4xl text-3xl font-bold">
-        Providing <span class="underline u-color-accent">simple</span> tools to
-        grow your Sneaker Portfolio
+        Providing <span class="underline u-color-accent">simple</span> tools give your Cook-Group Members an extraordinary experience
       </h1>
       <button
         @click="monitorBetaAccess"
