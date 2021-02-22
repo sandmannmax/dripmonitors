@@ -47,9 +47,9 @@ export default class Home extends Vue {
 
   error = '';
 
-  async mounted() {
-    await this.getMonitors({ accessToken: await this.$auth.getTokenSilently() });
-  }
+  // async mounted() {
+  //   await this.getMonitors({ accessToken: await this.$auth.getTokenSilently() });
+  // }
 
   async addMonitorButton() {
     this.error = await this.addMonitor({ accessToken: await this.$auth.getTokenSilently() });

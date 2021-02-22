@@ -1,11 +1,5 @@
 <template>
   <div id="app">
-    <transition name="fade" id="loading-transition">
-      <div id="loading-div" v-if="$auth.isLoading">
-        <img id="loading" src="loading.gif" width="150" height="150"/>
-        <img id="logo" src="logo.png" width="50" height="50"/>
-      </div>    
-    </transition>
     <router-view/>
   </div>
 </template>

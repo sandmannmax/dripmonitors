@@ -4,7 +4,7 @@
       <b-navbar-nav>
         <router-link to="/" class="navbar-brand title" id="title"><img src="logo.png" width="60"/></router-link>
       </b-navbar-nav>
-      <b-navbar-nav class="ml-auto" v-if="$auth.isAuthenticated">
+      <b-navbar-nav class="ml-auto">
         <b-nav-item-dropdown right>
           <template #button-content><span id="user-dropdown">{{ $auth.user.nickname }}</span></template>
           <b-dropdown-item class="link" to="/profile">Profile</b-dropdown-item>

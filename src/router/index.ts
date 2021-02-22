@@ -9,8 +9,7 @@ const routes: Array<RouteConfig> = [
   {
     path: '/',
     name: 'home',
-    component: Home,
-    beforeEnter: authGuard
+    component: Home
   },
   {
     path: '/login',
