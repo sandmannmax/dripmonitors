@@ -53,9 +53,6 @@ export const Run = async function ({ id, techname, name }: { id: string, technam
 
     let isMonitorpageVisible = await MonitorpageModel.IsVisible({ id });
 
-    if (techname == 'supreme')
-      logger.debug(`isMonitorpageVisible = ${isMonitorpageVisible}`);
-
     for (let i = 0; i < products.length; i++) {
       let product = products[i];
       let oldProduct = await ProductModel.GetProduct({ id: product.id });
