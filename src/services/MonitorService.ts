@@ -81,7 +81,7 @@ export class MonitorService {
     }
   }
 
-  async UpdateMonitor({ id, user, webHook, botName, botImage, running }: { id: string, user, webHook: string, botName: string, botImage: string, running: boolean }): Promise<IResult> {
+  async UpdateMonitor({ id, user, webHook, botName, botImage, running, role }: { id: string, user, webHook: string, botName: string, botImage: string, running: boolean, role: string }): Promise<IResult> {
     try {
       if (!user)
         return {success: false, error: {status: 500, message: 'Unexpected Server Error', internalMessage: `MonitorService.UpdateMonitor: User empty`}};    
@@ -110,6 +110,9 @@ export class MonitorService {
 
       if (running != undefined)
         await this.monitorModel.UpdateRunning({ id, running });
+
+      if (role != undefined)
+        await this.monitorModel.UpdateRole({ id, role });
 
       monitor = await this.monitorModel.GetMonitor({ id });
       

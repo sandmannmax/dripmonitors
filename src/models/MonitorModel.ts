@@ -44,6 +44,10 @@ export class MonitorModel {
     await this.dbProvider.Update('lsb.monitors', { id }, "set running = :running", { ":running": running });
   }
 
+  UpdateRole = async function ({ id, role }: { id: string, role: string }) {
+    await this.dbProvider.Update('lsb.monitors', { id }, "set #r = :role", { ":role": role }, null, { '#r': 'role' });
+  }
+
   GetRoleMonitorCount = async function (role: string) {
     return (await this.dbProvider.Get('lsb.monitor_rolecount', { role })).Item; // TODO so nicht richtig
   }

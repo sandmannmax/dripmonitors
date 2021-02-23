@@ -4,6 +4,7 @@ export class Monitor_O {
   public botName: string;
   public botImage: string;
   public running: boolean;
+  public role: string;
 }
 
 export class Monitor {
@@ -13,6 +14,7 @@ export class Monitor {
   public botName: string;
   public botImage: string;
   public running: boolean;
+  public role: string;
 }
 
 export function GetMonitor_O(monitor: Monitor): Monitor_O {
@@ -22,5 +24,6 @@ export function GetMonitor_O(monitor: Monitor): Monitor_O {
   monitorO.botName = monitor.botName;
   monitorO.webHook = monitor.webHook;
   monitorO.running = monitor.running;
+  monitorO.role = monitor.role;
   return monitorO;
 }

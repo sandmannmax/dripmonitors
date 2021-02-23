@@ -41,8 +41,8 @@ export class MonitorRoutes {
     this.router.patch('/:id', Auth.CheckPermission('update:monitor'), async (req, res, next) => {
       let user = req['user'];
       let id = req.params.id;
-      let { webHook, botName, botImage, running } = req.body;
-      let result = await this.monitorService.UpdateMonitor({ id, user, webHook, botName, botImage, running });
+      let { webHook, botName, botImage, running, role } = req.body;
+      let result = await this.monitorService.UpdateMonitor({ id, user, webHook, botName, botImage, running, role});
       if (result.success)
         res.json(result.data);
       else if (result.error)
