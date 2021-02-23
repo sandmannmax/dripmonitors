@@ -27,11 +27,12 @@ export namespace DiscordService {
         if (size)
           description += `\n**Size:** ${size}`;
 
+        let message;
+        
         if (monitor.role)
-          description += `\n${monitor.role}`;
+          message = monitor.role;
 
-
-        let message: MessageEmbed = new MessageEmbed()
+        let embed: MessageEmbed = new MessageEmbed()
           .setColor(colors[index])
           .setTitle(product.name)
           .setThumbnail(product.img)
@@ -40,8 +41,8 @@ export namespace DiscordService {
           .setTimestamp()
           .setFooter('Powered by LazyShoeBot - Still in Beta', 'http://lazyshoebot.com/logoWide.png');
         
-        webhookClient.send({
-          embeds: [message],
+        webhookClient.send(message, {
+          embeds: [embed],
           username: monitor.botName,
           avatarURL: monitor.botImage
         });
