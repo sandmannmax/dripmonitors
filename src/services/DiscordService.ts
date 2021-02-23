@@ -26,7 +26,11 @@ export namespace DiscordService {
 
         if (size)
           description += `\n**Size:** ${size}`;
-  
+
+        if (monitor.role)
+          description += `\n${monitor.role}`;
+
+
         let message: MessageEmbed = new MessageEmbed()
           .setColor(colors[index])
           .setTitle(product.name)

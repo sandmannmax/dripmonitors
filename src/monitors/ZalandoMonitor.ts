@@ -74,7 +74,7 @@ export class ZalandoMonitor {
 
           items.push(product);
         } catch (e) {
-          logger.error('Error in AfewMonitor.GetProducts(): ', e);
+          logger.error('Error in ZalandoMonitor.GetProducts(): ', e);
         }
       }
     }    
@@ -89,11 +89,14 @@ export class ZalandoMonitor {
 //   let response: Response;
 //   const controller = new AbortController();
 //   const timeout = setTimeout(() => controller.abort(), 10000);
+//   const userAgent = 'Mozilla/5.0 (iPhone; CPU iPhone OS 12_0 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) CriOS/69.0.3497.105 Mobile/15E148 Safari/605.1'; //GetRandomUserAgent();
+//   console.log(userAgent);
+//   let products: Array<Product> = [];
 //   try {
 //     response = await fetch(url, {
 //       method: 'GET',
 //       headers: {
-//         'User-Agent': GetRandomUserAgent()
+//         'User-Agent': userAgent
 //       },
 //       signal: controller.signal
 //     });
@@ -116,22 +119,62 @@ export class ZalandoMonitor {
 //       let imgTag = articles[i].find('img');
 //       let spanTag = articles[i].find('span', 'cMfkVL');
 //       if (h3Tag && imgTag && spanTag) {
-//         console.log('-');
-//         let name = h3Tag.previousElement._text + ' ' + h3Tag.contents[0]._text;
-//         let img = imgTag.attrs.src;
-//         let href = 'https://zalando.de' + articles[i].find('a').attrs.href;
+//         let product = new Product();
+//         product.hasSizes = false;
+//         product.name = h3Tag.previousElement._text + ' ' + h3Tag.contents[0]._text;
+//         product.img = imgTag.attrs.src;
+//         product.href = 'https://zalando.de' + articles[i].find('a').attrs.href;
 //         let price = spanTag.contents[spanTag.contents.length - 1]._text;
 //         price = price.substr(0, price.length - 2).replace(',', '.') + ' EUR';
-//         console.log(name);
-//         console.log(img);
-//         console.log(href);
-//         console.log(price);
+//         product.price = price;
+//         products.push(product);
 //       }
 //     }
+//     console.log(JSON.stringify(await ComplementProduct({ product: products[0]})));
 //   } 
 //   else {
 //     console.log(response.status);
 //   }
+// }
+
+// async function ComplementProduct({ product }: { product: Product }) {
+//   let response: Response;
+//   const controller = new AbortController();
+//   const timeout = setTimeout(() => controller.abort(), 10000);
+//   const userAgent = GetRandomUserAgent();
+//   console.log(userAgent)
+//   try {
+//     response = await fetch(product.href, {
+//       method: 'GET',
+//       headers: {
+//         'User-Agent': userAgent
+//       },
+//       signal: controller.signal
+//     });
+//     clearTimeout(timeout);
+//   } catch (e) {
+//     clearTimeout(timeout);
+//     return null;
+//   }
+
+//   if (!response.ok) {
+//     // logger.error('Error in SupremeMonitor.ComplementProduct() - Request to Supreme failed with status code ' + response.status + ' - ' + response.statusText + '; Proxy: ' + proxy.address);
+//     console.log('Error in complement Product')
+//     return null;
+//   }
+
+//   let data = await response.text();
+//   // console.log(data);
+//   let soup = new JsSoup(data);
+//   let elem = soup.findAll('form');
+
+//   console.log(elem.length);
+
+//   for (let i = 0; i < elem.length; i++) {
+//     console.log(elem[i]);
+//   } 
+
+//   return product;
 // }
 
 // Sim();

@@ -5,4 +5,5 @@ export class Monitor {
   public botName: string;
   public botImage: string;
   public running: boolean;
+  public role: string;
 }
