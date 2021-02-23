@@ -6,7 +6,7 @@ import { WebhookClient } from 'discord.js';
 export class DiscordService {
   private webhookClient: WebhookClient;
 
-  async SendTestMessage({webHook, botName, botImage}: {webHook: string, botName: string, botImage: string}): Promise<IResult> {
+  async SendTestMessage({webHook, botName, botImage, role}: {webHook: string, botName: string, botImage: string, role: string}): Promise<IResult> {
     try {      
       if (!botName)
         botName = 'LSB Monitor';
@@ -21,7 +21,12 @@ export class DiscordService {
       let token = strings[strings.length-1];
       this.webhookClient = new WebhookClient(id, token);
 
-      this.webhookClient.send('Hello there!', {
+      let message = 'Hello there!';
+
+      if (role)
+        message += `\n${role}`;
+
+      this.webhookClient.send(message, {
         username: botName,
         avatarURL: botImage
       });

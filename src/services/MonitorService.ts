@@ -333,7 +333,7 @@ export class MonitorService {
       if (!regex.test(monitor.webHook))
         return {success: false, error: {status: 404, message: 'Monitor Webhook is invalid'}};
         
-      return this.discordService.SendTestMessage({webHook: monitor.webHook, botName: monitor.botName, botImage: monitor.botImage});
+      return this.discordService.SendTestMessage(monitor);
     } catch (error) {
       return {success: false, error: {status: 500, message: 'Unexpected Server Error', internalMessage: error}};
     }
