@@ -16,19 +16,19 @@ import { async } from 'crypto-random-string';
 export const Run = async function ({ id, techname, name }: { id: string, techname: string, name: string}) {
   let monitorrun = new Monitorrun();
 
-  let monitorrunId;
-  do {
-    monitorrunId = await async({length: 24})
-  } while (!await MonitorrunModel.IdUnused({ id: monitorrunId }));
-
-  monitorrun.id = monitorrunId;
-
   try {
     let canStart = RunningTrackerService.Start(id);
 
     if (!canStart)
       return;
 
+    let monitorrunId;
+    do {
+      monitorrunId = await async({length: 24})
+      logger.info(monitorrunId)
+    } while (!await MonitorrunModel.IdUnused({ id: monitorrunId }));
+  
+    monitorrun.id = monitorrunId;
     monitorrun.timestampStart = new Date().getTime();
     monitorrun.monitorpageId = id;
 
