@@ -1,26 +1,40 @@
 import { logger } from "../logger";
 import { MonitorModel } from "../models/MonitorModel";
 import { MonitorpageModel } from "../models/MonitorpageModel";
+import { MonitorrunModel } from "../models/MonitorrunModel";
 import { ProductModel } from "../models/ProductModel";
 import { ProxyModel } from "../models/ProxyModel";
 import { DiscordService } from "../services/DiscordService";
 import { RunningTrackerService } from "../services/RunningTrackerService";
+import { Monitorrun } from "../types/Monitorrun";
 import { Product } from "../types/Product";
 import { AfewMonitor } from "./AfewMonitor";
 import { NikeMonitor } from "./NikeMonitor";
 import { SupremeMonitor } from "./SupremeMonitor";
 
 export const Run = async function ({ id, techname, name }: { id: string, techname: string, name: string}) {
+  let monitorrun = new Monitorrun();
+
   try {
     let canStart = RunningTrackerService.Start(id);
 
     if (!canStart)
       return;
 
+    monitorrun.timestampStart = new Date().getTime();
+    monitorrun.monitorpageId = id;
+
     const proxy = await ProxyModel.GetRandomProxy({ monitorpageId: id });
+    monitorrun.proxyId = proxy.id;
 
     if (!proxy) {
       logger.error(`${techname} - ${id}: No Proxy Available`);
+
+      monitorrun.timestampEnd = new Date().getTime();
+      monitorrun.success = false;
+      monitorrun.reason = 'No Proxy Available';
+      await MonitorrunModel.AddMonitorrun({ monitorrun });
+
       RunningTrackerService.Stop(id);
       return;
     }
@@ -44,6 +58,12 @@ export const Run = async function ({ id, techname, name }: { id: string, technam
 
     if (products == null) {
       await ProxyModel.SetCooldown({ proxyId: proxy.id, monitorpageId: id });
+
+      monitorrun.timestampEnd = new Date().getTime();
+      monitorrun.success = false;
+      monitorrun.reason = 'Did not retreive products';
+      await MonitorrunModel.AddMonitorrun({ monitorrun });
+
       RunningTrackerService.Stop(id);
       return;
     }
@@ -119,6 +139,15 @@ export const Run = async function ({ id, techname, name }: { id: string, technam
               }
             }
 
+            for (let j = 0; j < oldProduct.sizes.length; j++) { // Iterate over all sizes in old Product
+              let index = product.sizes.findIndex(item => item == oldProduct.sizes[j]); // Find index of same size
+
+              if (index == -1) { // if size is not in sizes of new product, add size and set to soldOut
+                product.sizes.push(oldProduct.sizes[j]);
+                product.sizesSoldOut.push(true);
+              }
+            }
+
             if (update) {
               await ProductModel.UpdateProduct({ product, monitorpageId: id});
               if (size.length > 3)
@@ -155,11 +184,21 @@ export const Run = async function ({ id, techname, name }: { id: string, technam
         DiscordService.SendMessage({ monitors, product, size, page: name });
       }
     }
+
+    monitorrun.timestampEnd = new Date().getTime();
+    monitorrun.success = true;
+    await MonitorrunModel.AddMonitorrun({ monitorrun });
   
     RunningTrackerService.Stop(id);
   }
   catch (e) {
     logger.error(`${techname} - ${id}: Error - ${JSON.stringify(e)}`);
+
+    monitorrun.timestampEnd = new Date().getTime();
+    monitorrun.success = false;
+    monitorrun.reason = 'Error while executing';
+    await MonitorrunModel.AddMonitorrun({ monitorrun });
+
     RunningTrackerService.Stop(id);
   }    
 }

@@ -84,97 +84,86 @@ export class ZalandoMonitor {
 
 }
 
-// async function Sim() {
-//   let url = 'https://www.zalando.de/herrenschuhe-sneaker/';
-//   let response: Response;
-//   const controller = new AbortController();
-//   const timeout = setTimeout(() => controller.abort(), 10000);
-//   const userAgent = 'Mozilla/5.0 (iPhone; CPU iPhone OS 12_0 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) CriOS/69.0.3497.105 Mobile/15E148 Safari/605.1'; //GetRandomUserAgent();
-//   console.log(userAgent);
-//   let products: Array<Product> = [];
-//   try {
-//     response = await fetch(url, {
-//       method: 'GET',
-//       headers: {
-//         'User-Agent': userAgent
-//       },
-//       signal: controller.signal
-//     });
-//     clearTimeout(timeout);
-//   } catch (e) {
-//     clearTimeout(timeout);
-//     console.log('timeout');
-//   }
+async function Sim() {
+  let products: Array<Product> = [];
 
-//   if (response.ok) {
-//     let text = await response.text();
-//     let soup = new JsSoup(text);
-//     let articles = soup.findAll('article');
-//     if (articles.length == 0) {
-//       return;
-//     }
+  for (let i = 0; i < 3; i++) {
+    let url = 'https://www.zalando.de/herrenschuhe-sneaker/?p=' + i;
 
-//     for (let i = 0; i < articles.length; i++) {
-//       let h3Tag = articles[i].find('h3');
-//       let imgTag = articles[i].find('img');
-//       let spanTag = articles[i].find('span', 'cMfkVL');
-//       if (h3Tag && imgTag && spanTag) {
-//         let product = new Product();
-//         product.hasSizes = false;
-//         product.name = h3Tag.previousElement._text + ' ' + h3Tag.contents[0]._text;
-//         product.img = imgTag.attrs.src;
-//         product.href = 'https://zalando.de' + articles[i].find('a').attrs.href;
-//         let price = spanTag.contents[spanTag.contents.length - 1]._text;
-//         price = price.substr(0, price.length - 2).replace(',', '.') + ' EUR';
-//         product.price = price;
-//         products.push(product);
-//       }
-//     }
-//     console.log(JSON.stringify(await ComplementProduct({ product: products[0]})));
-//   } 
-//   else {
-//     console.log(response.status);
-//   }
-// }
+    let response: Response;
+    const controller = new AbortController();
+    const timeout = setTimeout(() => controller.abort(), 10000);
+    // const userAgent = 'Mozilla/5.0 (iPhone; CPU iPhone OS 12_0 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) CriOS/69.0.3497.105 Mobile/15E148 Safari/605.1';
+    const userAgent = GetRandomUserAgent();
+    try {
+      response = await fetch(url, {
+        method: 'GET',
+        headers: {
+          'User-Agent': userAgent
+        },
+        signal: controller.signal
+      });
+      clearTimeout(timeout);
+    } catch (e) {
+      clearTimeout(timeout);
+      console.log('timeout');
+    }
 
-// async function ComplementProduct({ product }: { product: Product }) {
-//   let response: Response;
-//   const controller = new AbortController();
-//   const timeout = setTimeout(() => controller.abort(), 10000);
-//   const userAgent = GetRandomUserAgent();
-//   console.log(userAgent)
-//   try {
-//     response = await fetch(product.href, {
-//       method: 'GET',
-//       headers: {
-//         'User-Agent': userAgent
-//       },
-//       signal: controller.signal
-//     });
-//     clearTimeout(timeout);
-//   } catch (e) {
-//     clearTimeout(timeout);
-//     return null;
-//   }
+    if (response.ok) {
+      let text = await response.text();
+      let soup = new JsSoup(text);
+      let scripts = soup.findAll('script');
+      
+      let articles;
 
-//   if (!response.ok) {
-//     // logger.error('Error in SupremeMonitor.ComplementProduct() - Request to Supreme failed with status code ' + response.status + ' - ' + response.statusText + '; Proxy: ' + proxy.address);
-//     console.log('Error in complement Product')
-//     return null;
-//   }
+      for (let i = 0; i < scripts.length; i++) {
+        if (scripts[i].attrs.id == 'z-nvg-cognac-props') {
+          let content = scripts[i].contents[0]._text;
+          content = content.substr(7, content.length - 9);
+          let data = JSON.parse(content);
+          articles = data[0].articles;
+        }
+      }
 
-//   let data = await response.text();
-//   // console.log(data);
-//   let soup = new JsSoup(data);
-//   let elem = soup.findAll('form');
+      if (!articles)
+        console.log('no articles')
+      else if (!articles[0].sizes)
+        console.log('no sizes')
+      else {
+        for (let j = 0; j < articles.length; j++) {
+          products.push(GetProduct(articles[j]));
+          if (articles[j].family_articles.length > 1) {
+            for (let k = 1; k < articles[j].family_articles.length; k++) {
+              products.push(GetProduct(articles[j].family_articles[k]));
+            }
+          }
+        }
+      }      
+    } 
+    else {
+      console.log(response.status);
+    }
+  }
+  
+  console.log(products.length);
+}
 
-//   console.log(elem.length);
-
-//   for (let i = 0; i < elem.length; i++) {
-//     console.log(elem[i]);
-//   } 
-
-//   return product;
-// }
+function GetProduct(article): Product {
+  let product = new Product;
+  product.id = 'zalando_' + article.sku;
+  product.name = article.name;
+  product.href = 'https://www.zalando.de/' + article.url_key + '.html';
+  product.img = 'https://img01.ztat.net/article/' + article.media[0].path;
+  let price = article.price.promotional;
+  product.price = price.substr(0, price.length - 3).replace(',', '.') + ' EUR';
+  product.active = true;
+  product.hasSizes = true;
+  product.sizes = article.sizes;
+  product.soldOut = product.sizes.length == 0;
+  product.sizesSoldOut = [];
+  for (let i = 0; i < product.sizes.length; i++)
+    product.sizesSoldOut.push(false);
+  return product;
+}
 
 // Sim();
