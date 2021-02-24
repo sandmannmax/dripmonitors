@@ -1,4 +1,5 @@
 import { createLogger, transports, format, transport } from 'winston';
+import { Loggly } from 'winston-loggly-bulk';
 import config from '../config';
 
 const logFormat = format.printf( ({ level, message, timestamp , metadata}) => {
@@ -19,15 +20,11 @@ let transportArray: transport[] = [
       format.json()
     )
   }),
-  new transports.Http({
-    host: 'http://logs-01.loggly.com/inputs/60c96621-2e88-4efc-ac23-4f9d2148e580/tag/monitor/',
-    level: config.logLevel,
-    format: format.combine(
-      format.errors({ stack: true }),
-      format.metadata(),
-      format.timestamp(),
-      format.json()
-    )
+  new Loggly({
+    token: "60c96621-2e88-4efc-ac23-4f9d2148e580",
+    subdomain: "lazyshoebot",
+    tags: ["monitor"],
+    json: true
   })
 ];
 
