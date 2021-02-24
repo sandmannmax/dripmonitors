@@ -25,15 +25,18 @@ export const Run = async function ({ id, techname, name }: { id: string, technam
     let monitorrunId;
     do {
       monitorrunId = await async({length: 24})
-      logger.info(monitorrunId)
     } while (!await MonitorrunModel.IdUnused({ id: monitorrunId }));
   
     monitorrun.id = monitorrunId;
+    logger.info(monitorrun.id)
     monitorrun.timestampStart = new Date().getTime();
+    logger.info(monitorrun.timestampStart)
     monitorrun.monitorpageId = id;
+    logger.info(monitorrun.monitorpageId)
 
     const proxy = await ProxyModel.GetRandomProxy({ monitorpageId: id });
     monitorrun.proxyId = proxy.id;
+    logger.info(monitorrun.proxyId)
 
     if (!proxy) {
       logger.error(`${techname} - ${id}: No Proxy Available`);
@@ -41,7 +44,9 @@ export const Run = async function ({ id, techname, name }: { id: string, technam
       monitorrun.timestampEnd = new Date().getTime();
       monitorrun.success = false;
       monitorrun.reason = 'No Proxy Available';
+      logger.info('a')
       await MonitorrunModel.AddMonitorrun({ monitorrun });
+      logger.info('b')
 
       RunningTrackerService.Stop(id);
       return;
@@ -70,7 +75,9 @@ export const Run = async function ({ id, techname, name }: { id: string, technam
       monitorrun.timestampEnd = new Date().getTime();
       monitorrun.success = false;
       monitorrun.reason = 'Did not retreive products';
+      logger.info('c')
       await MonitorrunModel.AddMonitorrun({ monitorrun });
+      logger.info('d')
 
       RunningTrackerService.Stop(id);
       return;
@@ -195,7 +202,9 @@ export const Run = async function ({ id, techname, name }: { id: string, technam
 
     monitorrun.timestampEnd = new Date().getTime();
     monitorrun.success = true;
+    logger.info('e')
     await MonitorrunModel.AddMonitorrun({ monitorrun });
+    logger.info('f')
   
     RunningTrackerService.Stop(id);
   }
@@ -205,7 +214,9 @@ export const Run = async function ({ id, techname, name }: { id: string, technam
     monitorrun.timestampEnd = new Date().getTime();
     monitorrun.success = false;
     monitorrun.reason = 'Error while executing';
+    logger.info('g')
     await MonitorrunModel.AddMonitorrun({ monitorrun });
+    logger.info('h')
 
     RunningTrackerService.Stop(id);
   }    
