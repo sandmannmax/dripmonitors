@@ -11,9 +11,17 @@ import { Product } from "../types/Product";
 import { AfewMonitor } from "./AfewMonitor";
 import { NikeMonitor } from "./NikeMonitor";
 import { SupremeMonitor } from "./SupremeMonitor";
+import { async } from 'crypto-random-string';
 
 export const Run = async function ({ id, techname, name }: { id: string, techname: string, name: string}) {
   let monitorrun = new Monitorrun();
+
+  let monitorrunId;
+  do {
+    monitorrunId = await async({length: 24})
+  } while (!await MonitorrunModel.IdUnused({ id: monitorrunId }));
+
+  monitorrun.id = monitorrunId;
 
   try {
     let canStart = RunningTrackerService.Start(id);
