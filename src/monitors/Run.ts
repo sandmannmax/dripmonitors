@@ -12,6 +12,7 @@ import { AfewMonitor } from "./AfewMonitor";
 import { NikeMonitor } from "./NikeMonitor";
 import { SupremeMonitor } from "./SupremeMonitor";
 import { async } from 'crypto-random-string';
+import { ZalandoMonitor } from "./ZalandoMonitor";
 
 export const Run = async function ({ id, techname, name }: { id: string, techname: string, name: string}) {
   let monitorrun = new Monitorrun();
@@ -57,6 +58,9 @@ export const Run = async function ({ id, techname, name }: { id: string, technam
         break;
       case 'supreme':
         products = await SupremeMonitor.GetProducts({ proxy });
+        break;
+      case 'zalando':
+        products = await ZalandoMonitor.GetProducts({ proxy });
         break;
       default:
         products = [];
