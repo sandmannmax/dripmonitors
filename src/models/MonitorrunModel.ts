@@ -12,7 +12,7 @@ export class MonitorrunModel {
 
   public static IdUnused = async function ({ id }: { id: string }): Promise<boolean> {
     logger.info('IsUnused ' + id)
-    let result = await this.dbProvider.Get('lsb.monitorruns', { id });
+    let result = await dbProvider.Get('lsb.monitorruns', { id });
     logger.info('... ' + JSON.stringify(result));
     return result.Item == null;
   }
