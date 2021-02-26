@@ -30,7 +30,7 @@ export class ZalandoMonitor {
         clearTimeout(timeout);
       } catch (e) {
         clearTimeout(timeout);
-        console.log('timeout');
+        return null;
       }
   
       if (!response.ok) {
