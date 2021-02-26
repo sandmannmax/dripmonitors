@@ -56,13 +56,18 @@ export class ZalandoMonitor {
         logger.info('no articles ' + proxy.id + ' ' + userAgent);
       else {
         let hasSizes = false;
+        logger.info('length:');
+        logger.info(articles.length);
         for (let j = 0; j < articles.length; j++) {
+          logger.info('check sizes')
           if (articles[j].sizes){
             hasSizes = true;
             logger.info(JSON.stringify(articles[j]));
           }
         }
         
+        logger.info('finished sizes');
+
         if (hasSizes) {
           for (let j = 0; j < articles.length; j++) {
             items.push(ZalandoMonitor.GetProduct(articles[j]));
@@ -121,8 +126,8 @@ export class ZalandoMonitor {
 //     let response: Response;
 //     const controller = new AbortController();
 //     const timeout = setTimeout(() => controller.abort(), 10000);
-//     // const userAgent = 'Mozilla/5.0 (iPhone; CPU iPhone OS 12_0 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) CriOS/69.0.3497.105 Mobile/15E148 Safari/605.1';
-//     const userAgent = GetRandomUserAgent();
+//     const userAgent = 'Mozilla/5.0 (iPhone; CPU iPhone OS 12_0 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) CriOS/69.0.3497.105 Mobile/15E148 Safari/605.1';
+//     // const userAgent = GetRandomUserAgent();
 //     try {
 //       response = await fetch(url, {
 //         method: 'GET',
@@ -154,19 +159,27 @@ export class ZalandoMonitor {
 //       }
 
 //       if (!articles)
-//         console.log('no articles')
-//       else if (!articles[0].sizes)
-//         console.log('no sizes')
+//         logger.info('no articles ');
 //       else {
+//         let hasSizes = false;
 //         for (let j = 0; j < articles.length; j++) {
-//           products.push(GetProduct(articles[j]));
-//           if (articles[j].family_articles.length > 1) {
-//             for (let k = 1; k < articles[j].family_articles.length; k++) {
-//               products.push(GetProduct(articles[j].family_articles[k]));
-//             }
+//           if (articles[j].sizes){
+//             hasSizes = true;
+//             logger.info(JSON.stringify(articles[j]));
 //           }
 //         }
-//       }      
+        
+//         if (hasSizes) {
+//           for (let j = 0; j < articles.length; j++) {
+//             products.push(GetProduct(articles[j]));
+//             if (articles[j].family_articles.length > 1) {
+//               for (let k = 1; k < articles[j].family_articles.length; k++) {
+//                 products.push(GetProduct(articles[j].family_articles[k]));
+//               }
+//             }
+//           }
+//         }  
+//       }   
 //     } 
 //     else {
 //       console.log(response.status);
@@ -185,12 +198,18 @@ export class ZalandoMonitor {
 //   let price = article.price.promotional;
 //   product.price = price.substr(0, price.length - 3).replace(',', '.') + ' EUR';
 //   product.active = true;
-//   product.hasSizes = true;
-//   product.sizes = article.sizes;
-//   product.soldOut = product.sizes.length == 0;
+//   product.sizes = [];
 //   product.sizesSoldOut = [];
-//   for (let i = 0; i < product.sizes.length; i++)
-//     product.sizesSoldOut.push(false);
+//   if (article.sizes) {
+//     product.hasSizes = true;
+//     product.sizes = article.sizes;
+//     product.soldOut = product.sizes.length == 0;
+//     for (let i = 0; i < product.sizes.length; i++)
+//       product.sizesSoldOut.push(false);
+//   } else {
+//     product.hasSizes = false;
+//     product.soldOut = false;
+//   }    
 //   return product;
 // }
 
