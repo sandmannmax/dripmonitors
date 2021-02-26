@@ -45,10 +45,21 @@ export class ZalandoMonitor {
 
       for (let i = 0; i < scripts.length; i++) {
         if (scripts[i].attrs.id == 'z-nvg-cognac-props') {
-          let content = scripts[i].contents[0]._text;
-          content = content.substr(7, content.length - 9);
-          let data = JSON.parse(content);
-          articles = data[0].articles;
+          try {
+            let content = scripts[i].contents[0]._text;
+            content = content.substr(7, content.length - 9);
+            let data = JSON.parse(content);
+            articles = data[0].articles;
+          }
+          catch {
+            logger.info('failed')
+          }
+          try {
+            logger.info(scripts[i].getText());
+          }
+          catch {
+            logger.info('failedToo');
+          }
         }
       }
 
@@ -56,17 +67,14 @@ export class ZalandoMonitor {
         logger.info('no articles ' + proxy.id + ' ' + userAgent);
       else {
         let hasSizes = false;
-        logger.info('length:');
-        logger.info(articles.length);
         for (let j = 0; j < articles.length; j++) {
-          logger.info('check sizes')
           if (articles[j].sizes){
             hasSizes = true;
             logger.info(JSON.stringify(articles[j]));
           }
         }
         
-        logger.info('finished sizes');
+        logger.info('finished sizes ' + hasSizes);
 
         if (hasSizes) {
           for (let j = 0; j < articles.length; j++) {
