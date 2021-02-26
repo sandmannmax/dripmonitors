@@ -90,12 +90,18 @@ export class ZalandoMonitor {
     let price = article.price.promotional;
     product.price = price.substr(0, price.length - 3).replace(',', '.') + ' EUR';
     product.active = true;
-    product.hasSizes = true;
-    product.sizes = article.sizes;
-    product.soldOut = product.sizes.length == 0;
+    product.sizes = [];
     product.sizesSoldOut = [];
-    for (let i = 0; i < product.sizes.length; i++)
-      product.sizesSoldOut.push(false);
+    if (article.sizes) {
+      product.hasSizes = true;
+      product.sizes = article.sizes;
+      product.soldOut = product.sizes.length == 0;
+      for (let i = 0; i < product.sizes.length; i++)
+        product.sizesSoldOut.push(false);
+    } else {
+      product.hasSizes = false;
+      product.soldOut = false;
+    }    
     return product;
   }
 
