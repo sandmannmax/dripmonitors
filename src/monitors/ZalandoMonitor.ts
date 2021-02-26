@@ -54,18 +54,27 @@ export class ZalandoMonitor {
 
       if (!articles)
         logger.info('no articles ' + proxy.id + ' ' + userAgent);
-      else if (!articles[0].sizes)
-        logger.info('no sizes ' + proxy.id + ' ' + userAgent);
       else {
+        let hasSizes = false;
         for (let j = 0; j < articles.length; j++) {
-          items.push(ZalandoMonitor.GetProduct(articles[j]));
-          if (articles[j].family_articles.length > 1) {
-            for (let k = 1; k < articles[j].family_articles.length; k++) {
-              items.push(ZalandoMonitor.GetProduct(articles[j].family_articles[k]));
-            }
+          if (articles[j].sizes){
+            hasSizes = true;
+            logger.info(JSON.stringify(articles[j]));
           }
         }
-      }  
+        
+        if (hasSizes) {
+          for (let j = 0; j < articles.length; j++) {
+            items.push(ZalandoMonitor.GetProduct(articles[j]));
+            if (articles[j].family_articles.length > 1) {
+              for (let k = 1; k < articles[j].family_articles.length; k++) {
+                items.push(ZalandoMonitor.GetProduct(articles[j].family_articles[k]));
+              }
+            }
+          }
+        }  
+      }
+      
 
       ZalandoMonitor.Sleep(1000);
     }
