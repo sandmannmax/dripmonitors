@@ -203,7 +203,7 @@ export const Run = async function ({ id, techname, name }: { id: string, technam
     RunningTrackerService.Stop(id);
   }
   catch (e) {
-    logger.error(`${techname} - ${id}: Error - ${JSON.stringify(e)}`);
+    logger.error(`${techname} - ${id}: Error - ${e}`);
 
     try {
       monitorrun.timestampEnd = new Date().getTime();
