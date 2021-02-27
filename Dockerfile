@@ -1,0 +1,17 @@
+FROM python:3.6-slim
+
+RUN apt -y update
+RUN apt -y upgrade
+RUN apt install -y build-essential
+RUN apt install manpages-dev
+
+WORKDIR /usr/src/app
+
+COPY requirements.txt .
+RUN pip install --no-cache-dir -r requirements.txt
+
+COPY . .
+
+EXPOSE 50069
+
+CMD ["python", "scraper_pb2_server.py"]
