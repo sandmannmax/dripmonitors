@@ -18,6 +18,8 @@ import { GetProductsRequest, Product as ProductGRPC } from '../proto/scraper/v1/
 
 
 export const Run = async function ({ id, techname, name }: { id: string, techname: string, name: string}) {
+  logger.debug('Run started...')
+
   let monitorrun = new Monitorrun();
 
   try {
@@ -222,6 +224,7 @@ export const Run = async function ({ id, techname, name }: { id: string, technam
     }
 
     RunningTrackerService.Stop(id);
+    logger.debug('Run finished...')
   }    
 }
 
