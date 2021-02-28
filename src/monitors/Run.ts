@@ -18,8 +18,6 @@ import { GetProductsRequest, Product as ProductGRPC } from '../proto/scraper/v1/
 
 
 export const Run = async function ({ id, techname, name }: { id: string, techname: string, name: string}) {
-  logger.debug('Run started...')
-
   let monitorrun = new Monitorrun();
 
   try {
@@ -54,8 +52,6 @@ export const Run = async function ({ id, techname, name }: { id: string, technam
 
     let products: Array<Product>;
 
-    logger.info(techname + ' is running')
-
     switch(techname) {
       case 'nike':
         products = await NikeMonitor.GetProducts({ proxy });
@@ -67,14 +63,16 @@ export const Run = async function ({ id, techname, name }: { id: string, technam
         products = await SupremeMonitor.GetProducts({ proxy });
         break;
       case 'zalando':
-        products = await GetProducts({ techname, proxy: proxy.address });
+        try {
+          products = await GetProducts({ techname, proxy: proxy.address });
+        } catch {
+          products = null;
+        }
         break;
       default:
         products = [];
         logger.warn(`${techname} - ${id}: No Handler in Monitor`);
     }
-
-    logger.info(techname + ' got products')
 
     if (products == null) {
       await ProxyModel.SetCooldown({ proxyId: proxy.id, monitorpageId: id });
@@ -224,7 +222,6 @@ export const Run = async function ({ id, techname, name }: { id: string, technam
     }
 
     RunningTrackerService.Stop(id);
-    logger.debug('Run finished...')
   }    
 }
 
