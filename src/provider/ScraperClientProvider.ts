@@ -1,5 +1,5 @@
-import { credentials, loadPackageDefinition } from '@grpc/grpc-js';
-import { ScraperServiceClient } from '../proto/scraper_grpc_pb';
+import { credentials } from '@grpc/grpc-js';
+import { ScraperServiceClient } from '../proto/scraper/v1/scraper_grpc_pb';
 
 
 export class ScraperClientProvider {

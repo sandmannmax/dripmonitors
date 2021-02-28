@@ -3,7 +3,7 @@ import { logger } from '../logger';
 import { Proxy } from '../types/Proxy'
 import JsSoup from 'jssoup';
 import { ScraperClientProvider } from '../provider/ScraperClientProvider';
-import { GetHtmlRequest } from '../proto/scraper_pb';
+// import { GetHtmlRequest } from '../proto/scraper_pb';
 
 export class ZalandoMonitor {
 
@@ -15,13 +15,14 @@ export class ZalandoMonitor {
 
       let text;
 
-      try {
-        text = await ZalandoMonitor.GetHtml({ url, proxy: proxy.address });
-      }
-      catch {
-        logger.info('Error in ZalandoMonitor.GetProducts()');
-        return null;
-      }
+      return null;
+      // try {
+      //   text = await ZalandoMonitor.GetHtml({ url, proxy: proxy.address });
+      // }
+      // catch {
+      //   logger.info('Error in ZalandoMonitor.GetProducts()');
+      //   return null;
+      // }
 
       let soup = new JsSoup(text);
       let scripts = soup.findAll('script');
@@ -95,20 +96,20 @@ export class ZalandoMonitor {
     return product;
   }
 
-  private static GetHtml = function ({ url, proxy }): Promise<string> {
-    return new Promise<string>((resolve, reject) => {
-      const client = ScraperClientProvider.getInstance();
+  // private static GetHtml = function ({ url, proxy }): Promise<string> {
+  //   return new Promise<string>((resolve, reject) => {
+  //     const client = ScraperClientProvider.getInstance();
   
-      var request: GetHtmlRequest = new GetHtmlRequest();
-      request.setUrl(url);
-      request.setProxyAddress(proxy);
+  //     var request: GetHtmlRequest = new GetHtmlRequest();
+  //     request.setUrl(url);
+  //     request.setProxyAddress(proxy);
   
-      client.getHtml(request, (error, response) => {
-        if (error) reject(error)
-        else resolve(response.getHtml());
-      });
-    });  
-  }
+  //     client.getHtml(request, (error, response) => {
+  //       if (error) reject(error)
+  //       else resolve(response.getHtml());
+  //     });
+  //   });  
+  // }
 
   private static Sleep = async function (ms) {
     return new Promise((resolve) => {

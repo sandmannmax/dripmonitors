@@ -13,6 +13,9 @@ import { NikeMonitor } from "./NikeMonitor";
 import { SupremeMonitor } from "./SupremeMonitor";
 import { async } from 'crypto-random-string';
 import { ZalandoMonitor } from "./ZalandoMonitor";
+import { ScraperClientProvider } from '../provider/ScraperClientProvider'
+import { GetProductsRequest, Product as ProductGRPC } from '../proto/scraper/v1/scraper_pb'
+
 
 export const Run = async function ({ id, techname, name }: { id: string, techname: string, name: string}) {
   let monitorrun = new Monitorrun();
@@ -49,6 +52,8 @@ export const Run = async function ({ id, techname, name }: { id: string, technam
 
     let products: Array<Product>;
 
+    logger.info(techname + ' is running')
+
     switch(techname) {
       case 'nike':
         products = await NikeMonitor.GetProducts({ proxy });
@@ -60,12 +65,14 @@ export const Run = async function ({ id, techname, name }: { id: string, technam
         products = await SupremeMonitor.GetProducts({ proxy });
         break;
       case 'zalando':
-        products = await ZalandoMonitor.GetProducts({ proxy });
+        products = await GetProducts({ techname, proxy: proxy.address });
         break;
       default:
         products = [];
         logger.warn(`${techname} - ${id}: No Handler in Monitor`);
     }
+
+    logger.info(techname + ' got products')
 
     if (products == null) {
       await ProxyModel.SetCooldown({ proxyId: proxy.id, monitorpageId: id });
@@ -216,4 +223,37 @@ export const Run = async function ({ id, techname, name }: { id: string, technam
 
     RunningTrackerService.Stop(id);
   }    
+}
+
+function GetProducts({ techname, proxy }): Promise<Product[]> {
+  return new Promise<Product[]>((resolve, reject) => {
+    const client = ScraperClientProvider.getInstance();
+
+    var request: GetProductsRequest = new GetProductsRequest();
+    request.setTechname(techname);
+    request.setProxyAddress(proxy);
+
+    client.getProducts(request, (error, response) => {
+      if (error) reject(error)
+      else {
+        let productsGRPC = response.getProductsList();
+        let products: Product[] = [];
+        for (let i = 0; i < productsGRPC.length; i++) {
+          let product = new Product();
+          product.id = productsGRPC[i].getId();
+          product.name = productsGRPC[i].getName();
+          product.href = productsGRPC[i].getHref();
+          product.img = productsGRPC[i].getImg();
+          product.price = productsGRPC[i].getPrice();
+          product.active = productsGRPC[i].getActive();
+          product.hasSizes = productsGRPC[i].getHasSizes();
+          product.soldOut = productsGRPC[i].getSoldOut();
+          product.sizes = productsGRPC[i].getSizesList();
+          product.sizesSoldOut = productsGRPC[i].getSizesSoldOutList();
+          products.push(product);
+        }
+        resolve(products);
+      }
+    });
+  });  
 }
