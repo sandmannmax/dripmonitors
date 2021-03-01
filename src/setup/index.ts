@@ -1,6 +1,6 @@
 import { logger } from "../logger"
-import { CooldownModel } from "../model/CooldownModel";
-import { ProxyModel } from "../model/ProxyModel";
+import { CooldownModel } from "../models/CooldownModel";
+import { ProxyModel } from "../models/ProxyModel";
 import { DatabaseProvider } from "../provider/DatabaseProvider";
 import { CooldownService } from "../services/CooldownService";
 import { ServiceFactory } from "../services/factory";

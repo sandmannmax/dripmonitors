@@ -2,6 +2,7 @@ import { Server, ServerCredentials } from '@grpc/grpc-js';
 import { ProxyServiceServer } from '../server';
 import { ProxyServiceService } from '../proto/proxy/v1/proxy_grpc_pb';
 import { logger } from '../logger';
+import config from '../config';
 
 const shutdownCallback = (error) => {
   if (error) {
@@ -14,7 +15,7 @@ const shutdownCallback = (error) => {
 export default () => {
   const server = new Server();
   server.addService(ProxyServiceService, new ProxyServiceServer());
-  server.bindAsync('0.0.0.0:3000', ServerCredentials.createInsecure(), (error, port) => {
+  server.bindAsync(`${config.host}:${config.port}`, ServerCredentials.createInsecure(), (error, port) => {
     if (error) {
       logger.error(error);
       return;
