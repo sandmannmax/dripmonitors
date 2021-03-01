@@ -32,7 +32,8 @@ export class MonitorModel {
       let index = monitors.findIndex(monitor => monitor.id == monitorsources[i].id);
       if (index === -1) {
         let result = await dbProvider.Get('lsb.monitors', { id: monitorsources[i].monitorId });
-        if ((result.Item as Monitor).running)
+        let monitor = result.Item as Monitor;
+        if (monitor && monitor.running)
           monitors.push(result.Item as Monitor);
       }
     }
@@ -40,3 +41,4 @@ export class MonitorModel {
     return monitors;
   }
 }
+
