@@ -5,7 +5,6 @@ import { MonitorrunModel } from "../models/MonitorrunModel";
 import { ProductModel } from "../models/ProductModel";
 import { ProxyModel } from "../models/ProxyModel";
 import { DiscordService } from "../services/DiscordService";
-import { RunningTrackerService } from "../services/RunningTrackerService";
 import { Monitorrun } from "../types/Monitorrun";
 import { Product } from "../types/Product";
 import { AfewMonitor } from "./AfewMonitor";
@@ -21,7 +20,9 @@ export const Run = async function ({ id, techname, name }: { id: string, technam
   let monitorrun = new Monitorrun();
 
   try {
-    let canStart = RunningTrackerService.Start(id);
+    let canStart = await MonitorpageModel.Start({ id });
+
+    logger.info(techname + ' canStart ' + canStart);
 
     if (!canStart)
       return;
@@ -46,7 +47,7 @@ export const Run = async function ({ id, techname, name }: { id: string, technam
       monitorrun.reason = 'No Proxy Available';
       await MonitorrunModel.AddMonitorrun({ monitorrun });
 
-      RunningTrackerService.Stop(id);
+      await MonitorpageModel.Stop({ id });
       return;
     }
 
@@ -82,7 +83,7 @@ export const Run = async function ({ id, techname, name }: { id: string, technam
       monitorrun.reason = 'Did not retreive products';
       await MonitorrunModel.AddMonitorrun({ monitorrun });
 
-      RunningTrackerService.Stop(id);
+      await MonitorpageModel.Stop({ id });
       return;
     }
 
@@ -207,7 +208,7 @@ export const Run = async function ({ id, techname, name }: { id: string, technam
     monitorrun.success = true;
     await MonitorrunModel.AddMonitorrun({ monitorrun });
   
-    RunningTrackerService.Stop(id);
+    await MonitorpageModel.Stop({ id });
   }
   catch (e) {
     logger.error(`${techname} - ${id}: Error - ${e}`);
@@ -221,7 +222,7 @@ export const Run = async function ({ id, techname, name }: { id: string, technam
       logger.warn(`${techname} - ${id}: Monitorrun couldnt be inserted`)
     }
 
-    RunningTrackerService.Stop(id);
+    await MonitorpageModel.Stop({ id });
   }    
 }
 
