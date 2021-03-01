@@ -18,11 +18,11 @@ export class MonitorpageModel {
     if (result && result.Item && result.Item.currentRunningState) 
       return false;
     
-    await dbProvider.Update('lsb.monitorpages', { id }, "currentRunningState = :crs", { ':crs': true });
+    await dbProvider.Update('lsb.monitorpages', { id }, "set currentRunningState = :crs", { ':crs': true });
     return true;
   }
 
   public static Stop = async function ({ id }: { id: string }): Promise<void> {
-    await dbProvider.Update('lsb.monitorpages', { id }, "currentRunningState = :crs", { ':crs': false });
+    await dbProvider.Update('lsb.monitorpages', { id }, "set currentRunningState = :crs", { ':crs': false });
   }
 }
