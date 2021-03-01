@@ -22,8 +22,6 @@ export const Run = async function ({ id, techname, name }: { id: string, technam
   try {
     let canStart = await MonitorpageModel.Start({ id });
 
-    logger.info(techname + ' canStart ' + canStart);
-
     if (!canStart)
       return;
 
