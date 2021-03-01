@@ -24,8 +24,13 @@ export class MonitorModel {
 
     if (product) {
       result = await dbProvider.Scan('lsb.monitorsources', "productId = :productId", { ":productId": product.id });
-      if (result.Items != null)
-      monitorsources.push(...(result.Items as Array<Monitorsource>));
+      if (result.Items != null) {
+        for (let i = 0; i < result.Items.length; i++) {
+          let monitorsource = result.Items[i] as Monitorsource;
+          if (monitorsource)
+            monitorsources.push(monitorsource);
+        }
+      }
     }
 
     for (let i = 0; i < monitorsources.length; i++) { 
