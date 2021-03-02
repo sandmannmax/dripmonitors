@@ -5,13 +5,11 @@ import { IProxyServiceServer, IProxyServiceService } from '../proto/proxy/v1/pro
 import { GetProxiesRequest, GetProxiesResponse, CreateProxyRequest, DeleteProxyRequest, DeleteProxyResponse, GetRandomProxyRequest, SetCooldownRequest, SetCooldownResponse, ResetCooldownRequest, ResetCooldownResponse, Proxy, CreateProxyResponse, GetRandomProxyResponse } from '../proto/proxy/v1/proxy_pb';
 import { ServiceFactory } from '../services/factory';
 
-const proxyService: IProxyService = ServiceFactory.GetProxyService();
-const cooldownService: ICooldownService = ServiceFactory.GetCooldownService();
-
 export class ProxyServiceServer implements IProxyServiceServer {
   [name: string]: UntypedHandleCall;
 
   getProxies(call: ServerUnaryCall<GetProxiesRequest, GetProxiesResponse>, callback: sendUnaryData<GetProxiesResponse>) {
+    const proxyService: IProxyService = ServiceFactory.GetProxyService();
     proxyService.getProxies().then(response => {
       callback(null, response);
     }).catch(error => {
@@ -20,6 +18,7 @@ export class ProxyServiceServer implements IProxyServiceServer {
   }
 
   createProxy(call: ServerUnaryCall<CreateProxyRequest, CreateProxyResponse>, callback: sendUnaryData<CreateProxyResponse>) {
+    const proxyService: IProxyService = ServiceFactory.GetProxyService();
     let address = call.request.getAddress();
     proxyService.createProxy({ address }).then(response => {
       callback(null, response);
@@ -29,6 +28,7 @@ export class ProxyServiceServer implements IProxyServiceServer {
   }
 
   deleteProxy(call: ServerUnaryCall<DeleteProxyRequest, DeleteProxyResponse>, callback: sendUnaryData<DeleteProxyResponse>) {
+    const proxyService: IProxyService = ServiceFactory.GetProxyService();
     let proxyId = call.request.getId();
     proxyService.deleteProxy({ proxyId }).then(response => {
       callback(null, response);
@@ -38,6 +38,7 @@ export class ProxyServiceServer implements IProxyServiceServer {
   }
 
   getRandomProxy(call: ServerUnaryCall<GetRandomProxyRequest, GetRandomProxyResponse>, callback: sendUnaryData<GetRandomProxyResponse>) {
+    const proxyService: IProxyService = ServiceFactory.GetProxyService();
     let monitorpageId = call.request.getMonitorpageId();
     let cc = call.request.getCc();
     proxyService.getRandomProxy({ monitorpageId, cc }).then(response => {
@@ -48,6 +49,7 @@ export class ProxyServiceServer implements IProxyServiceServer {
   }
 
   setCooldown(call: ServerUnaryCall<SetCooldownRequest, SetCooldownResponse>, callback: sendUnaryData<SetCooldownResponse>) {
+    const cooldownService: ICooldownService = ServiceFactory.GetCooldownService();
     let monitorpageId = call.request.getMonitorpageId();
     let proxyId = call.request.getProxyId();
     cooldownService.setCooldown({ proxyId, monitorpageId }).then(response => {
@@ -58,6 +60,7 @@ export class ProxyServiceServer implements IProxyServiceServer {
   }
 
   resetCooldown(call: ServerUnaryCall<ResetCooldownRequest, ResetCooldownResponse>, callback: sendUnaryData<ResetCooldownResponse>) {
+    const cooldownService: ICooldownService = ServiceFactory.GetCooldownService();
     let monitorpageId = call.request.getMonitorpageId();
     let proxyId = call.request.getProxyId();
     cooldownService.resetCooldown({ proxyId, monitorpageId}).then(response => {
