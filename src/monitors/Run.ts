@@ -35,7 +35,6 @@ export const Run = async function ({ id, techname, name }: { id: string, technam
     monitorrun.monitorpageId = id;
 
     const proxy = await ProxyModel.GetRandomProxy({ monitorpageId: id });
-    monitorrun.proxyId = proxy.id;
 
     if (!proxy) {
       logger.error(`${techname} - ${id}: No Proxy Available`);
@@ -48,6 +47,8 @@ export const Run = async function ({ id, techname, name }: { id: string, technam
       await MonitorpageModel.Stop({ id });
       return;
     }
+
+    monitorrun.proxyId = proxy.id;
 
     let products: Array<Product>;
 
@@ -92,8 +93,6 @@ export const Run = async function ({ id, techname, name }: { id: string, technam
 
     for (let i = 0; i < products.length; i++) {
       let product = products[i];
-      if (!product)
-        logger.info('No Product')
       let oldProduct = await ProductModel.GetProduct({ id: product.id });
       let sendMessage = false;
       let size = '';
