@@ -25,4 +25,16 @@ export class MonitorpageModel {
   public static Stop = async function ({ id }: { id: string }): Promise<void> {
     await dbProvider.Update('lsb.monitorpages', { id }, "set currentRunningState = :crs", { ':crs': false });
   }
+
+  public static NoProxyMessageSent = async function ({ id }: { id: string }): Promise<boolean> {
+    let result = await dbProvider.Get('lsb.monitorpages', { id });
+    if (result && result.Item && result.Item.noProxyMessageSent) 
+      return true;
+    else
+      return false;
+  }
+
+  public static UpdateNoProxyMessageSent = async function ({ id, value }: { id: string, value: boolean }): Promise<void> {
+    await dbProvider.Update('lsb.monitorpages', { id }, "set noProxyMessageSent = :npms", { ':npms': value });
+  }
 }

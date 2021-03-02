@@ -37,7 +37,10 @@ export const Run = async function ({ id, techname, name }: { id: string, technam
     const proxy = await ProxyModel.GetRandomProxy({ monitorpageId: id });
 
     if (!proxy) {
-      logger.error(`${techname} - ${id}: No Proxy Available`);
+      if (!await MonitorpageModel.NoProxyMessageSent({ id })) {
+        logger.error(`${techname} - ${id}: No Proxy Available`);  
+        await MonitorpageModel.UpdateNoProxyMessageSent({ id, value: true });
+      }
 
       monitorrun.timestampEnd = new Date().getTime();
       monitorrun.success = false;
@@ -46,7 +49,8 @@ export const Run = async function ({ id, techname, name }: { id: string, technam
 
       await MonitorpageModel.Stop({ id });
       return;
-    }
+    } else if (await MonitorpageModel.NoProxyMessageSent({ id })) 
+      await MonitorpageModel.UpdateNoProxyMessageSent({ id, value: false });
 
     monitorrun.proxyId = proxy.id;
 
