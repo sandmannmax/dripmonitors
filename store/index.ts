@@ -16,13 +16,17 @@ export default () => new Vuex.Store({
     scope: 'none',
     monitors: [],
     products: [],
-    monitorpages: []
+    monitorpages: [],
+    monitorpagesAdmin: [],
+    proxiesAdmin: []
   },
   getters: {
     scope: state => state.scope,
     monitors: state => state.monitors,
     products: state => state.products,
-    monitorpages: state => state.monitorpages
+    monitorpages: state => state.monitorpages,
+    monitorpagesAdmin: state => state.monitorpagesAdmin,
+    proxiesAdmin: state => state.proxiesAdmin
   },
   actions: {
     async getScope({ commit }, { accessToken }) {
@@ -109,10 +113,10 @@ export default () => new Vuex.Store({
       }
       return 'Unexpected Error';
     },
-    async updateMonitor({ commit }, { id, webHook, botName, botImage, accessToken }) {
+    async updateMonitor({ commit }, { id, webHook, botName, botImage, role, accessToken }) {
       let response, data, error;
       try {
-        response = await axios.patch(config.api_url + '/monitor/' + id, { webHook, botName, botImage }, {headers: {'Authorization': accessToken}});
+        response = await axios.patch(config.api_url + '/monitor/' + id, { webHook, botName, botImage, role }, {headers: {'Authorization': accessToken}});
         if (response && response.status == 200)
           data = response.data.monitor;
         else if (response && response.data && response.data.message)
@@ -301,7 +305,112 @@ export default () => new Vuex.Store({
       commit('setMonitors', []);
       commit('setProducts', []);
       commit('setMonitorpages', []);
-    }
+    },
+    async getProxiesAdmin({ commit }, { accessToken }) {
+      let response, data;
+      try {
+        response = await axios.get(config.api_url + '/admin/proxy', {headers: {'Authorization': accessToken}});
+        if (response && response.status == 200)
+          data = response.data.proxies;
+        else if (response && response.data && response.data.message)
+          return response.data.message;
+        else
+          return `Error ${JSON.stringify(response)}`;
+      } catch (err) {
+        if (err && err.response && err.response.data && err.response.data.message)
+          return err.response.data.message;
+        return JSON.stringify(err);
+      }
+      if (data) {
+        commit('setProxiesAdmin', data);
+        return '';
+      }
+      return 'Unexpected Error';
+    },
+    async addProxyAdmin({ commit }, { address, accessToken }) {
+      let response, data;
+      try {
+        response = await axios.post(config.api_url + '/admin/proxy', { address }, {headers: {'Authorization': accessToken}});
+        if (response && response.status == 200)
+          data = response.data.proxy;
+        else if (response && response.data && response.data.message)
+          return response.data.message;
+        else
+          return `Error ${JSON.stringify(response)}`;
+      } catch (err) {
+        if (err && err.response && err.response.data && err.response.data.message)
+          return err.response.data.message;
+        return JSON.stringify(err);
+      }
+      if (data) {
+        commit('addProxyAdmin', data);
+        return '';
+      }
+      return 'Unexpected Error'; 
+    },
+    async getMonitorpagesAdmin({ commit }, { accessToken }) {
+      let response, data;
+      try {
+        response = await axios.get(config.api_url + '/admin/monitorpage', {headers: {'Authorization': accessToken}});
+        if (response && response.status == 200)
+          data = response.data.monitorpages;
+        else if (response && response.data && response.data.message)
+          return response.data.message;
+        else
+          return `Error ${JSON.stringify(response)}`;
+      } catch (err) {
+        if (err && err.response && err.response.data && err.response.data.message)
+          return err.response.data.message;
+        return JSON.stringify(err);
+      }
+      if (data) {
+        commit('setMonitorpagesAdmin', data);
+        return '';
+      }
+      return 'Unexpected Error';
+    },
+    async createJobAdmin({ commit }, { monitorpageId, interval, accessToken }) {
+      let response, data;
+      try {
+        response = await axios.post(config.api_url + '/admin/monitorpage/' + monitorpageId + '/start', { interval }, {headers: {'Authorization': accessToken}});
+        if (response && response.status == 200)
+          data = { monitorpageId, interval };
+        else if (response && response.data && response.data.message)
+          return response.data.message;
+        else
+          return `Error ${JSON.stringify(response)}`;
+      } catch (err) {
+        if (err && err.response && err.response.data && err.response.data.message)
+          return err.response.data.message;
+        return JSON.stringify(err);
+      }
+      if (data) {
+        commit('setMonitorpageJobAdmin', data);
+        return '';
+      }
+      return 'Unexpected Error';
+    },
+    async deleteJobAdmin({ commit }, { monitorpageId, accessToken }) {
+      let response, data;
+      try {
+        response = await axios.post(config.api_url + '/admin/monitorpage/' + monitorpageId + '/stop', null, {headers: {'Authorization': accessToken}});
+        if (response && response.status == 200)
+          data = monitorpageId;
+        else if (response && response.data && response.data.message)
+          return response.data.message;
+        else
+          return `Error ${JSON.stringify(response)}`;
+      } catch (err) {
+        if (err && err.response && err.response.data && err.response.data.message)
+          return err.response.data.message;
+        return JSON.stringify(err);
+      }
+      if (data) {
+        commit('deleteMonitorpageJobAdmin', data);
+        return '';
+      }
+      return 'Unexpected Error';
+    },
   },  
   mutations: {
     setScope: (state: any, scope) => {
@@ -328,6 +437,7 @@ export default () => new Vuex.Store({
       monitors[index].botName = monitor.botName;
       monitors[index].botImage = monitor.botImage;
       monitors[index].webHook = monitor.webHook;
+      monitors[index].role = monitor.role;
       state.monitors = [...monitors];
     },
     addMonitor: (state: any, monitor) => {
@@ -361,6 +471,35 @@ export default () => new Vuex.Store({
       monitorsources.splice(monitorsources.findIndex(item => item.id == monitorsourceId), 1);
       monitors[index].monitorsources = [...monitorsources];
       state.monitors = [...monitors];
+    },
+    setProxiesAdmin: (state: any, proxies) => {
+      state.proxiesAdmin = proxies;
+    },
+    addProxyAdmin: (state: any, proxy) => {
+      state.proxiesAdmin = [...state.proxiesAdmin, proxy];
+    },
+    setMonitorpagesAdmin: (state: any, monitorpages) => {
+      state.monitorpagesAdmin = monitorpages;
+    },
+    setMonitorpageJobAdmin: (state: any, { monitorpageId, interval }) => {
+      let monitorpages = [...state.monitorpagesAdmin];
+      for (let i = 0; i < monitorpages.length; i++) {
+        if (monitorpages[i].id == monitorpageId) {
+          monitorpages[i].interval = interval;
+          monitorpages[i].running = true;
+        }
+      }
+      state.monitorpagesAdmin = [...monitorpages];
+    },
+    deleteMonitorpageJobAdmin: (state: any, monitorpageId) => {
+      let monitorpages = [...state.monitorpagesAdmin];
+      for (let i = 0; i < monitorpages.length; i++) {
+        if (monitorpages[i].id == monitorpageId) {
+          monitorpages[i].interval = 0;
+          monitorpages[i].running = false;
+        }
+      }
+      state.monitorpagesAdmin = [...monitorpages];
     },
   }
 });

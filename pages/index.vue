@@ -9,7 +9,8 @@
           </svg>
         </button>
       </div>    
-      <div class="text-red-500">{{ error }}</div>        
+      <div class="text-red-500">{{ error }}</div>  
+      <div class="md:text-lg text-md">For help watch the <a class="text-blue-400 hover:text-blue-700 transition-colors duration-150" href="https://youtu.be/W7LTBwy59sM" target="blank">Monitor Setup Tutorial</a> or contact mail@lazyshoebot.com</div>      
       <div class="monitors" v-if="monitors">
         <Monitor v-for="monitor in monitors" v-bind:key="monitor.id" v-bind:monitor="monitor"/>
       </div>    

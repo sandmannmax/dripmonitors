@@ -7,8 +7,12 @@
         <Toggle v-bind:value="monitor.running" @input="updateToggle" class="toggle"/> 
       </div>
       <div class="flex-auto mx-4">
+        <div class="flex">
+
         <h3 v-if="monitor.botName" class="text-xl font-semibold">{{ monitor.botName }}</h3>
         <h3 v-else class="text-xl font-semibold">LSB Monitor</h3>
+        <h3 v-if="monitor.role" class="text-xl font-semibold ml-2 text-gray-500">{{ monitor.role }}</h3>
+        </div>
         <div class="flex flex-wrap">
           <div v-for="monitorsource in monitor.monitorsources" v-bind:key="monitorsource.id">
             <MonitorSource v-bind:monitorsource="monitorsource" @deleteMonitorsource="deleteMonitorsourceButton"/>
@@ -50,6 +54,10 @@
           <div class="flex flex-col">
             <label for="inputBotimage">Bot Image</label>
             <input type="text" id="inputBotimage" class="border-2 p-1 rounded-lg" v-model="botImage" placeholder="Bot Image">
+          </div>
+          <div class="flex flex-col">
+            <label for="inputRole">Role</label>
+            <input type="text" id="inputRole" class="border-2 p-1 rounded-lg" v-model="role" placeholder="Role">
           </div>
           <div class="flex flex-row items-center justify-evenly">
             <button class="bg-primary hover:bg-secondary transition-colors duration-150 text-white rounded-full p-1 w-24 m-1 mt-4" v-on:click="saveEditMonitor">Save</button> 
@@ -114,6 +122,7 @@ export default class Monitor extends Vue {
   webHook = '';
   botName = '';
   botImage = '';
+  role = '';
 
   showModal = false;
   showModalDelete = false;
@@ -159,11 +168,12 @@ export default class Monitor extends Vue {
     this.webHook = this.monitor.webHook;
     this.botName = this.monitor.botName;
     this.botImage = this.monitor.botImage;
+    this.role = this.monitor.role;
     this.showModal = true;
   }
 
   async saveEditMonitor() {
-    this.editMonitorError = await this.updateMonitor({ id: this.monitor.id, webHook: this.webHook, botName: this.botName, botImage: this.botImage, accessToken: await this.$auth.strategy.token.get() })
+    this.editMonitorError = await this.updateMonitor({ id: this.monitor.id, webHook: this.webHook, botName: this.botName, botImage: this.botImage, role: this.role, accessToken: await this.$auth.strategy.token.get() })
     if (this.editMonitorError == '')
       this.showModal = false;
   }
