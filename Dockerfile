@@ -12,6 +12,4 @@ RUN pip install --no-cache-dir -r requirements.txt
 
 COPY ./src .
 
-EXPOSE 50069
-
-CMD ["python", "server.py"]
+CMD ["python", "monitor.py"]

@@ -1,17 +1,18 @@
 import json
-from requests_html import HTMLSession
+import requests
 from proto.scraper.v1.scraper_pb2 import Product
 
 def GetProducts(proxy):
   products = []
+  location = 'DE';
+  language = 'de';
   for i in range(3):
-    url = 'https://www.zalando.de/herrenschuhe-sneaker/?p=' + str(i+1)
-    session = HTMLSession()
+    url = 'https://api.nike.com/product_feed/threads/v2/?anchor=' + str(i*60) + '&count=60&filter=marketplace%28' + location + '%29&filter=language%28' + language + '%29&filter=channelId%28010794e5-35fe-4e32-aaff-cd2c74f89d61%29&filter=exclusiveAccess%28true%2Cfalse%29&fields=active%2Cid%2ClastFetchTime%2CproductInfo%2CpublishedContent.nodes%2CpublishedContent.subType%2CpublishedContent.properties.coverCard%2CpublishedContent.properties.productCard%2CpublishedContent.properties.products%2CpublishedContent.properties.publish.collections%2CpublishedContent.properties.relatedThreads%2CpublishedContent.properties.seo%2CpublishedContent.properties.threadType%2CpublishedContent.properties.custom%2CpublishedContent.properties.title'
     proxies = {
       'http': proxy,
       'https': proxy
     }
-    response = session.get(url, proxies=proxies, timeout=10)
+    response = requests.get(url, proxies=proxies, timeout=10)
     script = response.html.xpath('//*[@id="z-nvg-cognac-props"]', first=True)
     content = script.text
     data = json.loads(content[9:-3])
