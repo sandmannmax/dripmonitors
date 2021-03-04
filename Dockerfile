@@ -7,9 +7,11 @@ RUN apt install manpages-dev
 
 WORKDIR /usr/src/app
 
+RUN mkdir scraper
+
 COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
-COPY ./src .
+COPY ./scraper ./scraper
 
-CMD ["python", "monitor.py"]
+CMD ["python", "-m", "scraper"]

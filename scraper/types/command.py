@@ -1,0 +1,3 @@
+class Command:
+  command = []
+  arguments = []
