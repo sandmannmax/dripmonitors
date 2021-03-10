@@ -14,7 +14,7 @@ export default (app: Application) => {
   app.use(morgan(
     'combined', 
     { "stream": { 
-      write: (message:string, encoding) => httpLogger.info(message.replace('\n','')) 
+      write: (message:string) => httpLogger.info(message.replace('\n','')) 
     }}
   ));
 
@@ -31,7 +31,7 @@ export default (app: Application) => {
       res.status(403).json({message: 'Insufficient scope'})
     else {
       if (err.status == undefined || (err.status && err.status >= 500))
-        logger.error('Error', err);
+        logger.error('Error', err.internalMessage);
       res.status(err.status || 500);
       if (err.status == 403 && (!err || !err.message))
         res.end();

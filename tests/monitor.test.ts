@@ -20,7 +20,7 @@ sinon.stub(Auth, 'CheckJWT').callsFake((req, res, next) => {
 
 Container.set(MonitorService, new MonitorService(new FakeMonitorModel(), new FakeMonitorsourceModel(), new FakeMonitorpageModel(), new FakeProductModel()))
 
-import { getApp } from '../src/app';
+import { getApp } from '../src/setup/app';
 
 const app = getApp();
 

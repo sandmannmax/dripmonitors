@@ -16,7 +16,7 @@ export class DatabaseProvider {
     } else {
       this.Database = new DynamoDB.DocumentClient({
         region: config.aws_region,
-        endpoint: 'http://localhost:8000',
+        endpoint: 'http://dynamodb:7999',
         credentials: new Credentials({ accessKeyId: config.aws_accessKey, secretAccessKey: config.aws_secretAccessKey })
       });
     }  
@@ -45,6 +45,17 @@ export class DatabaseProvider {
       ExpressionAttributeValues
     };
     return await this.Database.query(params).promise();
+  }
+
+  async Scan(TableName: string, FilterExpression: string, ExpressionAttributeValues: Object, ExpressionAttributeNames?: ExpressionAttributeNameMap, IndexName?: string) {
+    let params: DynamoDB.DocumentClient.ScanInput = {
+      TableName,
+      FilterExpression,
+      ExpressionAttributeValues,
+      ExpressionAttributeNames,
+      IndexName
+    };
+    return await this.Database.scan(params).promise();
   }
 
   async GetAll(TableName: string) {

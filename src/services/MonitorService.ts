@@ -1,58 +1,51 @@
 import { Service } from 'typedi';
 import Container from 'typedi';
-import { MonitorModel } from '../models/MonitorModel';
+import { Monitor } from '../models/Monitor';
 import { IResult } from '../types/IResult';
-import { GetMonitor_O } from '../types/Monitor';
+import { GetMonitors_O, GetMonitor_O } from '../types/Monitor';
 import { DiscordService } from './DiscordService';
 import { async } from 'crypto-random-string';
-import { GetMonitorsource_O } from '../types/Monitorsource';
-import { GetProduct_O, Product } from '../types/Product';
-import { GetMonitorpage_O } from '../types/Monitorpage';
-import { MonitorsourceModel } from '../models/MonitorsourceModel';
-import { ProductModel } from '../models/ProductModel';
-import { MonitorpageModel } from '../models/MonitorpageModel';
+import { GetMonitorsources_O, GetMonitorsource_O } from '../types/Monitorsource';
+import { GetProducts_O, GetProduct_O } from '../types/Product';
+import { GetMonitorpages_O, GetMonitorpage_O } from '../types/Monitorpage';
 import { logger } from '../logger';
+import { User } from '../types/User';
+import { Sequelize } from 'sequelize';
+import { Monitorsource } from '../models/Monitorsource';
+import { Monitorpage } from '../models/Monitorpage';
+import { Product } from '../models/Product';
 
 @Service()
 export class MonitorService {
   private discordService: DiscordService;
+  private dbConnection: Sequelize;
 
-  constructor(
-    private monitorModel: MonitorModel,
-    private monitorsourceModel: MonitorsourceModel,
-    private monitorpageModel: MonitorpageModel,
-    private productModel: ProductModel
-  ){
+  constructor() {
     this.discordService = Container.get(DiscordService);
+    this.dbConnection = Container.get<Sequelize>("dbConnection");
   }
 
-  async GetMonitors({ user }: { user }): Promise<IResult> {
+  async GetMonitors({ user }: { user: User }): Promise<IResult> {
     try {
       if (!user)
         return {success: false, error: {status: 500, message: 'Unexpected Server Error', internalMessage: `MonitorService.GetMonitor: User empty`}};    
 
-      let userId = user['sub'].split('|')[1];
+      let userId = user.sub.split('|')[1];
 
-      let monitors = await this.monitorModel.GetMonitors({ userId });
-      
-      let monitorsOut = [];
+      let monitors = await Monitor.findAll({ where: { userId }});
 
-      for (let i = 0; i < monitors.length; i++) {
-        monitorsOut.push(GetMonitor_O(monitors[i]));
-      }
-
-      return {success: true, data: {monitors: monitorsOut}};
+      return {success: true, data: { monitors: GetMonitors_O(monitors) }};
     } catch (error) {
       return {success: false, error: {status: 500, message: 'Unexpected Server Error', internalMessage: error}};
     }
   }
 
-  async CreateMonitor({ user }: { user }): Promise<IResult> {
+  async CreateMonitor({ user }: { user: User }): Promise<IResult> {
     try {
       if (!user)
         return {success: false, error: {status: 500, message: 'Unexpected Server Error', internalMessage: `MonitorService.CreateMonitor: User empty`}};    
 
-      let permissions = user['permissions'];
+      let permissions = user.permissions;
 
       let maxNum = 4;
 
@@ -62,18 +55,13 @@ export class MonitorService {
       //     maxNum = num;
       // }
 
-      let userId = user['sub'].split('|')[1];
-      let monitors = await this.monitorModel.GetMonitors({ userId });
+      let userId = user.sub.split('|')[1];
+      let monitors = await Monitor.findAll({ where: { userId }});
       
       if (maxNum <= monitors.length)
-        return {success: false, error: {status: 400, message: `You already have ${maxNum} available Monitors for your account`}};    
+        return {success: false, error: {status: 400, message: `You already have ${maxNum} available Monitors for your account`}};
 
-      let id;
-      do {
-        id = await async({length: 24});
-      } while (!await this.monitorModel.IdUnused({ id }));      
-
-      let monitor = await this.monitorModel.CreateMonitor({ id, userId });
+      let monitor = await Monitor.create({ userId });
 
       return {success: true, data: {monitor: GetMonitor_O(monitor)}};
     } catch (error) {
@@ -81,7 +69,7 @@ export class MonitorService {
     }
   }
 
-  async UpdateMonitor({ id, user, webHook, botName, botImage, running, role }: { id: string, user, webHook: string, botName: string, botImage: string, running: boolean, role: string }): Promise<IResult> {
+  async UpdateMonitor({ id, user, webHook, botName, botImage, running, role }: { id: string, user: User, webHook: string, botName: string, botImage: string, running: boolean, role: string }): Promise<IResult> {
     try {
       if (!user)
         return {success: false, error: {status: 500, message: 'Unexpected Server Error', internalMessage: `MonitorService.UpdateMonitor: User empty`}};    
@@ -89,9 +77,9 @@ export class MonitorService {
       if (!id)
         return {success: false, error: {status: 400, message: '\'id\' is missing'}};    
 
-      let monitor = await this.monitorModel.GetMonitor({ id });
+      let monitor = await Monitor.findByPk(id);
 
-      let userId = user['sub'].split('|')[1];
+      let userId = user.sub.split('|')[1];
 
       if (!monitor)
         return {success: false, error: {status: 404, message: 'Monitor is not existing.'}};
@@ -99,22 +87,23 @@ export class MonitorService {
       if (monitor.userId != userId)
         return {success: false, error: {status: 404, message: 'Monitor is not existing.'}};
 
-      if (webHook)
-        await this.monitorModel.UpdateWebhook({ id, webHook });
+      if (webHook || botName != undefined || botImage != undefined || running != undefined || role != undefined) {
+        if (!webHook && monitor.webHook)
+          webHook = monitor.webHook;
 
-      if (botName != undefined)
-        await this.monitorModel.UpdateBotName({ id, botName });
+        if (botName == undefined && monitor.botName)
+          botName = monitor.botName;
 
-      if (botImage != undefined)
-        await this.monitorModel.UpdateBotImage({ id, botImage });
+        if (botImage == undefined && monitor.botImage)
+          botImage = monitor.botImage;
 
-      if (running != undefined)
-        await this.monitorModel.UpdateRunning({ id, running });
+        if (running == undefined)
+          running = monitor.running;
 
-      if (role != undefined)
-        await this.monitorModel.UpdateRole({ id, role });
+        monitor = await monitor.update({ webHook, botName, botImage, running });
+      }
 
-      monitor = await this.monitorModel.GetMonitor({ id });
+      // TODO: Role auslagern  
       
       return {success: true, data: {monitor: GetMonitor_O(monitor)}};
     } catch (error) {
@@ -122,30 +111,36 @@ export class MonitorService {
     }
   }
 
-  async DeleteMonitor({ id, user }: { id: string, user }): Promise<IResult> {
+  async DeleteMonitor({ id, user }: { id: string, user: User }): Promise<IResult> {
     try {
       if (!user)
         return {success: false, error: {status: 500, message: 'Unexpected Server Error', internalMessage: `MonitorService.CreateMonitor: User empty`}};    
 
       if (!id)
-        return {success: false, error: {status: 400, message: '\'id\' is missing'}};    
+        return {success: false, error: {status: 400, message: '\'id\' is missing'}};  
 
-      let monitor = await this.monitorModel.GetMonitor({ id });
+      let userId = user.sub.split('|')[1];  
 
-      let userId = user['sub'].split('|')[1];
+      let monitor = await Monitor.findOne({ where: { id, userId }});
 
       if (!monitor)
         return {success: false, error: {status: 404, message: 'Monitor is not existing'}};
-      
-      if (monitor.userId != userId)
-        return {success: false, error: {status: 404, message: 'Monitor is not existing'}};
 
-      let monitors = await this.monitorModel.GetMonitors({ userId });
+      let transaction = await this.dbConnection.transaction();
 
-      if (monitors.length == 1)
-        return {success: false, error: {status: 400, message: 'Can\'t delete your last monitor'}};
+      if (monitor.monitorsources) {
+        for (let i = 0; i < monitor.monitorsources.length; i++)
+          monitor.monitorsources[i].destroy({ transaction })
+      }
+
+      if (monitor.roles) {
+        for (let i = 0; i < monitor.roles.length; i++)
+          monitor.roles[i].destroy({ transaction })
+      }
       
-      await this.monitorModel.DeleteMonitor({ id });
+      await monitor.destroy({ transaction });
+
+      transaction.commit();
 
       return {success: true};
     } catch (error) {
@@ -153,52 +148,35 @@ export class MonitorService {
     }
   }
 
-  async GetMonitorSources({ user, monitorId }: { user, monitorId: string }): Promise<IResult> {
+  async GetMonitorSources({ user, monitorId }: { user: User, monitorId: string }): Promise<IResult> {
     try {
       if (!user)
         return {success: false, error: {status: 500, message: 'Unexpected Server Error', internalMessage: `MonitorService.GetMonitor: User empty`}};    
 
       if (!monitorId)
-        return {success: false, error: {status: 400, message: '\'monitorId\' is missing'}};    
+        return {success: false, error: {status: 400, message: '\'monitorId\' is missing'}};   
 
-      let monitor = await this.monitorModel.GetMonitor({ id: monitorId });
+      let userId = user.sub.split('|')[1]; 
 
-      let userId = user['sub'].split('|')[1];
+      let monitor = await Monitor.findOne({ where: { id: monitorId, userId }});
 
       if (!monitor)
         return {success: false, error: {status: 404, message: 'Monitor is not existing.'}};
-      
-      if (monitor.userId != userId)
-        return {success: false, error: {status: 404, message: 'Monitor is not existing.'}};
 
-      let monitorsources = await this.monitorsourceModel.GetMonitorsources({ monitorId });
+      let monitorsources = await Monitorsource.findAll({ where: { monitorId: monitor.id }});
 
-      let monitorsourcesOut = [];
-
-      for (let i = 0; i < monitorsources.length; i++) {
-        if (monitorsources[i].productId) {
-          let product = await this.productModel.GetProduct({ id: monitorsources[i].productId });
-          let productMonitorpage = await this.monitorpageModel.GetMonitorpage({ id: product.monitorpageId });
-          monitorsourcesOut.push(GetMonitorsource_O(monitorsources[i], product, productMonitorpage));
-        } else if (monitorsources[i].monitorpageId) {
-          let monitorpage = await this.monitorpageModel.GetMonitorpage({ id: monitorsources[i].monitorpageId });
-          monitorsourcesOut.push(GetMonitorsource_O(monitorsources[i], null, null, monitorpage));
-        } else
-          monitorsourcesOut.push(GetMonitorsource_O(monitorsources[i]));
-      }
-
-      return {success: true, data: {monitorsources: monitorsourcesOut}};
+      return {success: true, data: { monitorsources: GetMonitorsources_O(monitorsources) }};
     } catch (error) {
       return {success: false, error: {status: 500, message: 'Unexpected Server Error', internalMessage: error}};
     }
   }
 
-  async CreateMonitorSource({ user, monitorId, productId, monitorpageId, all }: { user, monitorId: string, productId?: string, monitorpageId?: string, all?: boolean }): Promise<IResult> {
+  async CreateMonitorSource({ user, monitorId, productId, monitorpageId, all }: { user: User, monitorId: string, productId?: string, monitorpageId?: string, all?: boolean }): Promise<IResult> {
     try {
       if (!user)
         return {success: false, error: {status: 500, message: 'Unexpected Server Error', internalMessage: `MonitorService.GetMonitor: User empty`}};
 
-      // TODO Role Based unterscheiden, ob Product hinzugefügt werden darf
+      // TODO: Role Based unterscheiden, ob Product hinzugefügt werden darf
 
       if (all && productId)
         return {success: false, error: {status: 400, message: '\'all\' cant be set, if productId is provided'}};    
@@ -213,19 +191,16 @@ export class MonitorService {
         return {success: false, error: {status: 400, message: 'Either \'productId\' or \'monitorpageId\' must be provided or \'all\' must be set'}}; 
 
       if (!monitorId)
-        return {success: false, error: {status: 400, message: '\'monitorId\' is missing'}};    
+        return {success: false, error: {status: 400, message: '\'monitorId\' is missing'}}; 
 
-      let monitor = await this.monitorModel.GetMonitor({ id: monitorId });
+      let userId = user['sub'].split('|')[1];  
 
-      let userId = user['sub'].split('|')[1];
+      let monitor = await Monitor.findOne({ where: { id: monitorId, userId }});
 
       if (!monitor)
         return {success: false, error: {status: 404, message: 'Monitor is not existing.'}};
-      
-      if (monitor.userId != userId)
-        return {success: false, error: {status: 404, message: 'Monitor is not existing.'}};
 
-      let monitorsources = await this.monitorsourceModel.GetMonitorsources({ monitorId });
+      let monitorsources = await Monitorsource.findAll({ where: { monitorId: monitor.id }});
 
       let hasAll = false;
 
@@ -244,33 +219,15 @@ export class MonitorService {
       if (all == undefined)
         all = false;
 
-      let id;
-      do {
-        id = await async({length: 24})
-      } while (!await this.monitorsourceModel.IdUnused({ id }));
+      let monitorsource = await Monitorsource.create({ monitorId, productId, monitorpageId, all });
 
-      let monitorsource = await this.monitorsourceModel.CreateMonitorsource({ id, monitorId, productId, monitorpageId, all });
-
-      let product: Product;
-      let productMonitorpage;
-      let monitorpage;
-
-      if (productId) {
-        product = await this.productModel.GetProduct({ id: productId });
-        productMonitorpage = await this.monitorpageModel.GetMonitorpageVisible({ id: product.monitorpageId });
-      }
-
-      if (monitorpageId) {
-        monitorpage = await this.monitorpageModel.GetMonitorpageVisible({ id: monitorpageId });
-      }
-
-      return {success: true, data: {monitorsource: GetMonitorsource_O(monitorsource, product, productMonitorpage, monitorpage)}};
+      return {success: true, data: { monitorsource: GetMonitorsource_O(monitorsource) }};
     } catch (error) {
       return {success: false, error: {status: 500, message: 'Unexpected Server Error', internalMessage: error}};
     }
   }
 
-  async DeleteMonitorSource({ user, id, monitorId }: { user, id: string, monitorId: string }): Promise<IResult> {
+  async DeleteMonitorSource({ user, id, monitorId }: { user: User, id: string, monitorId: string }): Promise<IResult> {
     try {
       if (!user)
         return {success: false, error: {status: 500, message: 'Unexpected Server Error', internalMessage: `MonitorService.GetMonitor: User empty`}};
@@ -281,25 +238,19 @@ export class MonitorService {
       if (!monitorId)
         return {success: false, error: {status: 400, message: '\'monitorId\' is missing'}};    
 
-      let monitor = await this.monitorModel.GetMonitor({ id: monitorId });
-
       let userId = user['sub'].split('|')[1];
+
+      let monitor = await Monitor.findOne({ where: { id: monitorId, userId }});  
 
       if (!monitor)
         return {success: false, error: {status: 404, message: 'Monitor is not existing.'}};
-      
-      if (monitor.userId != userId)
-        return {success: false, error: {status: 404, message: 'Monitor is not existing.'}};
 
-      let monitorsource = await this.monitorsourceModel.GetMonitorsource({ id });
+      let monitorsource = await Monitorsource.findOne({ where: { id, monitorId: monitor.id }});
 
       if (!monitorsource)
         return {success: false, error: {status: 404, message: 'Monitorsource is not existing.'}};
-      
-      if (monitorsource.monitorId != monitorId)
-        return {success: false, error: {status: 404, message: 'Monitorsource is not existing.'}};
 
-      await this.monitorsourceModel.DeleteMonitorsource({ id });
+      await monitorsource.destroy();
 
       return {success: true};
     } catch (error) {
@@ -307,7 +258,7 @@ export class MonitorService {
     }
   }
 
-  async SendTestMessage({ id, user }: { id: string, user }): Promise<IResult> {
+  async SendTestMessage({ id, user }: { id: string, user: User }): Promise<IResult> {
     try {
       if (!user)
         return {success: false, error: {status: 500, message: 'Unexpected Server Error', internalMessage: `MonitorService.SendTestMessage: User empty`}};    
@@ -315,14 +266,11 @@ export class MonitorService {
       if (!id)
         return {success: false, error: {status: 400, message: '\'id\' is missing'}};  
 
-      let monitor = await this.monitorModel.GetMonitor({ id });
-
-      if (!monitor)
-        return {success: false, error: {status: 404, message: 'Monitor is not existing'}};
-      
       let userId = user['sub'].split('|')[1];
 
-      if (monitor.userId != userId)
+      let monitor = await Monitor.findOne({ where: { id, userId }});
+
+      if (!monitor)
         return {success: false, error: {status: 404, message: 'Monitor is not existing'}};
 
       if (!monitor.webHook)
@@ -333,7 +281,7 @@ export class MonitorService {
       if (!regex.test(monitor.webHook))
         return {success: false, error: {status: 404, message: 'Monitor Webhook is invalid'}};
         
-      return this.discordService.SendTestMessage(monitor);
+      return this.discordService.SendTestMessage({ monitor });
     } catch (error) {
       return {success: false, error: {status: 500, message: 'Unexpected Server Error', internalMessage: error}};
     }
@@ -341,15 +289,9 @@ export class MonitorService {
 
   async GetMonitorpages(): Promise<IResult> {
     try {
-      let monitorpages = await this.monitorpageModel.GetMonitorpagesVisible();
-
-      let monitorpages_O = [];
-
-      for (let i = 0; i < monitorpages.length; i++) {
-        monitorpages_O.push(GetMonitorpage_O(monitorpages[i]));
-      }
+      let monitorpages = await Monitorpage.findAll({ where: { visible: true }});
         
-      return {success: true, data: { monitorpages: monitorpages_O}};
+      return {success: true, data: { monitorpages: GetMonitorpages_O(monitorpages) }};
     } catch (error) {
       return {success: false, error: {status: 500, message: 'Unexpected Server Error', internalMessage: error}};
     }
@@ -357,20 +299,9 @@ export class MonitorService {
 
   async GetProducts(): Promise<IResult> {
     try {
-      let products = await this.productModel.GetProducts();
-
-      let products_O = [];
-
-      for (let i = 0; i < products.length; i++) {
-        if (products[i].monitorpageId) {
-          let monitorpage = await this.monitorpageModel.GetMonitorpageVisible({ id: products[i].monitorpageId });
-          if (monitorpage != null)
-            products_O.push(GetProduct_O(products[i], monitorpage));
-        } else
-          logger.error('Product has no monitorpageId. product id: ' + products[i].id);
-      }
+      let products = await Product.findAll();
         
-      return {success: true, data: { products: products_O}};
+      return {success: true, data: { products: GetProducts_O(products) }};
     } catch (error) {
       return {success: false, error: {status: 500, message: 'Unexpected Server Error', internalMessage: error}};
     }

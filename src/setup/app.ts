@@ -1,8 +1,8 @@
-import expressSetup from './setup/express';
-import config from './config'
+import expressSetup from './express';
+import config from '../config'
 import express from 'express';
 import { Server } from 'http';
-import { logger } from './logger';
+import { logger } from '../logger';
 
 export function getApp() {
   const app = express();  
@@ -10,7 +10,7 @@ export function getApp() {
   return app;
 }
 
-export async function startServer() {  
+export async function StartServer() {  
   const app = await getApp();
 
   const server = new Server(app);

@@ -4,33 +4,48 @@ import { async } from 'crypto-random-string';
 import { logger } from '../logger';
 import { HttpsProxyAgent } from 'https-proxy-agent';
 import fetch from 'node-fetch';
-import { MonitorpageModel } from '../models/MonitorpageModel';
-import { ProxyModel } from '../models/ProxyModel';
+import { Monitorpage } from '../models/Monitorpage';
 import { Queue } from 'bull';
 import { QueueProvider } from '../provider/QueueProvider';
+import { GetProcessconfig_O } from '../types/Processconfig';
+import { GetMonitorpageconfigs_O, GetMonitorpageconfig_O, Monitorpageconfig_O } from '../types/Monitorpageconfig';
+import { GetPipeelements_O, GetPipeelement_O } from '../types/Pipeelement';
+import { ScraperClientService } from './ScraperClientService';
+import { GetMonitorpages_OA, GetMonitorpage_OA, Monitorpage_OA } from '../types/Monitorpage';
+import { Url } from '../models/Url';
+import { GetUrls_O, GetUrl_O } from '../types/Url';
+import { Proxy } from '../models/Proxy';
+import { Op } from 'sequelize';
+import { Monitorpageconfig } from '../models/Monitorpageconfig';
+import { Processconfig } from '../models/Processconfig';
+import { Pipeelement } from '../models/Pipeelement';
+import { String } from 'aws-sdk/clients/acm';
+import { ProxyService } from './ProxyService';
 
 @Service()
 export class AdminService {
   private queue: Queue;
 
   constructor(
-    private monitorpageModel: MonitorpageModel,
-    private proxyModel: ProxyModel
+    private proxyService: ProxyService
   ) {
     this.queue = QueueProvider.GetQueue();
   }
 
   async GetMonitorpages(): Promise<IResult> {
     try {
-      let monitorpages = await this.monitorpageModel.GetMonitorpages();
+      let monitorpages = await Monitorpage.findAll();
+
+      if (!monitorpages || monitorpages.length == 0)
+        return {success: true, data: { monitorpages: [] }};
         
-      return {success: true, data: { monitorpages }};
+      return {success: true, data: { monitorpages: GetMonitorpages_OA(monitorpages) }};
     } catch (error) {
       return {success: false, error: {status: 500, message: 'Unexpected Server Error', internalMessage: error}};
     }
   }
 
-  async CreateMonitorpage({ techname, name, url }: { techname: string, name: string, url: string }): Promise<IResult> {
+  async CreateMonitorpage({ techname, name, cc }: { techname: string, name: string, cc: string }): Promise<IResult> {
     try {
       if (!techname)
         return {success: false, error: {status: 400, message: '\'techname\' is missing'}};        
@@ -38,47 +53,47 @@ export class AdminService {
       if (!name)
         return {success: false, error: {status: 400, message: '\'name\' is missing'}};
       
-      if (!url)
-        return {success: false, error: {status: 400, message: '\'url\' is missing'}};
+      if (!cc)
+        return {success: false, error: {status: 400, message: '\'cc\' is missing'}};    
 
-      let id;
-      do {
-        id = await async({length: 24})
-      } while (!await this.monitorpageModel.IdUnused({ id }));      
-
-      let monitorpage = await this.monitorpageModel.CreateMonitorpage({ id, techname, name, url, visible: false });
-
-      return {success: true, data: { monitorpage }};
+      let monitorpage = await Monitorpage.create({ techname, name, cc });
+      
+      return {success: true, data: { monitorpage: GetMonitorpage_OA(monitorpage) }};
     } catch (error) {
       return {success: false, error: {status: 500, message: 'Unexpected Server Error', internalMessage: error}};
     }
   }
 
-  async UpdateMonitorpage({ id, techname, name, visible, url }: { id: string, techname: string, name: string, visible: boolean, url: string }): Promise<IResult> {
+  async UpdateMonitorpage({ id, techname, name, visible, cc, monitorpageconfigId }: { id: string, techname: string, name: string, visible: boolean, cc: string, monitorpageconfigId: string }): Promise<IResult> {
     try {
       if (!id)
         return {success: false, error: {status: 400, message: '\'id\' is missing'}};
 
-      let monitorpage = await this.monitorpageModel.GetMonitorpage({ id });
+      let monitorpage = await Monitorpage.findOne({ where: { id } });
 
       if (!monitorpage)
         return {success: false, error: {status: 404, message: 'Monitorpage is not existing'}};
 
-      if (techname)
-        await this.monitorpageModel.UpdateTechname({ id, techname });
+      if (techname || name || visible != undefined || cc || monitorpageconfigId) {
+        if (!techname)
+          techname = monitorpage.techname;
 
-      if (name)
-        await this.monitorpageModel.UpdateName({ id, name });
+        if (!name)
+          name = monitorpage.name;
 
-      if (visible != undefined)
-        await this.monitorpageModel.UpdateVisible({ id, visible });
+        if (visible == undefined)
+          visible = monitorpage.visible;
 
-      if (url)
-        await this.monitorpageModel.UpdateUrl({ id, url });
+        if (!cc)
+          cc = monitorpage.cc;
 
-      monitorpage = await this.monitorpageModel.GetMonitorpage({ id });
+        if (!monitorpageconfigId && monitorpage.monitorpageconfigId)
+          monitorpageconfigId = monitorpage.monitorpageconfigId;
+
+        monitorpage = await monitorpage.update({ techname, name, visible, cc, monitorpageconfigId });
+      }
       
-      return {success: true, data: {monitorpage: monitorpage}};
+      return {success: true, data: { monitorpage: GetMonitorpage_OA(monitorpage) }};
     } catch (error) {
       return {success: false, error: {status: 500, message: 'Unexpected Server Error', internalMessage: error}};
     }
@@ -89,12 +104,86 @@ export class AdminService {
       if (!id)
         return {success: false, error: {status: 400, message: '\'id\' is missing'}};    
 
-      let monitorpage = await this.monitorpageModel.GetMonitorpage({ id });
+      let monitorpage = await Monitorpage.findOne({ where: { id } });
 
       if (!monitorpage)
         return {success: false, error: {status: 404, message: 'Monitorpage is not existing'}};
       
-      await this.monitorpageModel.DeleteMonitorpage({ id });
+      await monitorpage.destroy();
+
+      return {success: true};
+    } catch (error) {
+      return {success: false, error: {status: 500, message: 'Unexpected Server Error', internalMessage: error}};
+    }
+  }
+
+  async GetUrls({ monitorpageId }: { monitorpageId: string }): Promise<IResult> {
+    try {
+      if (!monitorpageId)
+        return {success: false, error: {status: 400, message: '\'monitorpageId\' is missing'}};    
+
+      let urls = await Url.findAll({ where: { monitorpageId }});
+
+      if (!urls)
+        return { success: true, data: { urls: [] }};
+
+      return {success: true, data: { urls: GetUrls_O(urls) }};
+    } catch (error) {
+      return {success: false, error: {status: 500, message: 'Unexpected Server Error', internalMessage: error}};
+    }
+  }
+
+  async CreateUrl({ monitorpageId, url }: { monitorpageId: string, url: string }): Promise<IResult> {
+    try {
+      if (!monitorpageId)
+        return {success: false, error: {status: 400, message: '\'monitorpageId\' is missing'}};   
+        
+      if (!url)
+        return {success: false, error: {status: 400, message: '\'url\' is missing'}}; 
+
+      let monitorpage = await Monitorpage.findOne({ where: { id: monitorpageId }});
+
+      if (!monitorpage)
+        return {success: false, error: {status: 404, message: 'Monitorpage is not existing'}};        
+
+      let urlelement = await monitorpage.createUrl({ url, monitorpageId });
+
+      return {success: true, data: { url: GetUrl_O(urlelement) }};
+    } catch (error) {
+      return {success: false, error: {status: 500, message: 'Unexpected Server Error', internalMessage: error}};
+    }
+  }
+
+  async UpdateUrl({ id, monitorpageId, url }: { id: string, monitorpageId: string, url: string }): Promise<IResult> {
+    try {
+      if (!id)
+        return {success: false, error: {status: 400, message: '\'id\' is missing'}};
+
+      let urlelement = await Url.findOne({ where: { id, monitorpageId }});
+
+      if (!urlelement)
+        return {success: false, error: {status: 404, message: 'Url is not existing'}};
+
+      if (url)
+        urlelement = await urlelement.update({ url });
+      
+      return { success: true, data: { url: GetUrl_O(urlelement) } };
+    } catch (error) {
+      return {success: false, error: {status: 500, message: 'Unexpected Server Error', internalMessage: error}};
+    }
+  }
+
+  async DeleteUrl({ id, monitorpageId }: { id: string, monitorpageId: string }): Promise<IResult> {
+    try {
+      if (!id)
+        return {success: false, error: {status: 400, message: '\'id\' is missing'}};
+
+      let urlelement = await Url.findOne({ where: { id, monitorpageId }});
+
+      if (!urlelement)
+        return {success: false, error: {status: 404, message: 'Url is not existing'}};
+      
+      await urlelement.destroy();
 
       return {success: true};
     } catch (error) {
@@ -110,7 +199,7 @@ export class AdminService {
       if (!interval)
         return {success: false, error: {status: 400, message: '\'interval\' is missing'}};  
 
-      let monitorpage = await this.monitorpageModel.GetMonitorpage({ id });
+      let monitorpage = await Monitorpage.findByPk(id);
 
       if (!monitorpage)
         return {success: false, error: {status: 404, message: 'Monitorpage is not existing'}};
@@ -124,7 +213,7 @@ export class AdminService {
 
       await this.queue.add('monitor', { id: id, techname: monitorpage.techname, name: monitorpage.name }, { repeat: { every: interval * 1000 }, jobId: id });
 
-      await this.monitorpageModel.UpdateRunning({ id, running: true, interval });
+      await monitorpage.update({ running: true, interval });
 
       return {success: true};
     } catch (error) {
@@ -137,6 +226,11 @@ export class AdminService {
       if (!id)
         return {success: false, error: {status: 400, message: '\'id\' is missing'}};
 
+      let monitorpage = await Monitorpage.findByPk(id);
+
+      if (!monitorpage)
+        return {success: false, error: {status: 404, message: 'Monitorpage is not existing'}};
+
       let jobs = await this.queue.getRepeatableJobs();
 
       for (let i = 0; i < jobs.length; i++) {
@@ -144,7 +238,7 @@ export class AdminService {
           await this.queue.removeRepeatableByKey(jobs[i].key);
       }
 
-      await this.monitorpageModel.UpdateRunning({ id, running: false, interval: 0 });
+      await monitorpage.update({ running: false, interval: 0 });
 
       return {success: true};
     } catch (error) {
@@ -152,9 +246,252 @@ export class AdminService {
     }
   }
 
+  async TestMonitorpage({ id, reloadContent }: { id: string, reloadContent: boolean }): Promise<IResult> {
+    try {
+      if (!id)
+        return {success: false, error: {status: 400, message: '\'id\' is missing'}};
+
+      if (reloadContent == undefined)
+        return {success: false, error: {status: 400, message: '\'reloadContent\' is missing'}};
+
+      let monitorpage = await Monitorpage.findByPk(id);
+
+      if (!monitorpage)
+        return {success: false, error: {status: 400, message: 'monitorpage is not existing'}};
+      
+      if (!monitorpage.monitorpageconfig)
+        return {success: false, error: {status: 400, message: 'monitorpage has no config'}};
+
+      let urls = await Url.findAll({ where: { monitorpageId: monitorpage.id }});
+
+      if (!urls || urls.length == 0)
+        return {success: false, error: {status: 400, message: 'monitorpage has no urls'}};
+
+      let proxy = await this.proxyService.GetRandomProxy({ monitorpage });
+      let address = '';
+
+      let error: string | null = null;
+      let warn: string | null = null;
+
+      if (proxy && proxy.address)
+        address = proxy.address;
+      else {
+        logger.warn('No Proxy available for TestMonitorpage');
+        warn = 'No Proxy available for TestMonitorpage';
+      }
+
+      // TODO: IMPLEMENTIEREN
+      let result = { success: true, error: undefined, data: {}}
+      // let result = await this.scraperClientService.Test({ monitorpageId: id, url: urls[0].url, proxy: address, monitorpageconfig: monitorpageconfig_O, reloadContent });
+      
+      if (!result.success) {
+        logger.error('TestMonitorpage Error: ' + JSON.stringify(result.error));
+        return { success: false, error: result.error }
+      }
+
+      return {success: true, data: { products: result.data, error, warn }};
+    } catch (error) {
+      return {success: false, error: {status: 500, message: 'Unexpected Server Error', internalMessage: error}};
+    }
+  }
+
+  async GetMonitorpageconfigs(): Promise<IResult> {
+    try {
+      let monitorpageconfigs = await Monitorpageconfig.findAll();
+        
+      return {success: true, data: { monitorpageconfigs: GetMonitorpageconfigs_O(monitorpageconfigs) }};
+    } catch (error) {
+      return {success: false, error: {status: 500, message: 'Unexpected Server Error', internalMessage: error}};
+    }
+  }
+
+  async CreateMonitorpageconfig(): Promise<IResult> {
+    try {
+      let monitorpageconfigId;
+      do {
+        monitorpageconfigId = await async({length: 24})
+      } while (!await this.monitorpageconfigModel.IdUnused({ id: monitorpageconfigId }));
+
+      let id;
+      let processconfigs = new Array<Processconfig>();
+
+      for (let i = 0; i < 12; i++) {
+        do {
+          id = await async({length: 24})
+        } while (!await this.processconfigModel.IdUnused({ id }));
+
+        processconfigs.push(await this.processconfigModel.InsertProcessconfig({ id, monitorpageconfigId: monitorpageconfigId, constant: false, hasConstant: false }));
+      }
+        
+      let monitorpageconfig = await this.monitorpageconfigModel.InsertMonitorpageconfig({ id: monitorpageconfigId, isHtml: false, allSizesAvailable: false, hasChildProducts: false, hasParentProducts: false, soldOutCheckSizes: false, productsConfigId: processconfigs[0].id, idConfigId: processconfigs[1].id, nameConfigId: processconfigs[2].id, hrefConfigId: processconfigs[3].id, imgConfigId: processconfigs[4].id, priceConfigId: processconfigs[5].id, activeConfigId: processconfigs[6].id, soldOutConfigId: processconfigs[7].id, hasSizesConfigId: processconfigs[8].id, sizesConfigId: processconfigs[9].id, sizesSoldOutConfigId: processconfigs[10].id, childProductConfigId: processconfigs[11].id });
+
+      // let monitorpageconfig_O = GetMonitorpageconfig_O(monitorpageconfig, GetProcessconfig_O(processconfigs[0], []), GetProcessconfig_O(processconfigs[1], []), GetProcessconfig_O(processconfigs[2], []), GetProcessconfig_O(processconfigs[3], []), GetProcessconfig_O(processconfigs[4], []), GetProcessconfig_O(processconfigs[5], []), GetProcessconfig_O(processconfigs[6], []), GetProcessconfig_O(processconfigs[7], []), GetProcessconfig_O(processconfigs[8], []), GetProcessconfig_O(processconfigs[9], []), GetProcessconfig_O(processconfigs[10], []), GetProcessconfig_O(processconfigs[11], []));
+
+      return {success: true, data: { monitorpageconfig }};
+    } catch (error) {
+      return {success: false, error: {status: 500, message: 'Unexpected Server Error', internalMessage: error}};
+    }
+  }
+
+  async UpdateMonitorpageconfig({ id, isHtml, allSizesAvailable, soldOutCheckSizes, hasParentProducts, hasChildProducts }: { id: string, isHtml: boolean, allSizesAvailable: boolean, soldOutCheckSizes: boolean, hasParentProducts: boolean, hasChildProducts: boolean }): Promise<IResult> {
+    try {
+      if (!id)
+        return {success: false, error: {status: 400, message: '\'id\' is missing'}};    
+
+      let monitorpageconfig = await Monitorpageconfig.findByPk(id);
+
+      if (!monitorpageconfig)
+        return {success: false, error: {status: 404, message: 'Monitorpageconfig is not existing'}};
+
+      if (isHtml != undefined || allSizesAvailable != undefined || soldOutCheckSizes != undefined || hasParentProducts != undefined || hasChildProducts != undefined) {
+        if (isHtml == undefined)
+          isHtml = monitorpageconfig.isHtml;
+
+        if (allSizesAvailable == undefined)
+          allSizesAvailable = monitorpageconfig.allSizesAvailable;
+
+        if (soldOutCheckSizes == undefined)
+          soldOutCheckSizes = monitorpageconfig.soldOutCheckSizes;
+
+        if (hasParentProducts == undefined)
+          hasParentProducts = monitorpageconfig.hasParentProducts;
+
+        if (hasChildProducts == undefined)
+          hasChildProducts = monitorpageconfig.hasChildProducts;
+
+        monitorpageconfig = await monitorpageconfig.update({ isHtml, allSizesAvailable, soldOutCheckSizes, hasParentProducts, hasChildProducts});
+      }
+      
+      return { success: true, data: { monitorpageconfig: GetMonitorpageconfig_O(monitorpageconfig) }};
+    } catch (error) {
+      return {success: false, error: {status: 500, message: 'Unexpected Server Error', internalMessage: error}};
+    }
+  }
+
+  async DeleteMonitorpageconfig({ id }: { id: string }): Promise<IResult> {
+    try {
+      if (!id)
+        return {success: false, error: {status: 400, message: '\'id\' is missing'}};
+
+      let monitorpageconfig = await Monitorpageconfig.findByPk(id);
+
+      if (!monitorpageconfig)
+        return {success: false, error: {status: 404, message: 'Monitorpageconfig is not existing'}};
+
+      await monitorpageconfig.destroy();
+
+      return {success: true};
+    } catch (error) {
+      return {success: false, error: {status: 500, message: 'Unexpected Server Error', internalMessage: error}};
+    }
+  }
+
+  async UpdateProcessconfig({ id, monitorpageconfigId, constant, hasConstant }: { id: string, monitorpageconfigId: string, constant: boolean, hasConstant: boolean }): Promise<IResult> {
+    try {
+      if (!id)
+        return {success: false, error: {status: 400, message: '\'id\' is missing'}};    
+
+      let processconfig = await Processconfig.findOne({ where: { id, monitorpageconfigId }});
+
+      if (!processconfig)
+        return {success: false, error: {status: 404, message: 'Processconfig is not existing'}};
+
+      if (constant != undefined || hasConstant != undefined) {
+        if (constant == undefined)
+          constant = processconfig.constant;
+
+        if (hasConstant == undefined)
+          hasConstant = processconfig.hasConstant;
+
+        processconfig = await processconfig.update({ constant, hasConstant });
+      }
+      
+      return { success: true, data: { processconfig: GetProcessconfig_O(processconfig) } };
+    } catch (error) {
+      return {success: false, error: {status: 500, message: 'Unexpected Server Error', internalMessage: error}};
+    }
+  }
+
+  async CreatePipeelement({ monitorpageconfigId, processconfigId}: { monitorpageconfigId: string, processconfigId: string }): Promise<IResult> {
+    try {
+      let processconfig = await Processconfig.findByPk(processconfigId);
+
+      if (!processconfig || processconfig.monitorpageconfigId != monitorpageconfigId)
+        return {success: false, error: {status: 404, message: 'Processconfig is not existing'}};
+
+      let biggest = 0;
+      if (processconfig.pipeelements) {
+        for (let i = 0; i < processconfig.pipeelements.length; i++) {
+          if (processconfig.pipeelements[i].order > biggest)
+            biggest = processconfig.pipeelements[i].order;
+        }
+      }
+
+      let pipeelement = await Pipeelement.create({ processconfigId, command: "", order: biggest+1 });
+
+      return {success: true, data: { pipeelement: GetPipeelement_O(pipeelement) }};
+    } catch (error) {
+      return {success: false, error: {status: 500, message: 'Unexpected Server Error', internalMessage: error}};
+    }
+  }
+
+  async UpdatePipeelement({ id, monitorpageconfigId, processconfigId, command, order }:  { id: string, monitorpageconfigId: string, processconfigId: string, command: string, order: number }): Promise<IResult> {
+    try {
+      if (!id)
+        return {success: false, error: {status: 400, message: '\'id\' is missing'}};    
+
+      let processconfig = await Processconfig.findByPk(processconfigId);
+
+      if (!processconfig || processconfig.monitorpageconfigId != monitorpageconfigId)
+        return {success: false, error: {status: 404, message: 'Pipeelement is not existing'}};
+
+      let pipeelement = await Pipeelement.findByPk(id);
+
+      if (!pipeelement || pipeelement.processconfigId != processconfigId)
+        return {success: false, error: {status: 404, message: 'Pipeelement is not existing'}};
+
+      if (command || order) {
+        if (!command)
+          command = pipeelement.command;
+
+        if (!order)
+          order = pipeelement.order;
+
+        pipeelement = await pipeelement.update({ command, order });
+      }
+      
+      return { success: true, data: { pipeelement: GetPipeelement_O(pipeelement) } };
+    } catch (error) {
+      return {success: false, error: {status: 500, message: 'Unexpected Server Error', internalMessage: error}};
+    }
+  }
+
+  async DeletePipeelement({ id, monitorpageconfigId, processconfigId }: { id: string, monitorpageconfigId: string, processconfigId: string }): Promise<IResult> {
+    try {
+      if (!id)
+        return {success: false, error: {status: 400, message: '\'id\' is missing'}};    
+
+      let processconfig = await Processconfig.findByPk(processconfigId);
+
+      if (!processconfig || processconfig.monitorpageconfigId != monitorpageconfigId)
+        return {success: false, error: {status: 404, message: 'Pipeelement is not existing'}};
+
+      let pipeelement = await Pipeelement.findByPk(id);
+
+      if (!pipeelement || pipeelement.processconfigId != processconfigId)
+        return {success: false, error: {status: 404, message: 'Pipeelement is not existing'}};
+
+      await pipeelement.destroy();
+
+      return {success: true};
+    } catch (error) {
+      return {success: false, error: {status: 500, message: 'Unexpected Server Error', internalMessage: error}};
+    }
+  }  
+
   async GetProxies(): Promise<IResult> {
     try {
-      let proxies = await this.proxyModel.GetProxies();
+      let proxies = await Proxy.findAll();
         
       return {success: true, data: { proxies }};
     } catch (error) {
@@ -167,7 +504,7 @@ export class AdminService {
       if (!address)
         return {success: false, error: {status: 400, message: '\'address\' is missing'}};
 
-      if (!await this.proxyModel.IsProxyUnused({ address }))
+      if ((await Proxy.findAll({ where: { address }})).length != 0)
         return {success: false, error: {status: 404, message: 'Proxy is already registered'}};
 
       let response;
@@ -185,14 +522,9 @@ export class AdminService {
       if (response.status != 200)
         return {success: false, error: {status: 404, message: 'Bad Proxy'}};
 
-      let id;
-      do {
-        id = await async({length: 24})
-      } while (!await this.proxyModel.IdUnused({ id }));
-
       let json = await response.json();
         
-      let proxy = await this.proxyModel.CreateProxy({ id, address, cc: json.cc });
+      let proxy = await Proxy.create({ address, cc: json.cc });
 
       return {success: true, data: { proxy }};
     } catch (error) {
@@ -203,12 +535,17 @@ export class AdminService {
   async UpdateProxy({ id, address }: { id: string, address: string }): Promise<IResult> {
     try {
       if (!id)
-        return {success: false, error: {status: 400, message: '\'id\' is missing'}};    
+        return {success: false, error: {status: 400, message: '\'id\' is missing'}};  
+        
+      let proxy = await Proxy.findByPk(id);
+
+      if (!proxy)
+        return {success: false, error: {status: 404, message: 'Proxy is not existing'}};
 
       if (!address)
         return {success: false, error: {status: 400, message: '\'address\' is missing'}};
 
-      if (!await this.proxyModel.IsProxyUnused({ address }))
+      if ((await Proxy.findAll({ where: { address }})).length != 0)
         return {success: false, error: {status: 404, message: 'Proxy is already registered'}};
 
       let response;
@@ -228,9 +565,9 @@ export class AdminService {
 
       let json = await response.json();
         
-      let proxy = await this.proxyModel.UpdateProxy({ id, address, cc: json.cc });
+      proxy = await proxy.update({ address, cc: json.cc });
 
-      // TODO vlt Einschränkungen löschen, wenn Adresse geändert wurde
+      // TODO: vlt Einschränkungen löschen, wenn Adresse geändert wurde
 
       return {success: true, data: { proxy }};
     } catch (error) {
@@ -243,12 +580,12 @@ export class AdminService {
       if (!id)
         return {success: false, error: {status: 400, message: '\'id\' is missing'}};    
 
-      let proxy = await this.proxyModel.GetProxy({ id });
+      let proxy = await Proxy.findByPk(id);
 
       if (!proxy)
         return {success: false, error: {status: 404, message: 'Proxy is not existing'}};
       
-      await this.proxyModel.DeleteProxy({ id });
+      await proxy.destroy();
 
       return {success: true};
     } catch (error) {

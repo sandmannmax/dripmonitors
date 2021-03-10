@@ -4,7 +4,7 @@ import { Monitorpage } from '../../src/types/Monitorpage';
 
 export class FakeMonitorpageModel extends MonitorpageModel {
 
-  private static monitorpageArray: Array<Monitorpage> = [{ id: '4321', name: 'nike', techname: 'nike', visible: false, running: false, interval: undefined, url: 'https://nike.com' }]
+  private static monitorpageArray: Array<Monitorpage> = [{ id: '4321', name: 'nike', techname: 'nike', visible: false, running: false, interval: undefined, cc: 'DE', monitorpageconfigId: '654321' }]
 
   GetMonitorpageVisible = async function ({ id }: { id: string }): Promise<Monitorpage> {
     return FakeMonitorpageModel.monitorpageArray.find(item => item.id === id && item.visible === true);
@@ -22,8 +22,8 @@ export class FakeMonitorpageModel extends MonitorpageModel {
     return FakeMonitorpageModel.monitorpageArray;
   }
 
-  CreateMonitorpage = async function ({ id, techname, name, url, visible }: { id: string, techname: string, name: string, url: string, visible: boolean }): Promise<Monitorpage> {    
-    FakeMonitorpageModel.monitorpageArray.push({ id, name, techname, visible, running: false, interval: undefined, url })
+  CreateMonitorpage = async function ({ id, techname, name, cc, visible }: { id: string, techname: string, name: string, cc: string, visible: boolean }): Promise<Monitorpage> {    
+    FakeMonitorpageModel.monitorpageArray.push({ id, name, techname, visible, running: false, interval: undefined, cc, monitorpageconfigId: undefined })
     return FakeMonitorpageModel.monitorpageArray.find(item => item.id === id);
   }
 
@@ -41,8 +41,8 @@ export class FakeMonitorpageModel extends MonitorpageModel {
     FakeMonitorpageModel.monitorpageArray[FakeMonitorpageModel.monitorpageArray.findIndex(item => item.id === id)].visible = visible;
   }
 
-  UpdateUrl = async function ({ id, url }: { id: string, url: string }) {
-    FakeMonitorpageModel.monitorpageArray[FakeMonitorpageModel.monitorpageArray.findIndex(item => item.id === id)].url = url;
+  UpdateCC = async function ({ id, cc }: { id: string, cc: string }) {
+    FakeMonitorpageModel.monitorpageArray[FakeMonitorpageModel.monitorpageArray.findIndex(item => item.id === id)].cc = cc;
   }
 
   IdUnused = async function ({ id }: { id: string }): Promise<boolean> {

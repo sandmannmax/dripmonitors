@@ -13,7 +13,7 @@ export class MonitorRoutes {
     this.monitorService = Container.get(MonitorService);
 
     this.router.get('/', Auth.CheckPermission('read:monitor'), async (req, res, next) => {
-      let user = req['user'];
+      let user = req.user;
       let result = await this.monitorService.GetMonitors({ user });
       if (result.success)
         res.json(result.data);
@@ -26,7 +26,7 @@ export class MonitorRoutes {
     });
 
     this.router.post('/', Auth.CheckPermission('create:monitor'), async (req, res, next) => {
-      let user = req['user'];
+      let user = req.user;
       let result = await this.monitorService.CreateMonitor({ user });
       if (result.success)
         res.json(result.data);
@@ -39,7 +39,7 @@ export class MonitorRoutes {
     });
     
     this.router.patch('/:id', Auth.CheckPermission('update:monitor'), async (req, res, next) => {
-      let user = req['user'];
+      let user = req.user;
       let id = req.params.id;
       let { webHook, botName, botImage, running, role } = req.body;
       let result = await this.monitorService.UpdateMonitor({ id, user, webHook, botName, botImage, running, role});
@@ -54,7 +54,7 @@ export class MonitorRoutes {
     });
 
     this.router.delete('/:id', Auth.CheckPermission('delete:monitor'), async (req, res, next) => {
-      let user = req['user'];
+      let user = req.user;
       let id = req.params.id;
       let result = await this.monitorService.DeleteMonitor({ id, user });
       if (result.success)
@@ -68,7 +68,7 @@ export class MonitorRoutes {
     });
 
     this.router.get('/:id/source', Auth.CheckPermission('read:monitorsource'), async (req, res, next) => {
-      let user = req['user'];
+      let user = req.user;
       let monitorId = req.params.id;
       let result = await this.monitorService.GetMonitorSources({ user, monitorId });
       if (result.success)
@@ -82,7 +82,7 @@ export class MonitorRoutes {
     });
 
     this.router.post('/:id/source', Auth.CheckPermission('create:monitorsource'), async (req, res, next) => {
-      let user = req['user'];
+      let user = req.user;
       let monitorId = req.params.id;
       let { productId, monitorpageId, all } = req.body;
       let result = await this.monitorService.CreateMonitorSource({ user, monitorId, productId, monitorpageId, all });
@@ -97,7 +97,7 @@ export class MonitorRoutes {
     });
 
     this.router.delete('/:id/source/:sid', Auth.CheckPermission('delete:monitorsource'), async (req, res, next) => {
-      let user = req['user'];
+      let user = req.user;
       let monitorId = req.params.id;
       let id = req.params.sid;
       let result = await this.monitorService.DeleteMonitorSource({ user, id, monitorId });
@@ -112,7 +112,7 @@ export class MonitorRoutes {
     });
 
     this.router.post('/:id/testmessage', Auth.CheckPermission('send:monitortestmessage'), async (req, res, next) => {
-      let user = req['user'];
+      let user = req.user;
       let id = req.params.id;
       let result = await this.monitorService.SendTestMessage({ id, user });
       if (result.success)

@@ -350,21 +350,21 @@
             "name": "techname",
             "in": "body",
             "description": "name of monitorpage for the queue",
-            "required": false,
+            "required": true,
             "type": "string"
           },
           {
             "name": "name",
             "in": "body",
             "description": "Name of monitorpage",
-            "required": false,
+            "required": true,
             "type": "string"
           },
           {
-            "name": "url",
+            "name": "cc",
             "in": "body",
-            "description": "URL of monitorpage",
-            "required": false,
+            "description": "CC of monitorpage",
+            "required": true,
             "type": "string"
           }
         ],
@@ -409,9 +409,16 @@
             "type": "boolean"
           },
           {
-            "name": "url",
+            "name": "cc",
             "in": "body",
-            "description": "URL of monitorpage",
+            "description": "CC of monitorpage",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "monitorpageconfigId",
+            "in": "body",
+            "description": "id of monitorpageconfig for monitorpage",
             "required": false,
             "type": "string"
           }
@@ -450,6 +457,111 @@
           },
           "404": {
             "description": "Monitorpage is not existing",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "message": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/admin/monitorpage/$id/url": {
+      "get": {
+        "description": "Get all Urls",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "Urls",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "urls": {
+                  "type": "array",
+                  "objects": {
+                    "$ref": "#/definitions/UrlElement"
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "description": "Create Url",
+        "parameters": [
+          {
+            "name": "url",
+            "in": "body",
+            "description": "url to monitor",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Created Url",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "url": {
+                  "$ref": "#/definitions/UrlElement"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/admin/monitorpage/$id/url/$id": {
+      "patch": {
+        "description": "Update Url",
+        "parameters": [
+          {
+            "name": "url",
+            "in": "body",
+            "description": "url to monitor",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Updated Url",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "url": {
+                  "$ref": "#/definitions/UrlElement"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Url is not existing",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "message": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "description": "Delete Url",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "Successfully deleted Url"
+          },
+          "404": {
+            "description": "Url is not existing",
             "schema": {
               "type": "object",
               "properties": {
@@ -502,6 +614,301 @@
           },
           "404": {
             "description": "Monitorpage is not existing",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "message": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/admin/monitorpage/$id/test": {
+      "post": {
+        "description": "Test Monitorpage",
+        "parameters": [
+          {
+            "name": "reloadContent",
+            "in": "body",
+            "description": "flag if scraper should reload the content",
+            "required": true,
+            "type": "boolean"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Productresults",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "products": {
+                  "type": "array",
+                  "objects": {
+                    "$ref": "#/definitions/ProductResult"
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Monitorpage is not existing",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "message": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/admin/monitorpageconfig": {
+      "get": {
+        "description": "Get all Monitorpageconfigs",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "Monitorpageconfigs",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "monitorpageconfigs": {
+                  "type": "array",
+                  "objects": {
+                    "$ref": "#/definitions/Monitorpageconfig"
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "description": "Create Monitorpageconfig",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "Created Monitorpageconfig",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "monitorpage": {
+                  "$ref": "#/definitions/Monitorpageconfig"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/admin/monitorpageconfig/$id": {
+      "patch": {
+        "description": "Update Monitorpageconfig",
+        "parameters": [
+          {
+            "name": "isHtml",
+            "in": "body",
+            "description": "",
+            "required": false,
+            "type": "boolean"
+          },
+          {
+            "name": "allSizesAvailable",
+            "in": "body",
+            "description": "",
+            "required": false,
+            "type": "boolean"
+          },
+          {
+            "name": "soldOutCheckSizes",
+            "in": "body",
+            "description": "",
+            "required": false,
+            "type": "boolean"
+          },
+          {
+            "name": "hasParentProducts",
+            "in": "body",
+            "description": "",
+            "required": false,
+            "type": "boolean"
+          },
+          {
+            "name": "hasChildProducts",
+            "in": "body",
+            "description": "",
+            "required": false,
+            "type": "body"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Updated Monitorpageconfig",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "monitorpage": {
+                  "$ref": "#/definitions/Monitorpageconfig"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Url is not existing",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "message": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "description": "Delete Monitorpageconfig",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "Successfully deleted Monitorpageconfig"
+          },
+          "404": {
+            "description": "Monitorpageconfig is not existing",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "message": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/admin/monitorpageconfig/$id/processconfig/$id": {
+      "patch": {
+        "description": "Update Processconfig",
+        "parameters": [
+          {
+            "name": "hasConstant",
+            "in": "body",
+            "description": "",
+            "required": false,
+            "type": "boolean"
+          },
+          {
+            "name": "constant",
+            "in": "body",
+            "description": "",
+            "required": false,
+            "type": "boolean"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Updated Processconfig",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "processconfig": {
+                  "$ref": "#/definitions/Processconfig"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Processconfig is not existing",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "message": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/admin/monitorpageconfig/$id/processconfig/$id/pipe": {
+      "post": {
+        "description": "Create Pipeelement",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "Created Pipeelement",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "pipeelement": {
+                  "$ref": "#/definitions/Pipeelement"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/admin/monitorpageconfig/$id/processconfig/$id/pipe/$id": {
+      "patch": {
+        "description": "Update Pipeelement",
+        "parameters": [
+          {
+            "name": "command",
+            "in": "body",
+            "description": "",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "order",
+            "in": "body",
+            "description": "",
+            "required": false,
+            "type": "number"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Updated Pipeelement",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "pipeelement": {
+                  "$ref": "#/definitions/Pipeelement"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Pipeelement is not existing",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "message": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "description": "Delete Pipeelement",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "Successfully deleted Pipeelement"
+          },
+          "404": {
+            "description": "Pipeelement is not existing",
             "schema": {
               "type": "object",
               "properties": {
@@ -682,8 +1089,17 @@
         "interval": {
           "type": "number"
         },
-        "url": {
+        "cc": {
           "type": "string"
+        },
+        "ulrs": {
+          "type": "array",
+          "objects": {
+            "$ref": "#/definitions/UrlElement"
+          }
+        },
+        "monitorpageconfig": {
+          "$ref": "#/definitions/Monitorpageconfig"
         }
       }
     },
@@ -697,6 +1113,174 @@
           "type": "string"
         },
         "cc": {
+          "type": "string"
+        },
+        "cooldowns": {
+          "type": "array",
+          "objects": {
+            "$ref": "#/definitions/Proxycooldown"
+          }
+        }
+      }
+    },
+    "Proxycooldown": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "monitorpage": {
+          "$ref": "#/definitions/Monitorpage"
+        },
+        "count": {
+          "type": "number"
+        },
+        "remaining": {
+          "type": "number"
+        }
+      }
+    },
+    "ProductResult": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "name": {
+          "type": "string"
+        },
+        "href": {
+          "type": "string"
+        },
+        "img": {
+          "type": "string"
+        },
+        "price": {
+          "type": "string"
+        },
+        "soldOut": {
+          "type": "boolean"
+        },
+        "active": {
+          "type": "boolean"
+        },
+        "hasSizes": {
+          "type": "boolean"
+        },
+        "sizes": {
+          "type": "array",
+          "objects": {
+            "type": "string"
+          }
+        },
+        "sizesSoldOut": {
+          "type": "array",
+          "objects": {
+            "type": "booleab"
+          }
+        }
+      }
+    },
+    "Monitorpageconfig": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "isHtml": {
+          "type": "boolean"
+        },
+        "allSizesAvailable": {
+          "type": "boolean"
+        },
+        "soldOutCheckSizes": {
+          "type": "boolean"
+        },
+        "hasParentProducts": {
+          "type": "boolean"
+        },
+        "hasChildProducts": {
+          "type": "boolean"
+        },
+        "productsConfig": {
+          "$ref": "#/definitions/Processconfig"
+        },
+        "idConfig": {
+          "$ref": "#/definitions/Processconfig"
+        },
+        "nameConfig": {
+          "$ref": "#/definitions/Processconfig"
+        },
+        "hrefConfig": {
+          "$ref": "#/definitions/Processconfig"
+        },
+        "imgConfig": {
+          "$ref": "#/definitions/Processconfig"
+        },
+        "priceConfig": {
+          "$ref": "#/definitions/Processconfig"
+        },
+        "activeConfig": {
+          "$ref": "#/definitions/Processconfig"
+        },
+        "soldOutConfig": {
+          "$ref": "#/definitions/Processconfig"
+        },
+        "hasSizesConfig": {
+          "$ref": "#/definitions/Processconfig"
+        },
+        "sizesConfig": {
+          "$ref": "#/definitions/Processconfig"
+        },
+        "sizesSoldOutConfig": {
+          "$ref": "#/definitions/Processconfig"
+        },
+        "childProductConfig": {
+          "$ref": "#/definitions/Processconfig"
+        }
+      }
+    },
+    "Processconfig": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "hasConstant": {
+          "type": "boolean"
+        },
+        "constant": {
+          "type": "boolean"
+        },
+        "pipe": {
+          "type": "array",
+          "objects": {
+            "$ref": "#/definitions/Pipeelement"
+          }
+        }
+      }
+    },
+    "Pipeelement": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "command": {
+          "type": "string"
+        },
+        "order": {
+          "type": "number"
+        }
+      }
+    },
+    "UrlElement": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "url": {
           "type": "string"
         }
       }

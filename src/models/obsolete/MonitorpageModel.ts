@@ -40,8 +40,8 @@ export class MonitorpageModel {
     return result.Items as Array<Monitorpage>;
   }
 
-  CreateMonitorpage = async function ({ id, techname, name, url, visible }: { id: string, techname: string, name: string, url: string, visible: boolean }): Promise<Monitorpage> {
-    await this.dbProvider.Insert('lsb.monitorpages', { id, techname, name, url, visible });
+  CreateMonitorpage = async function ({ id, techname, name, cc, visible, monitorpageconfigId }: { id: string, techname: string, name: string, cc: string, visible: boolean, monitorpageconfigId: string }): Promise<Monitorpage> {
+    await this.dbProvider.Insert('lsb.monitorpages', { id, techname, name, cc, visible, monitorpageconfigId, running: false, interval: 0 });
     let result = await this.dbProvider.Get('lsb.monitorpages', { id });
     return result.Item as Monitorpage;
   }
@@ -62,8 +62,12 @@ export class MonitorpageModel {
     await this.dbProvider.Update('lsb.monitorpages', { id }, "set visible = :visible", { ":visible": visible });
   }
 
-  UpdateUrl = async function ({ id, url }: { id: string, url: string }) {
-    await this.dbProvider.Update('lsb.monitorpages', { id }, "set url = :url", { ":url": url });
+  UpdateCC = async function ({ id, cc }: { id: string, cc: string }) {
+    await this.dbProvider.Update('lsb.monitorpages', { id }, "set cc = :cc", { ":cc": cc });
+  }
+
+  UpdateMonitorpageconfigId = async function ({ id, monitorpageconfigId }: { id: string, monitorpageconfigId: string }) {
+    await this.dbProvider.Update('lsb.monitorpages', { id }, "set monitorpageconfigId = :monitorpageconfigId", { ":monitorpageconfigId": monitorpageconfigId });
   }
 
   UpdateRunning = async function ({ id, running, interval }: { id: string, running: boolean, interval: number }) {
@@ -73,5 +77,35 @@ export class MonitorpageModel {
   IdUnused = async function ({ id }: { id: string }): Promise<boolean> {
     let result = await this.dbProvider.Get('lsb.products', { id });
     return result.Item == null;
+  }
+
+  async IsVisible({ id }: { id: string }): Promise<boolean> {
+    let result = await this.dbProvider.Get('lsb.monitorpages', { id });
+    return result && result.Item.visible;
+  }
+
+  async Start({ id }: { id: string }): Promise<boolean> {
+    let result = await this.dbProvider.Get('lsb.monitorpages', { id });
+    if (result && result.Item && result.Item.currentRunningState) 
+      return false;
+    
+    await this.dbProvider.Update('lsb.monitorpages', { id }, "set currentRunningState = :crs", { ':crs': true });
+    return true;
+  }
+
+  async Stop({ id }: { id: string }): Promise<void> {
+    await this.dbProvider.Update('lsb.monitorpages', { id }, "set currentRunningState = :crs", { ':crs': false });
+  }
+
+  async NoProxyMessageSent({ id }: { id: string }): Promise<boolean> {
+    let result = await this.dbProvider.Get('lsb.monitorpages', { id });
+    if (result && result.Item && result.Item.noProxyMessageSent) 
+      return true;
+    else
+      return false;
+  }
+
+  async UpdateNoProxyMessageSent({ id, value }: { id: string, value: boolean }): Promise<void> {
+    await this.dbProvider.Update('lsb.monitorpages', { id }, "set noProxyMessageSent = :npms", { ':npms': value });
   }
 }

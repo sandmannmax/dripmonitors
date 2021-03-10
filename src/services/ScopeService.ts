@@ -2,16 +2,17 @@ import { Service } from 'typedi';
 import { IResult } from '../types/IResult';
 import config from '../config';
 import fetch from 'node-fetch';
+import { User } from '../types/User';
 
 @Service()
 export class ScopeService {
 
-  async GetScope({ user }: { user }): Promise<IResult> {
+  async GetScope({ user }: { user: User }): Promise<IResult> {
     try {
       if (!user)
         return {success: false, error: {status: 500, message: 'Unexpected Server Error', internalMessage: `ScopeService.GetScope: User empty`}};    
 
-      let permissions = user['permissions'];
+      let permissions = user.permissions;
 
       let scope = 'none';
 
@@ -27,7 +28,7 @@ export class ScopeService {
     }
   }
 
-  async SetScope({ user }: { user }): Promise<IResult> {
+  async SetScope({ user }: { user: User }): Promise<IResult> {
     try {
       if (!user)
         return {success: false, error: {status: 500, message: 'Unexpected Server Error', internalMessage: `ScopeService.SetScope: User empty`}};    
