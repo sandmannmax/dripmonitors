@@ -15,8 +15,9 @@ export class Monitorpage_OA {
   public visible!: boolean;
   public running!: boolean;
   public interval!: number;
-  public monitorpageconfig?: Monitorpageconfig_O;
   public urls!: Array<Url_O>;
+  public isHtml!: boolean;
+  public func!: string;
 }
 
 export function GetMonitorpage_O(monitorpage: Monitorpage): Monitorpage_O {
@@ -33,7 +34,7 @@ export function GetMonitorpages_O(monitorpages: Monitorpage[]): Monitorpage_O[] 
   return monitorpages_O;
 }
 
-export function GetMonitorpage_OA(monitorpage: Monitorpage): Monitorpage_OA {
+export async function GetMonitorpage_OA(monitorpage: Monitorpage, func: string): Promise<Monitorpage_OA> {
   let monitorpage_OA: Monitorpage_OA = new Monitorpage_OA();
   monitorpage_OA.id = monitorpage.id;
   monitorpage_OA.name = monitorpage.name;
@@ -42,16 +43,17 @@ export function GetMonitorpage_OA(monitorpage: Monitorpage): Monitorpage_OA {
   monitorpage_OA.visible = monitorpage.visible;
   monitorpage_OA.running = monitorpage.running;
   monitorpage_OA.interval = monitorpage.interval;
-  if (monitorpage.urls)
-    monitorpage_OA.urls = GetUrls_O(monitorpage.urls);
-  if (monitorpage.monitorpageconfig)
-    monitorpage_OA.monitorpageconfig = GetMonitorpageconfig_O(monitorpage.monitorpageconfig);
+  monitorpage_OA.isHtml = monitorpage.isHtml;
+  monitorpage_OA.func = func;
+  let urls = await monitorpage.getUrls();
+  if (urls)
+    monitorpage_OA.urls = GetUrls_O(urls);
   return monitorpage_OA;
 }
 
-export function GetMonitorpages_OA(monitorpages: Monitorpage[]): Monitorpage_OA[] {
+export async function GetMonitorpages_OA(monitorpages: Monitorpage[], funcs: string[]): Promise<Monitorpage_OA[]> {
   let monitorpages_OA: Array<Monitorpage_OA> = new Array<Monitorpage_OA>();
   for (let i = 0; i < monitorpages.length; i++)
-    monitorpages_OA.push(GetMonitorpage_OA(monitorpages[i]));
+    monitorpages_OA.push(await GetMonitorpage_OA(monitorpages[i], funcs[i]));
   return monitorpages_OA;
 }

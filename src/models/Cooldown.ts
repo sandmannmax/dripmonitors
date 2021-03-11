@@ -41,11 +41,11 @@ export function Setup() {
       allowNull: false
     },
     remaining: {
-      type: DataTypes.INTEGER.UNSIGNED,
+      type: DataTypes.INTEGER,
       allowNull: false
     },
     counter: {
-      type: DataTypes.INTEGER.UNSIGNED,
+      type: DataTypes.INTEGER,
       allowNull: false
     }
   }, {

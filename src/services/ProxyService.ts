@@ -17,7 +17,7 @@ export class ProxyService {
     let proxyCooldownIds = new Array<string>();
     if (cooldowns)
       proxyCooldownIds = cooldowns.map(o => o.id);
-    let proxies = await Proxy.findAll({ where: { id: { [Op.notIn]: proxyCooldownIds } }});
+    let proxies = await Proxy.findAll({ where: { id: { [Op.notIn]: proxyCooldownIds }, cc: monitorpage.cc }});
     if (!proxies || proxies.length == 0)  
       return null;
 

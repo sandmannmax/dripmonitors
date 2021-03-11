@@ -10,13 +10,17 @@ import { ProxyService } from './ProxyService';
 import { ProductScraped } from '../types/ProductScraped';
 import { DiscordService } from './DiscordService';
 import { Monitor } from '../models/Monitor';
+import { BucketService } from './BucketService';
+import safeEval from 'notevil';
 
 @Service()
 export class RunService {
 
   constructor(
     private proxyService: ProxyService,
-    private discordService: DiscordService
+    private discordService: DiscordService,
+    private bucketService: BucketService,
+    private scraperClientService: ScraperClientService
   ) {}
 
   public async Run({ id }: { id: string }) {
@@ -24,15 +28,34 @@ export class RunService {
   
     try {
       let monitorpage = await Monitorpage.findByPk(id);
+
       if (monitorpage && !monitorpage.currentRunningState)
         monitorpage = await monitorpage.update({ currentRunningState: true });
       else
         return;
 
-      if (!monitorpage.monitorpageconfigId) {  
+      let func = '';
+
+      try {
+        func = await this.bucketService.Download({ fileName: id + 'script.js'});
+      } catch {}
+
+      if (!func) {  
         monitorrun.timestampEnd = new Date().getTime();
         monitorrun.success = false;
-        monitorrun.reason = 'No Monitorpageconfig set for this Monitorpage';
+        monitorrun.reason = 'No Function defined for this Monitorpage';
+        await monitorrun.save();
+  
+        await monitorpage.update({ currentRunningState: false });
+        return;
+      }
+
+      let urls = await Url.findAll({ where: { monitorpageId: monitorpage.id }});
+
+      if (!urls || urls.length == 0) {  
+        monitorrun.timestampEnd = new Date().getTime();
+        monitorrun.success = false;
+        monitorrun.reason = 'No Urls set for this Monitorpage';
         await monitorrun.save();
   
         await monitorpage.update({ currentRunningState: false });
@@ -53,28 +76,18 @@ export class RunService {
       }
   
       monitorrun.proxyId = proxy.id;
-  
+
       let products: Array<ProductScraped> = [];
-      
-      let urls = await Url.findAll({ where: { monitorpageId: monitorpage.id }});
 
-      if (!urls || urls.length == 0) {  
-        monitorrun.timestampEnd = new Date().getTime();
-        monitorrun.success = false;
-        monitorrun.reason = 'No Urls set for this Monitorpage';
-        await monitorrun.save();
-  
-        await monitorpage.update({ currentRunningState: false });
-        return;
+      let f = safeEval.Function('content', 'log', 'json', 'Date', func);
+
+      for (let i = 0; i < urls.length; i++) {
+        let content = await this.scraperClientService.Get({ url: urls[i].url, proxy: proxy.address, isHtml: monitorpage.isHtml });
+
+        let productsScraped = f(content, (text: string) => {}, JSON.parse, Date);
+
+        products.push(productsScraped);
       }
-
-      // for (let i = 0; i < urls.length; i++) {
-      //   let ps = await this.scraperClientService.Run({ monitorpageId: monitorpage.id, url: urls[i].url, proxy: proxy.address, monitorpageconfig: monitorpageconfig_O });
-      //   if (ps)
-      //     products.push(...ps);
-      // }
-
-      // TODO: Implementieren
         
       if (products.length == 0) {
         await this.proxyService.SetCooldown({ proxyId: proxy.id, monitorpageId: id });

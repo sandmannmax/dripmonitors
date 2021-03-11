@@ -416,11 +416,18 @@
             "type": "string"
           },
           {
-            "name": "monitorpageconfigId",
+            "name": "isHtml",
             "in": "body",
-            "description": "id of monitorpageconfig for monitorpage",
+            "description": "",
             "required": false,
-            "type": "string"
+            "type": "boolean"
+          },
+          {
+            "name": "func",
+            "in": "body",
+            "description": "",
+            "required": false,
+            "type": "boolean"
           }
         ],
         "responses": {
@@ -632,6 +639,13 @@
         "parameters": [
           {
             "name": "reloadContent",
+            "in": "body",
+            "description": "flag if scraper should reload the content",
+            "required": true,
+            "type": "boolean"
+          },
+          {
+            "name": "func",
             "in": "body",
             "description": "flag if scraper should reload the content",
             "required": true,
@@ -1095,11 +1109,14 @@
         "ulrs": {
           "type": "array",
           "objects": {
-            "$ref": "#/definitions/UrlElement"
+            "$ref": "#/definitions/Url"
           }
         },
-        "monitorpageconfig": {
-          "$ref": "#/definitions/Monitorpageconfig"
+        "isHtml": {
+          "type": "boolean"
+        },
+        "func": {
+          "type": "string"
         }
       }
     },
@@ -1118,12 +1135,12 @@
         "cooldowns": {
           "type": "array",
           "objects": {
-            "$ref": "#/definitions/Proxycooldown"
+            "$ref": "#/definitions/Cooldown"
           }
         }
       }
     },
-    "Proxycooldown": {
+    "Cooldown": {
       "type": "object",
       "properties": {
         "id": {
@@ -1170,111 +1187,23 @@
         "sizes": {
           "type": "array",
           "objects": {
-            "type": "string"
-          }
-        },
-        "sizesSoldOut": {
-          "type": "array",
-          "objects": {
-            "type": "booleab"
+            "$ref": "#/definitions/Size"
           }
         }
       }
     },
-    "Monitorpageconfig": {
+    "Size": {
       "type": "object",
       "properties": {
-        "id": {
+        "value": {
           "type": "string"
         },
-        "isHtml": {
+        "soldOut": {
           "type": "boolean"
-        },
-        "allSizesAvailable": {
-          "type": "boolean"
-        },
-        "soldOutCheckSizes": {
-          "type": "boolean"
-        },
-        "hasParentProducts": {
-          "type": "boolean"
-        },
-        "hasChildProducts": {
-          "type": "boolean"
-        },
-        "productsConfig": {
-          "$ref": "#/definitions/Processconfig"
-        },
-        "idConfig": {
-          "$ref": "#/definitions/Processconfig"
-        },
-        "nameConfig": {
-          "$ref": "#/definitions/Processconfig"
-        },
-        "hrefConfig": {
-          "$ref": "#/definitions/Processconfig"
-        },
-        "imgConfig": {
-          "$ref": "#/definitions/Processconfig"
-        },
-        "priceConfig": {
-          "$ref": "#/definitions/Processconfig"
-        },
-        "activeConfig": {
-          "$ref": "#/definitions/Processconfig"
-        },
-        "soldOutConfig": {
-          "$ref": "#/definitions/Processconfig"
-        },
-        "hasSizesConfig": {
-          "$ref": "#/definitions/Processconfig"
-        },
-        "sizesConfig": {
-          "$ref": "#/definitions/Processconfig"
-        },
-        "sizesSoldOutConfig": {
-          "$ref": "#/definitions/Processconfig"
-        },
-        "childProductConfig": {
-          "$ref": "#/definitions/Processconfig"
         }
       }
     },
-    "Processconfig": {
-      "type": "object",
-      "properties": {
-        "id": {
-          "type": "string"
-        },
-        "hasConstant": {
-          "type": "boolean"
-        },
-        "constant": {
-          "type": "boolean"
-        },
-        "pipe": {
-          "type": "array",
-          "objects": {
-            "$ref": "#/definitions/Pipeelement"
-          }
-        }
-      }
-    },
-    "Pipeelement": {
-      "type": "object",
-      "properties": {
-        "id": {
-          "type": "string"
-        },
-        "command": {
-          "type": "string"
-        },
-        "order": {
-          "type": "number"
-        }
-      }
-    },
-    "UrlElement": {
+    "Url": {
       "type": "object",
       "properties": {
         "id": {

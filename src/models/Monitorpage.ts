@@ -1,7 +1,6 @@
 import { Sequelize, DataTypes, Model, Optional, Association, BelongsToGetAssociationMixin, HasManyGetAssociationsMixin, HasManyCreateAssociationMixin, UUIDV4 } from 'sequelize';
 import { Container } from 'typedi';
 import { Cooldown } from './Cooldown';
-import { Monitorpageconfig } from './Monitorpageconfig';
 import { Product } from './Product';
 import { Url } from './Url';
 
@@ -14,10 +13,10 @@ interface MonitorpageAttributes {
   running: boolean;
   currentRunningState: boolean;
   interval: number;
-  monitorpageconfigId: string | null;
+  isHtml: boolean;
 }
 
-interface MonitorpageCreationAttributes extends Optional<MonitorpageAttributes, "id" | "visible" | "running" | "currentRunningState" | "interval" | "monitorpageconfigId"> {}
+interface MonitorpageCreationAttributes extends Optional<MonitorpageAttributes, "id" | "visible" | "running" | "currentRunningState" | "interval" | "isHtml"> {}
 
 export class Monitorpage extends Model<MonitorpageAttributes, MonitorpageCreationAttributes> implements MonitorpageAttributes {  
   public id!: string;
@@ -28,12 +27,11 @@ export class Monitorpage extends Model<MonitorpageAttributes, MonitorpageCreatio
   public running!: boolean;
   public currentRunningState!: boolean;
   public interval!: number;
-  public monitorpageconfigId!: string | null;
+  public isHtml!: boolean;
 
   public readonly createdAt!: Date;
   public readonly updatedAt!: Date;
 
-  public getMonitorpageconfig!: BelongsToGetAssociationMixin<Monitorpageconfig>;
   public getProducts!: HasManyGetAssociationsMixin<Product>;
   public createProduct!: HasManyCreateAssociationMixin<Product>;
   public getUrls!: HasManyGetAssociationsMixin<Url>;
@@ -41,13 +39,11 @@ export class Monitorpage extends Model<MonitorpageAttributes, MonitorpageCreatio
   public getCooldowns!: HasManyGetAssociationsMixin<Cooldown>;
   public createCooldown!: HasManyCreateAssociationMixin<Cooldown>;
 
-  public readonly monitorpageconfig?: Monitorpageconfig;
   public readonly products?: Product[];
   public readonly urls?: Url[];
   public readonly cooldowns?: Cooldown[];
 
   public static associations: {
-    monitorpageconfig: Association<Monitorpage, Monitorpageconfig>;
     products: Association<Monitorpage, Product>;
     urls: Association<Monitorpage, Url>;
     cooldowns: Association<Monitorpage, Cooldown>;
@@ -92,23 +88,21 @@ export function Setup() {
       defaultValue: false
     },
     interval: {
-      type: DataTypes.INTEGER.UNSIGNED,
+      type: DataTypes.INTEGER,
       allowNull: false,
       defaultValue: 0
     },
-    monitorpageconfigId: DataTypes.STRING
+    isHtml: {
+      type: DataTypes.BOOLEAN,
+      allowNull: false,
+      defaultValue: false
+    }
   }, {
     sequelize: dbConnection
   });
 }
 
-export function SetupAssociations() { 
-  Monitorpage.belongsTo(Monitorpageconfig, {
-    targetKey: 'id',
-    foreignKey: 'monitorpageconfigId',
-    as: 'monitorpageconfig'
-  })
-
+export function SetupAssociations() {
   Monitorpage.hasMany(Product, {
     sourceKey: 'id',
     foreignKey: 'monitorpageId',

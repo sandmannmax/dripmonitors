@@ -39,7 +39,7 @@ export function Setup() {
       allowNull: false
     },
     order: {
-      type: DataTypes.INTEGER.UNSIGNED,
+      type: DataTypes.INTEGER,
       allowNull: false
     }
   }, {

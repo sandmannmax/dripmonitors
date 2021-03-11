@@ -35,7 +35,7 @@ export function Setup() {
       allowNull: false
     },
     roleId: {
-      type: DataTypes.UUID,
+      type: DataTypes.STRING,
       allowNull: false
     },
     monitorId: {

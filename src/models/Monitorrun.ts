@@ -44,11 +44,11 @@ export function Setup() {
     },
     proxyId: DataTypes.UUID,
     timestampStart: {
-      type: DataTypes.INTEGER.UNSIGNED,
+      type: DataTypes.INTEGER,
       allowNull: false
     },
     timestampEnd: {
-      type: DataTypes.INTEGER.UNSIGNED,
+      type: DataTypes.INTEGER,
       allowNull: false
     },
     success:  {

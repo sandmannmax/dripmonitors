@@ -9,21 +9,23 @@ export class Monitorsource_O {
   public all!: boolean;
 }
 
-export function GetMonitorsource_O(monitorsource: Monitorsource): Monitorsource_O {
+export async function GetMonitorsource_O(monitorsource: Monitorsource): Promise<Monitorsource_O> {
   let monitorsource_O: Monitorsource_O = new Monitorsource_O();
   monitorsource_O.id = monitorsource.id;
-  if (monitorsource.product)
-    monitorsource_O.product = GetProduct_O(monitorsource.product);
-  if (monitorsource.monitorpage)
-    monitorsource_O.monitorpage = GetMonitorpage_O(monitorsource.monitorpage);
+  let product = await monitorsource.getProduct()
+  if (product)
+    monitorsource_O.product = GetProduct_O(product);
+  let monitorpage = await monitorsource.getMonitorpage()
+  if (monitorpage)
+    monitorsource_O.monitorpage = GetMonitorpage_O(monitorpage);
   monitorsource_O.all = monitorsource.all;
   return monitorsource_O;
 }
 
-export function GetMonitorsources_O(monitorsources: Monitorsource[]): Monitorsource_O[] {
+export async function GetMonitorsources_O(monitorsources: Monitorsource[]): Promise<Monitorsource_O[]> {
   let monitorsources_O = new Array<Monitorsource_O>();
   for (let i = 0; i < monitorsources.length; i++) {
-    monitorsources_O.push(GetMonitorsource_O(monitorsources[i]));
+    monitorsources_O.push(await GetMonitorsource_O(monitorsources[i]));
   }
   return monitorsources_O;
 }

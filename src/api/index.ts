@@ -1,13 +1,14 @@
 import { Router } from 'express';
 import { MonitorRoutes } from "./MonitorRoutes";
 import { AdminRoutes } from "./AdminRoutes";
-import sanitize from 'sanitize';
 import { Auth } from '../auth';
 import { ProductRoutes } from './ProductRoutes';
 import { MonitorpageRoutes } from './MonitorpageRoutes';
 import { ScopeRoutes } from './ScopeRoutes';
+import sanitize from 'sanitize';
 
 let router = Router({strict: true});
+
 
 router.use(sanitize.middleware);
 router.use(Auth.CheckJWT);

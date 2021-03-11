@@ -4,11 +4,9 @@ import { Monitor } from '../models/Monitor';
 import { IResult } from '../types/IResult';
 import { GetMonitors_O, GetMonitor_O } from '../types/Monitor';
 import { DiscordService } from './DiscordService';
-import { async } from 'crypto-random-string';
 import { GetMonitorsources_O, GetMonitorsource_O } from '../types/Monitorsource';
 import { GetProducts_O, GetProduct_O } from '../types/Product';
 import { GetMonitorpages_O, GetMonitorpage_O } from '../types/Monitorpage';
-import { logger } from '../logger';
 import { User } from '../types/User';
 import { Sequelize } from 'sequelize';
 import { Monitorsource } from '../models/Monitorsource';
@@ -18,21 +16,24 @@ import { Product } from '../models/Product';
 @Service()
 export class MonitorService {
   private discordService: DiscordService;
-  private dbConnection: Sequelize;
+  // private dbConnection: Sequelize;
 
   constructor() {
     this.discordService = Container.get(DiscordService);
-    this.dbConnection = Container.get<Sequelize>("dbConnection");
+    // this.dbConnection = Container.get<Sequelize>("dbConnection");
   }
 
   async GetMonitors({ user }: { user: User }): Promise<IResult> {
-    try {
+    try {      
       if (!user)
-        return {success: false, error: {status: 500, message: 'Unexpected Server Error', internalMessage: `MonitorService.GetMonitor: User empty`}};    
+        return {success: false, error: {status: 500, message: 'Unexpected Server Error', internalMessage: `MonitorService.GetMonitor: User empty`}};   
 
       let userId = user.sub.split('|')[1];
 
       let monitors = await Monitor.findAll({ where: { userId }});
+
+      if (!monitors || monitors.length == 0)
+        return {success: true, data: { monitors: [] }};
 
       return {success: true, data: { monitors: GetMonitors_O(monitors) }};
     } catch (error) {
@@ -126,7 +127,8 @@ export class MonitorService {
       if (!monitor)
         return {success: false, error: {status: 404, message: 'Monitor is not existing'}};
 
-      let transaction = await this.dbConnection.transaction();
+      let dbConnection = Container.get<Sequelize>("dbConnection");
+      let transaction = await dbConnection.transaction();
 
       if (monitor.monitorsources) {
         for (let i = 0; i < monitor.monitorsources.length; i++)
@@ -165,7 +167,7 @@ export class MonitorService {
 
       let monitorsources = await Monitorsource.findAll({ where: { monitorId: monitor.id }});
 
-      return {success: true, data: { monitorsources: GetMonitorsources_O(monitorsources) }};
+      return {success: true, data: { monitorsources: await GetMonitorsources_O(monitorsources) }};
     } catch (error) {
       return {success: false, error: {status: 500, message: 'Unexpected Server Error', internalMessage: error}};
     }
@@ -221,7 +223,7 @@ export class MonitorService {
 
       let monitorsource = await Monitorsource.create({ monitorId, productId, monitorpageId, all });
 
-      return {success: true, data: { monitorsource: GetMonitorsource_O(monitorsource) }};
+      return {success: true, data: { monitorsource: await GetMonitorsource_O(monitorsource) }};
     } catch (error) {
       return {success: false, error: {status: 500, message: 'Unexpected Server Error', internalMessage: error}};
     }

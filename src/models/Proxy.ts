@@ -47,7 +47,8 @@ export function Setup() {
       allowNull: false
     }
   }, {
-    sequelize: dbConnection
+    sequelize: dbConnection,
+    tableName: 'Proxies'
   });
 }
 
