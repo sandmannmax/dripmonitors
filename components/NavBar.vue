@@ -4,7 +4,7 @@
       class="md:container flex justify-between mx-auto h-20 items-center lg:px-16 px-6 bg-back z-10"
     >
       <div>
-        <nuxt-link to="/"><img class="h-16 w-16" src="logo.png"/></nuxt-link>
+        <nuxt-link to="/"><img class="h-16 w-16" src="/logo.png"/></nuxt-link>
       </div>
 
       <div class="hidden md:flex md:space-x-4 md:items-center" v-if="$auth.loggedIn">
@@ -72,6 +72,10 @@
           Profile
         </nuxt-link>
 
+        <nuxt-link @click.native="menu_open = !menu_open" class="text-xl px-2 pt-2 hover:text-gray-500 transition-colors duration-150" to="/admin" v-if="isAdmin">
+          Admin
+        </nuxt-link>
+
         <nuxt-link @click.native="menu_open = !menu_open" class="text-xl px-2 pt-2 hover:text-gray-500 transition-colors duration-150" to="/logout" v-if="$auth.loggedIn">
           Logout
         </nuxt-link>
@@ -87,13 +91,17 @@
 <script lang="ts">
 import { Vue, Component, Watch } from 'vue-property-decorator';
 import { mixin as clickaway } from 'vue-clickaway';
-import { Getter } from 'vuex-class';
+import { namespace } from 'vuex-class';
+
+const userModule = namespace('userModule');
 
 @Component({
   mixins: [ clickaway ]
 })
 export default class NavBar extends Vue {
-  @Getter scope;
+  $auth;
+
+  @userModule.Getter scope;
 
   menu_open = false
   window_width = window.innerWidth

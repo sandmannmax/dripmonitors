@@ -1,8 +1,9 @@
-import { callback, clientId, domain, audience } from './auth_config.json';
+import { callback, clientId, domain, logoutRedirectUri } from './auth_config.json';
 
 export default {
   // Disable server-side rendering: https://go.nuxtjs.dev/ssr-mode
   ssr: false,
+  loading: false,
 
   // Target: https://go.nuxtjs.dev/config-target
   target: 'static',
@@ -57,12 +58,13 @@ export default {
       auth0: {
         domain,
         clientId,
-        logoutRedirectUri: 'https://app.lazyshoebot.com'
+        logoutRedirectUri
       }
     }
   },
 
   router: {
+    middleware: ['redirects'],
   },
 
   // Build Configuration: https://go.nuxtjs.dev/config-build

@@ -3,5 +3,6 @@
   "clientId": "OZkYHf34LvEOpBfwC5T4pdixyjRIfaQA",
   "audience": "https://api.lazyshoebot.com",
   "serverUrl": "https://api.lazyshoebot.com",
-  "callback": "/logged-in"
+  "callback": "/logged-in",
+  "logoutRedirectUri": "http://localhost:2999"
 }

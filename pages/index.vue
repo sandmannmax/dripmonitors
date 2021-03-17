@@ -1,81 +1,85 @@
 <template>
-  <div class="container mx-auto">
-    <div class="md:px-12 px-4 pb-4 flex flex-col" v-if="$auth.loggedIn && scope != 'none'">
-      <div class="flex flex-row items-center space-x-3">
-        <h1 class="md:text-4xl text-3xl font-semibold">Monitors</h1>
-        <button class="text-white bg-secondary hover:bg-primary transition-colors duration-150 w-6 rounded-full h-6" v-on:click="addMonitorButton()">
-          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
-            <path fill-rule="evenodd" d="M10 5a1 1 0 011 1v3h3a1 1 0 110 2h-3v3a1 1 0 11-2 0v-3H6a1 1 0 110-2h3V6a1 1 0 011-1z" clip-rule="evenodd" />
-          </svg>
-        </button>
-      </div>    
-      <div class="text-red-500">{{ error }}</div>  
-      <div class="md:text-lg text-md">For help watch the <a class="text-blue-400 hover:text-blue-700 transition-colors duration-150" href="https://youtu.be/W7LTBwy59sM" target="blank">Monitor Setup Tutorial</a> or contact mail@lazyshoebot.com</div>      
-      <div class="monitors" v-if="monitors">
-        <Monitor v-for="monitor in monitors" v-bind:key="monitor.id" v-bind:monitor="monitor"/>
-      </div>    
-    </div>
-    <div class="md:px-12 px-4 pb-4 flex flex-col" v-if="$auth.loggedIn && scope == 'none'">
-      <div class="flex flex-row items-center space-x-3">
-        <h1 class="md:text-4xl text-3xl font-semibold">Become Beta-Access Tester</h1>
-      </div>    
-      <div class="text-lg flex flex-col">
-        <p>The LazyShoeBot Monitor is still in Beta-Phase an you can becoma a Beta-Tester for free!</p>
-        <button class="bg-primary hover:bg-secondary transition-colors duration-150 text-white rounded-full p-1 px-2 mx-auto mt-4" @click="becomeBeta">Become Beta-Tester</button>
-        <div class="text-red-500 text-center">{{ error }}</div> 
+  <div class="container mx-auto" v-if="$auth.loggedIn">
+    <div class="md:px-12 px-4 pb-4 flex flex-col">
+      <h1 class="md:text-4xl text-3xl font-semibold mb-4">Hello {{ $auth.user.nickname }} &#128075;</h1>
+      <div v-if="scope != 'none'">
+        <h2 class="md:text-3xl text-2xl font-semibold">Running Monitors</h2>
+        <div class="text-red-500">{{ error }}</div>
+        <div v-if="runningMonitors && runningMonitors.length > 0">
+          <MonitorSmall v-for="monitor in runningMonitors" v-bind:key="monitor.id" v-bind:monitor="monitor"/>
+        </div> 
+        <div v-else>You have no running monitors</div>
+        <div class="mt-4">
+          <nuxt-link class="text-blue-400 hover:text-blue-700 transition-colors duration-150 text-xl flex items-center" to="/monitor">
+            All Monitors
+            <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 ml-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 5l7 7-7 7M5 5l7 7-7 7" />
+            </svg>         
+          </nuxt-link>
+        </div>    
       </div>
-    </div>
-    <div class="md:px-12 px-4 pb-4 flex flex-col justify-center items-center my-8 text-xl" v-if="!$auth.loggedIn">
-      <p class="mb-4">Please log in!</p>
-      <nuxt-link class="bg-primary text-white rounded py-2 px-4" to="/login">Login</nuxt-link>
-    </div>
+      <div v-else>
+        <div class="flex flex-row items-center space-x-3">
+          <h1 class="md:text-3xl text-2xl font-semibold">Become Beta-Access Tester</h1>
+        </div>    
+        <div class="text-lg flex flex-col">
+          <p>The LazyShoeBot Monitor is still in Beta-Phase and you can becoma a Beta-Tester for free!</p>
+          <button class="bg-primary hover:bg-secondary transition-colors duration-150 text-white rounded-full p-1 px-2 mx-auto mt-4" @click="becomeBeta">Become Beta-Tester</button>
+          <div class="text-red-500 text-center">{{ error }}</div> 
+        </div>
+      </div>
+    </div>   
   </div>
 </template>
 
 <script lang="ts">
 import { Component, Vue } from 'vue-property-decorator';
-import { Action, Getter } from 'vuex-class';
-import Monitor from '../components/Monitor.vue';
+import { namespace } from 'vuex-class';
+import MonitorSmall from '../components/MonitorSmall.vue';
+
+const userModule = namespace('userModule');
+const monitorModule = namespace('monitorModule');
 
 @Component({
-  components: { Monitor }
+  components: { MonitorSmall }
 })
 export default class Index extends Vue {
   $auth;
   $router;
+  $nuxt;
 
-  @Action getScope;
-  @Action setBetaScope;
-  @Action getMonitors;
-  @Action addMonitor;
-  @Getter scope;
-  @Getter monitors;
+  @userModule.Action getScope;
+  @userModule.Action setBetaScope;
+  @userModule.Getter scope;
+  @monitorModule.Action getMonitors;
+  @monitorModule.Getter monitors;
+
+  get runningMonitors() {
+    return this.monitors.filter(monitor => monitor.running == true);
+  }
 
   error = '';
 
   async mounted() {
     if (this.$auth.loggedIn) {
-      let accessToken = this.$auth.strategy.token.get();
-      this.error = await this.getScope({ accessToken });
-      if (this.error === '') {
-        if (this.scope != 'none') {
-          this.error = await this.getMonitors({ accessToken });
-          if (this.error != '')
-            setTimeout(() => this.error = '', 5000);
-        }
-      } else
-        setTimeout(() => this.error = '', 5000);
+      await this.load();
     }
   }
 
-  async addMonitorButton() {
-    this.error = await this.addMonitor({ accessToken: await this.$auth.strategy.token.get() });
-    setTimeout(() => this.error = '', 5000);
+  async load() {
+    this.error = await this.getScope({ auth: this.$auth });
+    if (this.error === '') {
+      if (this.scope != 'none') {
+        this.error = await this.getMonitors({ auth: this.$auth });
+        if (this.error != '')
+          setTimeout(() => this.error = '', 5000);
+      }
+    } else
+      setTimeout(() => this.error = '', 5000);
   }
 
   async becomeBeta() {
-    let accessToken = this.$auth.strategy.token.get();
-    this.error = await this.setBetaScope({ accessToken });
+    this.error = await this.setBetaScope({ auth: this.$auth });
     if (this.error === '') {
       this.$router.push('/logout');
     } else
