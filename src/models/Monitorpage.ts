@@ -1,6 +1,5 @@
 import { Sequelize, DataTypes, Model, Optional, Association, BelongsToGetAssociationMixin, HasManyGetAssociationsMixin, HasManyCreateAssociationMixin, UUIDV4 } from 'sequelize';
 import { Container } from 'typedi';
-import { Cooldown } from './Cooldown';
 import { Product } from './Product';
 import { Url } from './Url';
 
@@ -36,17 +35,13 @@ export class Monitorpage extends Model<MonitorpageAttributes, MonitorpageCreatio
   public createProduct!: HasManyCreateAssociationMixin<Product>;
   public getUrls!: HasManyGetAssociationsMixin<Url>;
   public createUrl!: HasManyCreateAssociationMixin<Url>;
-  public getCooldowns!: HasManyGetAssociationsMixin<Cooldown>;
-  public createCooldown!: HasManyCreateAssociationMixin<Cooldown>;
 
   public readonly products?: Product[];
   public readonly urls?: Url[];
-  public readonly cooldowns?: Cooldown[];
 
   public static associations: {
     products: Association<Monitorpage, Product>;
     urls: Association<Monitorpage, Url>;
-    cooldowns: Association<Monitorpage, Cooldown>;
   };
 }
 
@@ -113,11 +108,5 @@ export function SetupAssociations() {
     sourceKey: 'id',
     foreignKey: 'monitorpageId',
     as: 'urls'
-  });
-
-  Monitorpage.hasMany(Cooldown, {
-    sourceKey: 'id',
-    foreignKey: 'monitorpageId',
-    as: 'cooldowns'
   });
 }

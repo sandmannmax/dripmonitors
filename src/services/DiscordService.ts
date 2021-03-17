@@ -1,13 +1,18 @@
 import { Service } from 'typedi';
 import { IResult } from '../types/IResult';
 import { MessageEmbed, WebhookClient } from 'discord.js';
-import { logger } from '../logger';
+import pino from 'pino';
 import { Monitor } from '../models/Monitor';
 import { ProductScraped } from '../types/ProductScraped';
 
 @Service()
 export class DiscordService {
   private webhookClient!: WebhookClient;
+  private logger: pino.Logger;
+
+  constructor() {
+    this.logger = pino();
+  }
 
   async SendTestMessage({ monitor }: { monitor: Monitor }): Promise<IResult> {
     try {      
@@ -26,8 +31,10 @@ export class DiscordService {
 
       let message = 'Hello there!';
 
-      if (monitor.roles)
-        message += "\n" + monitor.roles.map(o => "<@&" + o.roleId + ">").join(' ');
+      let roles = await monitor.getRoles();
+
+      if (roles)
+        message += "\n" + roles.map(o => "<@&" + o.roleId + ">").join(' ');
 
       this.webhookClient.send(message, {
         username: monitor.botName,
@@ -87,7 +94,7 @@ export class DiscordService {
           avatarURL: monitor.botImage
         });
       } catch (error) {
-        logger.error(`Error in DiscordService with ${monitor.id} ${product.id}: ${JSON.stringify(error)}`);
+        this.logger.error(`Error in DiscordService with ${monitor.id} ${product.id}: ${JSON.stringify(error)}`);
       }
     });    
   }

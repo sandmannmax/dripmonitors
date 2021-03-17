@@ -13,7 +13,7 @@ export class ProductScraped {
   public hasSizes!: boolean;
   public sizes!: SizeScraped[];
 
-  CreateProduct(): Product {
-    return Product.build({ id: this.id, name: this.id, monitorpageId: this.monitorpageId, soldOut: this.soldOut, active: this.active, hasSizes: this.hasSizes});
+  static CreateProduct(productScraped: ProductScraped): Product {
+    return Product.build({ id: productScraped.id, name: productScraped.name, monitorpageId: productScraped.monitorpageId, soldOut: productScraped.soldOut, active: productScraped.active, hasSizes: productScraped.hasSizes});
   }
 }

@@ -1,17 +1,12 @@
 import { Service, Container, Inject } from 'typedi';
 import { IResult } from '../types/IResult';
-import { async } from 'crypto-random-string';
-import { logger } from '../logger';
 import { HttpsProxyAgent } from 'https-proxy-agent';
 import fetch from 'node-fetch';
 import { Monitorpage } from '../models/Monitorpage';
 import { Queue } from 'bull';
 import { QueueProvider } from '../provider/QueueProvider';
-import { GetProcessconfig_O } from '../types/Processconfig';
-import { GetMonitorpageconfigs_O, GetMonitorpageconfig_O, Monitorpageconfig_O } from '../types/Monitorpageconfig';
-import { GetPipeelements_O, GetPipeelement_O } from '../types/Pipeelement';
 import { ScraperClientService } from './ScraperClientService';
-import { GetMonitorpages_OA, GetMonitorpage_OA, Monitorpage_OA } from '../types/Monitorpage';
+import { GetMonitorpages_OA, GetMonitorpage_OA } from '../types/Monitorpage';
 import { Url } from '../models/Url';
 import { GetUrls_O, GetUrl_O } from '../types/Url';
 import { Proxy } from '../models/Proxy';
@@ -21,12 +16,16 @@ import { RedisClient, createClient } from 'redis';
 import config from '../config';
 import { promisify } from 'util';
 import { BucketService } from './BucketService';
-import { Product } from '../models/Product';
+import pino from 'pino';
+import { Monitorrun } from '../models/Monitorrun';
+import { GetMonitorruns_O } from '../types/Monitorrun';
+import { GetProxies_O, GetProxy_O } from '../types/Proxy';
 
 @Service()
 export class AdminService {
   private queue: Queue;
   private redis: RedisClient;
+  private logger: pino.Logger;
 
   private redisSet: (key: string, value: string) => Promise<unknown>;
   private redisGet: (key: string) => Promise<string | null>;
@@ -43,6 +42,7 @@ export class AdminService {
     });
     this.redisSet = promisify(this.redis.set).bind(this.redis);
     this.redisGet = promisify(this.redis.get).bind(this.redis);
+    this.logger = pino();
   }
 
   async GetMonitorpages(): Promise<IResult> {
@@ -110,7 +110,7 @@ export class AdminService {
         if (!cc)
           cc = monitorpage.cc;
 
-        if (!isHtml)
+        if (isHtml == undefined)
           isHtml = monitorpage.isHtml;
 
         monitorpage = await monitorpage.update({ techname, name, visible, cc, isHtml });
@@ -247,7 +247,7 @@ export class AdminService {
 
       await monitorpage.update({ running: true, interval });
 
-      return {success: true};
+      return {success: true, data: { interval }};
     } catch (error) {
       return {success: false, error: {status: 500, message: 'Unexpected Server Error', internalMessage: error}};
     }
@@ -272,7 +272,7 @@ export class AdminService {
 
       await monitorpage.update({ running: false, interval: 0 });
 
-      return {success: true};
+      return {success: true, data: { interval: 0 }};
     } catch (error) {
       return {success: false, error: {status: 500, message: 'Unexpected Server Error', internalMessage: error}};
     }
@@ -318,7 +318,7 @@ export class AdminService {
         if (proxy && proxy.address)
           address = proxy.address;
         else {
-          logger.warn('No Proxy available for TestMonitorpage');
+          this.logger.warn('No Proxy available for TestMonitorpage');
           warnOut = 'No Proxy available for TestMonitorpage';
         }
 
@@ -565,46 +565,32 @@ export class AdminService {
     try {
       let proxies = await Proxy.findAll();
         
-      return {success: true, data: { proxies }};
+      return {success: true, data: { proxies: await GetProxies_O(proxies) }};
     } catch (error) {
       return {success: false, error: {status: 500, message: 'Unexpected Server Error', internalMessage: error}};
     }
   }
 
-  async CreateProxy({ address }: { address: string }): Promise<IResult> {
+  async CreateProxy({ address, cc }: { address: string, cc: string }): Promise<IResult> {
     try {
       if (!address)
         return {success: false, error: {status: 400, message: '\'address\' is missing'}};
 
+      if (!cc)
+        return {success: false, error: {status: 400, message: '\'cc\' is missing'}};
+
       if ((await Proxy.findAll({ where: { address }})).length != 0)
         return {success: false, error: {status: 404, message: 'Proxy is already registered'}};
-
-      let response;
-      try {
-        let url = 'https://api.myip.com'
-        response = await fetch(url, {
-          method: 'GET',
-          agent: new HttpsProxyAgent(address),
-        });
-      } catch (error) {
-        logger.warn("Error in Proxy Testing: " + error);
-        return {success: false, error: {status: 404, message: 'Bad Proxy'}};
-      }
-
-      if (response.status != 200)
-        return {success: false, error: {status: 404, message: 'Bad Proxy'}};
-
-      let json = await response.json();
         
-      let proxy = await Proxy.create({ address, cc: json.cc });
+      let proxy = await Proxy.create({ address, cc });
 
-      return {success: true, data: { proxy }};
+      return {success: true, data: { proxy: await GetProxy_O(proxy) }};
     } catch (error) {
       return {success: false, error: {status: 500, message: 'Unexpected Server Error', internalMessage: error}};
     }
   }
 
-  async UpdateProxy({ id, address }: { id: string, address: string }): Promise<IResult> {
+  async UpdateProxy({ id, address, cc }: { id: string, address: string, cc: string }): Promise<IResult> {
     try {
       if (!id)
         return {success: false, error: {status: 400, message: '\'id\' is missing'}};  
@@ -617,31 +603,15 @@ export class AdminService {
       if (!address)
         return {success: false, error: {status: 400, message: '\'address\' is missing'}};
 
+      if (!cc)
+        return {success: false, error: {status: 400, message: '\'cc\' is missing'}};
+
       if ((await Proxy.findAll({ where: { address }})).length != 0)
         return {success: false, error: {status: 404, message: 'Proxy is already registered'}};
-
-      let response;
-      try {
-        let url = 'https://api.myip.com'
-        response = await fetch(url, {
-          method: 'GET',
-          agent: new HttpsProxyAgent(address),
-        });
-      } catch (error) {
-        logger.warn("Error in Proxy Testing: " + error);
-        return {success: false, error: {status: 404, message: 'Bad Proxy'}};
-      }
-
-      if (response.status != 200)
-        return {success: false, error: {status: 404, message: 'Bad Proxy'}};
-
-      let json = await response.json();
         
-      proxy = await proxy.update({ address, cc: json.cc });
+      proxy = await proxy.update({ address, cc });
 
-      // TODO: vlt Einschränkungen löschen, wenn Adresse geändert wurde
-
-      return {success: true, data: { proxy }};
+      return {success: true, data: { proxy: await GetProxy_O(proxy) }};
     } catch (error) {
       return {success: false, error: {status: 500, message: 'Unexpected Server Error', internalMessage: error}};
     }
@@ -660,6 +630,16 @@ export class AdminService {
       await proxy.destroy();
 
       return {success: true};
+    } catch (error) {
+      return {success: false, error: {status: 500, message: 'Unexpected Server Error', internalMessage: error}};
+    }
+  }
+
+  async GetMonitorruns(): Promise<IResult> {
+    try {
+      let monitorruns = await Monitorrun.findAll({ order: [ ['timestampStart', 'DESC'] ]});
+        
+      return {success: true, data: { monitorruns: GetMonitorruns_O(monitorruns) }};
     } catch (error) {
       return {success: false, error: {status: 500, message: 'Unexpected Server Error', internalMessage: error}};
     }

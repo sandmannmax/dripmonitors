@@ -14,11 +14,11 @@ module.exports = {
       },
       proxyId: Sequelize.UUID,
       timestampStart: {
-        type: Sequelize.INTEGER,
+        type: Sequelize.BIGINT,
         allowNull: false
       },
       timestampEnd: {
-        type: Sequelize.INTEGER,
+        type: Sequelize.BIGINT,
         allowNull: false
       },
       success:  {

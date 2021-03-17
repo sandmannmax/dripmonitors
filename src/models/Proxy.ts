@@ -1,6 +1,5 @@
-import { Sequelize, DataTypes, Model, Association, HasManyGetAssociationsMixin, HasManyCreateAssociationMixin, UUIDV4, Optional } from 'sequelize';
+import { Sequelize, DataTypes, Model, UUIDV4, Optional } from 'sequelize';
 import { Container } from 'typedi';
-import { Cooldown } from './Cooldown';
 
 interface ProxyAttributes {
   id: string;
@@ -17,15 +16,6 @@ export class Proxy extends Model<ProxyAttributes, ProxyCreationAttributes> imple
 
   public readonly createdAt!: Date;
   public readonly updatedAt!: Date;
-
-  public getCooldowns!: HasManyGetAssociationsMixin<Cooldown>;
-  public createCooldown!: HasManyCreateAssociationMixin<Cooldown>;
-
-  public readonly cooldowns?: Cooldown[];
-
-  public static associations: {
-    cooldowns: Association<Proxy, Cooldown>;
-  };
 }
 
 export function Setup() {
@@ -49,13 +39,5 @@ export function Setup() {
   }, {
     sequelize: dbConnection,
     tableName: 'Proxies'
-  });
-}
-
-export function SetupAssociations() {
-  Proxy.hasMany(Cooldown, {
-    sourceKey: 'id',
-    foreignKey: 'proxyId',
-    as: 'cooldowns'
   });
 }

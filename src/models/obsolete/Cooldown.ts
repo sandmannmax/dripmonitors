@@ -1,5 +1,6 @@
-import { Sequelize, DataTypes, Model, UUIDV4, Optional } from 'sequelize';
+import { Sequelize, DataTypes, Model, UUIDV4, Optional, Association, BelongsToGetAssociationMixin } from 'sequelize';
 import { Container } from 'typedi';
+import { Monitorpage } from './Monitorpage';
 
 interface CooldownAttributes {
   id: string;
@@ -20,6 +21,12 @@ export class Cooldown extends Model<CooldownAttributes, CooldownCreationAttribut
 
   public readonly createdAt!: Date;
   public readonly updatedAt!: Date;
+
+  public getMonitorpages!: BelongsToGetAssociationMixin<Monitorpage>;
+
+  public static associations: {
+    monitorpages: Association<Cooldown, Monitorpage>;
+  };
 }
 
 export function Setup() {
@@ -50,5 +57,12 @@ export function Setup() {
     }
   }, {
     sequelize: dbConnection
+  });
+}
+
+export function SetupAssociations() {
+  Cooldown.belongsTo(Monitorpage, {
+    foreignKey: 'monitorpageId',
+    as: 'monitorpages'
   });
 }

@@ -154,6 +154,125 @@
         }
       }
     },
+    "/monitor/$id/role": {
+      "get": {
+        "description": "Get all Roles associated with this Monitor",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "Get all Roles",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "roles": {
+                  "type": "array",
+                  "objects": {
+                    "$ref": "#/definitions/Role"
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "description": "Create new Monitorsource",
+        "parameters": [
+          {
+            "name": "name",
+            "in": "body",
+            "description": "Name to know wich is wich",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "roleId",
+            "in": "body",
+            "description": "Discord Role ID",
+            "required": false,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Created Role",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "role": {
+                  "$ref": "#/definitions/Role"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/monitor/$id/role/$id": {
+      "patch": {
+        "description": "Update Monitorpage",
+        "parameters": [
+          {
+            "name": "name",
+            "in": "body",
+            "description": "Name to know wich is wich",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "roleId",
+            "in": "body",
+            "description": "Discord Role ID",
+            "required": false,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Updated Role",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "role": {
+                  "$ref": "#/definitions/Role"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Role is not existing",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "message": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "description": "Delete the Role",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "Successfully deleted Role"
+          },
+          "404": {
+            "description": "Role is not existing",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "message": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/monitor/$id/source": {
       "get": {
         "description": "Get all Monitorsources connected to this Monitor",
@@ -681,260 +800,6 @@
         }
       }
     },
-    "/admin/monitorpageconfig": {
-      "get": {
-        "description": "Get all Monitorpageconfigs",
-        "parameters": [],
-        "responses": {
-          "200": {
-            "description": "Monitorpageconfigs",
-            "schema": {
-              "type": "object",
-              "properties": {
-                "monitorpageconfigs": {
-                  "type": "array",
-                  "objects": {
-                    "$ref": "#/definitions/Monitorpageconfig"
-                  }
-                }
-              }
-            }
-          }
-        }
-      },
-      "post": {
-        "description": "Create Monitorpageconfig",
-        "parameters": [],
-        "responses": {
-          "200": {
-            "description": "Created Monitorpageconfig",
-            "schema": {
-              "type": "object",
-              "properties": {
-                "monitorpage": {
-                  "$ref": "#/definitions/Monitorpageconfig"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/admin/monitorpageconfig/$id": {
-      "patch": {
-        "description": "Update Monitorpageconfig",
-        "parameters": [
-          {
-            "name": "isHtml",
-            "in": "body",
-            "description": "",
-            "required": false,
-            "type": "boolean"
-          },
-          {
-            "name": "allSizesAvailable",
-            "in": "body",
-            "description": "",
-            "required": false,
-            "type": "boolean"
-          },
-          {
-            "name": "soldOutCheckSizes",
-            "in": "body",
-            "description": "",
-            "required": false,
-            "type": "boolean"
-          },
-          {
-            "name": "hasParentProducts",
-            "in": "body",
-            "description": "",
-            "required": false,
-            "type": "boolean"
-          },
-          {
-            "name": "hasChildProducts",
-            "in": "body",
-            "description": "",
-            "required": false,
-            "type": "body"
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Updated Monitorpageconfig",
-            "schema": {
-              "type": "object",
-              "properties": {
-                "monitorpage": {
-                  "$ref": "#/definitions/Monitorpageconfig"
-                }
-              }
-            }
-          },
-          "404": {
-            "description": "Url is not existing",
-            "schema": {
-              "type": "object",
-              "properties": {
-                "message": {
-                  "type": "string"
-                }
-              }
-            }
-          }
-        }
-      },
-      "delete": {
-        "description": "Delete Monitorpageconfig",
-        "parameters": [],
-        "responses": {
-          "200": {
-            "description": "Successfully deleted Monitorpageconfig"
-          },
-          "404": {
-            "description": "Monitorpageconfig is not existing",
-            "schema": {
-              "type": "object",
-              "properties": {
-                "message": {
-                  "type": "string"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/admin/monitorpageconfig/$id/processconfig/$id": {
-      "patch": {
-        "description": "Update Processconfig",
-        "parameters": [
-          {
-            "name": "hasConstant",
-            "in": "body",
-            "description": "",
-            "required": false,
-            "type": "boolean"
-          },
-          {
-            "name": "constant",
-            "in": "body",
-            "description": "",
-            "required": false,
-            "type": "boolean"
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Updated Processconfig",
-            "schema": {
-              "type": "object",
-              "properties": {
-                "processconfig": {
-                  "$ref": "#/definitions/Processconfig"
-                }
-              }
-            }
-          },
-          "404": {
-            "description": "Processconfig is not existing",
-            "schema": {
-              "type": "object",
-              "properties": {
-                "message": {
-                  "type": "string"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/admin/monitorpageconfig/$id/processconfig/$id/pipe": {
-      "post": {
-        "description": "Create Pipeelement",
-        "parameters": [],
-        "responses": {
-          "200": {
-            "description": "Created Pipeelement",
-            "schema": {
-              "type": "object",
-              "properties": {
-                "pipeelement": {
-                  "$ref": "#/definitions/Pipeelement"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/admin/monitorpageconfig/$id/processconfig/$id/pipe/$id": {
-      "patch": {
-        "description": "Update Pipeelement",
-        "parameters": [
-          {
-            "name": "command",
-            "in": "body",
-            "description": "",
-            "required": false,
-            "type": "string"
-          },
-          {
-            "name": "order",
-            "in": "body",
-            "description": "",
-            "required": false,
-            "type": "number"
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Updated Pipeelement",
-            "schema": {
-              "type": "object",
-              "properties": {
-                "pipeelement": {
-                  "$ref": "#/definitions/Pipeelement"
-                }
-              }
-            }
-          },
-          "404": {
-            "description": "Pipeelement is not existing",
-            "schema": {
-              "type": "object",
-              "properties": {
-                "message": {
-                  "type": "string"
-                }
-              }
-            }
-          }
-        }
-      },
-      "delete": {
-        "description": "Delete Pipeelement",
-        "parameters": [],
-        "responses": {
-          "200": {
-            "description": "Successfully deleted Pipeelement"
-          },
-          "404": {
-            "description": "Pipeelement is not existing",
-            "schema": {
-              "type": "object",
-              "properties": {
-                "message": {
-                  "type": "string"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
     "/admin/proxy": {
       "get": {
         "description": "Get all Proxies",
@@ -958,7 +823,22 @@
       },
       "post": {
         "description": "Create Proxy",
-        "parameters": [],
+        "parameters": [
+          {
+            "name": "address",
+            "in": "body",
+            "description": "address of proxy",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "cc",
+            "in": "body",
+            "description": "cc (languagecode) of proxy",
+            "required": true,
+            "type": "string"
+          }
+        ],
         "responses": {
           "200": {
             "description": "Created Proxy",
@@ -982,6 +862,13 @@
             "name": "address",
             "in": "body",
             "description": "updated address",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "cc",
+            "in": "body",
+            "description": "updated cc",
             "required": true,
             "type": "string"
           }
@@ -1031,6 +918,28 @@
           }
         }
       }
+    },
+    "/admin/monitorrun": {
+      "get": {
+        "description": "Get all Monitorruns",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "Monitorruns",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "proxies": {
+                  "type": "array",
+                  "objects": {
+                    "$ref": "#/definitions/Monitorrun"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
     }
   },
   "definitions": {
@@ -1051,6 +960,20 @@
         },
         "running": {
           "type": "boolean"
+        }
+      }
+    },
+    "Role": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "name": {
+          "type": "string"
+        },
+        "roleId": {
+          "type": "string"
         }
       }
     },
@@ -1131,29 +1054,6 @@
         },
         "cc": {
           "type": "string"
-        },
-        "cooldowns": {
-          "type": "array",
-          "objects": {
-            "$ref": "#/definitions/Cooldown"
-          }
-        }
-      }
-    },
-    "Cooldown": {
-      "type": "object",
-      "properties": {
-        "id": {
-          "type": "string"
-        },
-        "monitorpage": {
-          "$ref": "#/definitions/Monitorpage"
-        },
-        "count": {
-          "type": "number"
-        },
-        "remaining": {
-          "type": "number"
         }
       }
     },
@@ -1210,6 +1110,26 @@
           "type": "string"
         },
         "url": {
+          "type": "string"
+        }
+      }
+    },
+    "Monitorrun": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "success": {
+          "type": "boolean"
+        },
+        "reason": {
+          "type": "string"
+        },
+        "timeStart": {
+          "type": "string"
+        },
+        "timeEnd": {
           "type": "string"
         }
       }

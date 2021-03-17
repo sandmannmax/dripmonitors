@@ -72,7 +72,7 @@ export function SetupAssociations() {
     as: 'roles'
   });
 
-  Monitor.hasMany(Monitorrun, {
+  Monitor.hasMany(Monitorsource, {
     sourceKey: 'id',
     foreignKey: 'monitorId',
     as: 'monitorsources'

@@ -1,22 +1,22 @@
 import { Application, json, Request, NextFunction, Response } from 'express';
 import cors from 'cors';
 import helmet from 'helmet';
-import morgan from 'morgan';
 import { IError } from '../types/IError';
 import api from '../api';
-import { logger, httpLogger } from '../logger';
+import pino from 'pino';
+import pinoHttp from 'pino-http';
+import config from '../config';
+
+const logger = pino();
 
 export default (app: Application) => {
 
   app.use(cors());
   app.use(helmet());
   app.use(json());
-  app.use(morgan(
-    'combined', 
-    { "stream": { 
-      write: (message:string) => httpLogger.info(message.replace('\n','')) 
-    }}
-  ));
+  app.use(pinoHttp({
+    level: config.httpLogLevel
+  }));
 
   app.get('/status', (req, res) => { res.status(200).end(); });
   app.head('/status', (req, res) => { res.status(200).end(); });
@@ -31,7 +31,7 @@ export default (app: Application) => {
       res.status(403).json({message: 'Insufficient scope'})
     else {
       if (err.status == undefined || (err.status && err.status >= 500))
-        logger.error('Error', err.internalMessage);
+        logger.error('Error ' + err.internalMessage);
       res.status(err.status || 500);
       if (err.status == 403 && (!err || !err.message))
         res.end();

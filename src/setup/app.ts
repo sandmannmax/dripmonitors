@@ -2,7 +2,9 @@ import expressSetup from './express';
 import config from '../config'
 import express from 'express';
 import { Server } from 'http';
-import { logger } from '../logger';
+import pino from 'pino';
+
+const logger = pino();
 
 export function getApp() {
   const app = express();  

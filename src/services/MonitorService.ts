@@ -12,6 +12,8 @@ import { Sequelize } from 'sequelize';
 import { Monitorsource } from '../models/Monitorsource';
 import { Monitorpage } from '../models/Monitorpage';
 import { Product } from '../models/Product';
+import { Role } from '../models/Role';
+import { GetRoles_O, GetRole_O } from '../types/Role';
 
 @Service()
 export class MonitorService {
@@ -35,7 +37,7 @@ export class MonitorService {
       if (!monitors || monitors.length == 0)
         return {success: true, data: { monitors: [] }};
 
-      return {success: true, data: { monitors: GetMonitors_O(monitors) }};
+      return {success: true, data: { monitors: await GetMonitors_O(monitors) }};
     } catch (error) {
       return {success: false, error: {status: 500, message: 'Unexpected Server Error', internalMessage: error}};
     }
@@ -64,13 +66,13 @@ export class MonitorService {
 
       let monitor = await Monitor.create({ userId });
 
-      return {success: true, data: {monitor: GetMonitor_O(monitor)}};
+      return {success: true, data: {monitor: await GetMonitor_O(monitor)}};
     } catch (error) {
       return {success: false, error: {status: 500, message: 'Unexpected Server Error', internalMessage: error}};
     }
   }
 
-  async UpdateMonitor({ id, user, webHook, botName, botImage, running, role }: { id: string, user: User, webHook: string, botName: string, botImage: string, running: boolean, role: string }): Promise<IResult> {
+  async UpdateMonitor({ id, user, webHook, botName, botImage, running }: { id: string, user: User, webHook: string, botName: string, botImage: string, running: boolean }): Promise<IResult> {
     try {
       if (!user)
         return {success: false, error: {status: 500, message: 'Unexpected Server Error', internalMessage: `MonitorService.UpdateMonitor: User empty`}};    
@@ -88,7 +90,7 @@ export class MonitorService {
       if (monitor.userId != userId)
         return {success: false, error: {status: 404, message: 'Monitor is not existing.'}};
 
-      if (webHook || botName != undefined || botImage != undefined || running != undefined || role != undefined) {
+      if (webHook || botName != undefined || botImage != undefined || running != undefined) {
         if (!webHook && monitor.webHook)
           webHook = monitor.webHook;
 
@@ -103,10 +105,8 @@ export class MonitorService {
 
         monitor = await monitor.update({ webHook, botName, botImage, running });
       }
-
-      // TODO: Role auslagern  
       
-      return {success: true, data: {monitor: GetMonitor_O(monitor)}};
+      return {success: true, data: {monitor: await GetMonitor_O(monitor)}};
     } catch (error) {
       return {success: false, error: {status: 500, message: 'Unexpected Server Error', internalMessage: error}};
     }
@@ -130,19 +130,128 @@ export class MonitorService {
       let dbConnection = Container.get<Sequelize>("dbConnection");
       let transaction = await dbConnection.transaction();
 
-      if (monitor.monitorsources) {
-        for (let i = 0; i < monitor.monitorsources.length; i++)
-          monitor.monitorsources[i].destroy({ transaction })
+      let monitorsources = await monitor.getMonitorsources();
+
+      if (monitorsources) {
+        for (let i = 0; i < monitorsources.length; i++)
+          monitorsources[i].destroy({ transaction })
       }
 
-      if (monitor.roles) {
-        for (let i = 0; i < monitor.roles.length; i++)
-          monitor.roles[i].destroy({ transaction })
+      let roles = await monitor.getRoles();
+
+      if (roles) {
+        for (let i = 0; i < roles.length; i++)
+          roles[i].destroy({ transaction })
       }
       
       await monitor.destroy({ transaction });
 
       transaction.commit();
+
+      return {success: true};
+    } catch (error) {
+      return {success: false, error: {status: 500, message: 'Unexpected Server Error', internalMessage: error}};
+    }
+  }
+
+  async GetRoles({ user, id }: { user: User, id: string }): Promise<IResult> {
+    try {      
+      if (!user)
+        return {success: false, error: {status: 500, message: 'Unexpected Server Error', internalMessage: `MonitorService.GetMonitor: User empty`}};
+
+      let userId = user.sub.split('|')[1];
+
+      let monitor = await Monitor.findOne({ where: { id, userId }});
+
+      if (!monitor)
+        return {success: false, error: {status: 404, message: 'monitor is not existing'}};
+
+      let roles = await monitor.getRoles();
+
+      if (!roles || roles.length == 0)
+        return {success: true, data: { roles: [] }};
+
+      return {success: true, data: { roles: GetRoles_O(roles) }};
+    } catch (error) {
+      return {success: false, error: {status: 500, message: 'Unexpected Server Error', internalMessage: error}};
+    }
+  }
+
+  async CreateRole({ user, id, name, roleId }: { user: User, id: string, name: string, roleId: string }): Promise<IResult> {
+    try {
+      if (!user)
+        return {success: false, error: {status: 500, message: 'Unexpected Server Error', internalMessage: `MonitorService.CreateMonitor: User empty`}};
+      
+      if (!name)
+        return {success: false, error: {status: 400, message: '\'name\' is missing'}};
+      
+      if (!roleId)
+        return {success: false, error: {status: 400, message: '\'roleId\' is missing'}};
+
+      let userId = user.sub.split('|')[1];
+
+      let monitor = await Monitor.findOne({ where: { id, userId }});
+
+      if (!monitor)
+        return {success: false, error: {status: 404, message: 'monitor is not existing'}};
+      
+      let role = await monitor.createRole({ name, roleId });
+
+      return {success: true, data: { role: GetRole_O(role) }};
+    } catch (error) {
+      return {success: false, error: {status: 500, message: 'Unexpected Server Error', internalMessage: error}};
+    }
+  }
+
+  async UpdateRole({ user, id, rid, name, roleId }: { user: User, id: string, rid: string, name: string, roleId: string }): Promise<IResult> {
+    try {
+      if (!user)
+        return {success: false, error: {status: 500, message: 'Unexpected Server Error', internalMessage: `MonitorService.UpdateMonitor: User empty`}}; 
+
+      if (!name)
+        return {success: false, error: {status: 400, message: '\'name\' is missing'}};  
+
+      if (!roleId)
+        return {success: false, error: {status: 400, message: '\'roleId\' is missing'}};    
+
+      let userId = user.sub.split('|')[1];
+
+      let monitor = await Monitor.findOne({ where: { id, userId }});
+
+      if (!monitor)
+        return {success: false, error: {status: 404, message: 'monitor is not existing'}};
+
+      let role = await Role.findOne({ where: { id: rid, monitorId: id }});
+
+      if (!role)
+        return {success: false, error: {status: 404, message: 'role is not existing'}};
+
+      role = await role.update({ name, roleId });
+      
+      return {success: true, data: { role: GetRole_O(role) }};
+    } catch (error) {
+      return {success: false, error: {status: 500, message: 'Unexpected Server Error', internalMessage: error}};
+    }
+  }
+
+  async DeleteRole({ user, id, rid}: { user: User, id: string, rid: string }): Promise<IResult> {
+    try {
+      if (!user)
+        return {success: false, error: {status: 500, message: 'Unexpected Server Error', internalMessage: `MonitorService.CreateMonitor: User empty`}}; 
+
+      let userId = user.sub.split('|')[1];  
+
+      let monitor = await Monitor.findOne({ where: { id, userId }});
+
+      if (!monitor)
+        return {success: false, error: {status: 404, message: 'monitor is not existing'}};
+
+      let role = await Role.findOne({ where: { id: rid, monitorId: id }});
+      
+      if (!role)
+        return {success: false, error: {status: 404, message: 'role is not existing'}};
+
+      await role.destroy();
 
       return {success: true};
     } catch (error) {

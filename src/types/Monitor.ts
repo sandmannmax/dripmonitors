@@ -1,4 +1,5 @@
 import { Monitor } from "../models/Monitor";
+import { GetMonitorsources_O, Monitorsource_O } from "./Monitorsource";
 import { GetRoles_O, Role_O } from "./Role";
 
 export class Monitor_O {
@@ -8,9 +9,10 @@ export class Monitor_O {
   public botImage!: string;
   public running!: boolean;
   public roles!: Role_O[];
+  public monitorsources!: Monitorsource_O[];
 }
 
-export function GetMonitor_O(monitor: Monitor): Monitor_O {
+export async function GetMonitor_O(monitor: Monitor): Promise<Monitor_O> {
   let monitorO: Monitor_O = new Monitor_O();
   monitorO.id = monitor.id;
   if (monitor.botImage)
@@ -20,15 +22,19 @@ export function GetMonitor_O(monitor: Monitor): Monitor_O {
   if (monitor.webHook)
     monitorO.webHook = monitor.webHook;
   monitorO.running = monitor.running;
-  if (monitor.roles)
-    monitorO.roles = GetRoles_O(monitor.roles);
+  let roles = await monitor.getRoles();
+  if (roles)
+    monitorO.roles = GetRoles_O(roles);
+  let monitorsources = await monitor.getMonitorsources();
+  if (monitorsources)
+    monitorO.monitorsources = await GetMonitorsources_O(monitorsources);
   return monitorO;
 }
 
-export function GetMonitors_O(monitors: Monitor[]): Monitor_O[] {
+export async function GetMonitors_O(monitors: Monitor[]): Promise<Monitor_O[]> {
   let monitors_O = new Array<Monitor_O>();
   for (let i = 0; i < monitors.length; i++) {
-    monitors_O.push(GetMonitor_O(monitors[i]));
+    monitors_O.push(await GetMonitor_O(monitors[i]));
   }
   return monitors_O;
 }
