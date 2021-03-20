@@ -17,7 +17,7 @@ RUN apk --no-cache -U upgrade
 RUN apk add tini
 RUN mkdir -p /home/node/app/dist && chown -R node:node /home/node/app
 WORKDIR /home/node/app
-COPY --chown=node:node package*.json process.yml ./
+COPY --chown=node:node package*.json ./
 USER node
 RUN npm install --only=production
 COPY --chown=node:node --from=builder /app/dist ./dist
