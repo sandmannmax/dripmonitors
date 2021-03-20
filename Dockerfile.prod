@@ -15,12 +15,13 @@ FROM node AS final
 ENV NODE_ENV production
 RUN apk --no-cache -U upgrade
 RUN apk add tini
-RUN mkdir -p /home/node/app/dist && chown -R node:node /home/node/app
+RUN mkdir -p /home/node/app/dist/proto && chown -R node:node /home/node/app
 WORKDIR /home/node/app
 COPY --chown=node:node package*.json ./
 USER node
 RUN npm install --only=production
 COPY --chown=node:node --from=builder /app/dist ./dist
+COPY --chown=node:node --from=builder /app/src/proto ./dist/proto
 
 ENTRYPOINT ["/sbin/tini", "--"]
 
