@@ -35,5 +35,5 @@ jobs:
         ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
         IMAGE_TAG_V: ${{ env.BUILD_VER }}
       run: |
-        docker build -t $ECR_REGISTRY/lsb-api:$IMAGE_TAG_V -f Dockerfile.prod .
-        docker push $ECR_REGISTRY/lsb-api:$IMAGE_TAG_V
+        docker build -t $ECR_REGISTRY/lsb-api:"$TAG" -f Dockerfile.prod .
+        docker push $ECR_REGISTRY/lsb-api:"$TAG"
