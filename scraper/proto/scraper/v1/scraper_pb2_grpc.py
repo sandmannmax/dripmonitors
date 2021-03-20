@@ -14,28 +14,17 @@ class ScraperServiceStub(object):
         Args:
             channel: A grpc.Channel.
         """
-        self.Test = channel.unary_unary(
-                '/scraper.v1.ScraperService/Test',
-                request_serializer=scraper_dot_v1_dot_scraper__pb2.TestRequest.SerializeToString,
-                response_deserializer=scraper_dot_v1_dot_scraper__pb2.TestResponse.FromString,
-                )
-        self.Run = channel.unary_unary(
-                '/scraper.v1.ScraperService/Run',
-                request_serializer=scraper_dot_v1_dot_scraper__pb2.RunRequest.SerializeToString,
-                response_deserializer=scraper_dot_v1_dot_scraper__pb2.RunResponse.FromString,
+        self.Get = channel.unary_unary(
+                '/scraper.v1.ScraperService/Get',
+                request_serializer=scraper_dot_v1_dot_scraper__pb2.GetRequest.SerializeToString,
+                response_deserializer=scraper_dot_v1_dot_scraper__pb2.GetResponse.FromString,
                 )
 
 
 class ScraperServiceServicer(object):
     """Missing associated documentation comment in .proto file."""
 
-    def Test(self, request, context):
-        """Missing associated documentation comment in .proto file."""
-        context.set_code(grpc.StatusCode.UNIMPLEMENTED)
-        context.set_details('Method not implemented!')
-        raise NotImplementedError('Method not implemented!')
-
-    def Run(self, request, context):
+    def Get(self, request, context):
         """Missing associated documentation comment in .proto file."""
         context.set_code(grpc.StatusCode.UNIMPLEMENTED)
         context.set_details('Method not implemented!')
@@ -44,15 +33,10 @@ class ScraperServiceServicer(object):
 
 def add_ScraperServiceServicer_to_server(servicer, server):
     rpc_method_handlers = {
-            'Test': grpc.unary_unary_rpc_method_handler(
-                    servicer.Test,
-                    request_deserializer=scraper_dot_v1_dot_scraper__pb2.TestRequest.FromString,
-                    response_serializer=scraper_dot_v1_dot_scraper__pb2.TestResponse.SerializeToString,
-            ),
-            'Run': grpc.unary_unary_rpc_method_handler(
-                    servicer.Run,
-                    request_deserializer=scraper_dot_v1_dot_scraper__pb2.RunRequest.FromString,
-                    response_serializer=scraper_dot_v1_dot_scraper__pb2.RunResponse.SerializeToString,
+            'Get': grpc.unary_unary_rpc_method_handler(
+                    servicer.Get,
+                    request_deserializer=scraper_dot_v1_dot_scraper__pb2.GetRequest.FromString,
+                    response_serializer=scraper_dot_v1_dot_scraper__pb2.GetResponse.SerializeToString,
             ),
     }
     generic_handler = grpc.method_handlers_generic_handler(
@@ -65,7 +49,7 @@ class ScraperService(object):
     """Missing associated documentation comment in .proto file."""
 
     @staticmethod
-    def Test(request,
+    def Get(request,
             target,
             options=(),
             channel_credentials=None,
@@ -75,25 +59,8 @@ class ScraperService(object):
             wait_for_ready=None,
             timeout=None,
             metadata=None):
-        return grpc.experimental.unary_unary(request, target, '/scraper.v1.ScraperService/Test',
-            scraper_dot_v1_dot_scraper__pb2.TestRequest.SerializeToString,
-            scraper_dot_v1_dot_scraper__pb2.TestResponse.FromString,
-            options, channel_credentials,
-            insecure, call_credentials, compression, wait_for_ready, timeout, metadata)
-
-    @staticmethod
-    def Run(request,
-            target,
-            options=(),
-            channel_credentials=None,
-            call_credentials=None,
-            insecure=False,
-            compression=None,
-            wait_for_ready=None,
-            timeout=None,
-            metadata=None):
-        return grpc.experimental.unary_unary(request, target, '/scraper.v1.ScraperService/Run',
-            scraper_dot_v1_dot_scraper__pb2.RunRequest.SerializeToString,
-            scraper_dot_v1_dot_scraper__pb2.RunResponse.FromString,
+        return grpc.experimental.unary_unary(request, target, '/scraper.v1.ScraperService/Get',
+            scraper_dot_v1_dot_scraper__pb2.GetRequest.SerializeToString,
+            scraper_dot_v1_dot_scraper__pb2.GetResponse.FromString,
             options, channel_credentials,
             insecure, call_credentials, compression, wait_for_ready, timeout, metadata)

@@ -14,4 +14,4 @@ RUN pip install --no-cache-dir -r requirements.txt
 
 COPY ./scraper ./scraper
 
-CMD ["python", "-m", "scraper"]
+CMD ["python", "-u", "-m", "scraper"]

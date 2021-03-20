@@ -19,404 +19,41 @@ DESCRIPTOR = _descriptor.FileDescriptor(
   syntax='proto3',
   serialized_options=None,
   create_key=_descriptor._internal_create_key,
-  serialized_pb=b'\n\x18scraper/v1/scraper.proto\x12\nscraper.v1\"\x81\x01\n\x0bTestRequest\x12\x35\n\x06\x63onfig\x18\x01 \x01(\x0b\x32\x1d.scraper.v1.MonitorpageConfigR\x06\x63onfig\x12%\n\x0ereload_content\x18\x02 \x01(\x08R\rreloadContent\x12\x14\n\x05proxy\x18\x03 \x01(\tR\x05proxy\"s\n\x0cTestResponse\x12\x18\n\x07success\x18\x01 \x01(\x08R\x07success\x12\x18\n\x07message\x18\x02 \x01(\tR\x07message\x12/\n\x08products\x18\x03 \x03(\x0b\x32\x13.scraper.v1.ProductR\x08products\"Y\n\nRunRequest\x12\x35\n\x06\x63onfig\x18\x01 \x01(\x0b\x32\x1d.scraper.v1.MonitorpageConfigR\x06\x63onfig\x12\x14\n\x05proxy\x18\x03 \x01(\tR\x05proxy\">\n\x0bRunResponse\x12/\n\x08products\x18\x01 \x03(\x0b\x32\x13.scraper.v1.ProductR\x08products\"\xf5\x01\n\x07Product\x12\x0e\n\x02id\x18\x01 \x01(\tR\x02id\x12\x12\n\x04name\x18\x02 \x01(\tR\x04name\x12\x12\n\x04href\x18\x03 \x01(\tR\x04href\x12\x10\n\x03img\x18\x04 \x01(\tR\x03img\x12\x14\n\x05price\x18\x05 \x01(\tR\x05price\x12\x14\n\x05sizes\x18\x06 \x03(\tR\x05sizes\x12$\n\x0esizes_sold_out\x18\x07 \x03(\x08R\x0csizesSoldOut\x12\x19\n\x08sold_out\x18\x08 \x01(\x08R\x07soldOut\x12\x16\n\x06\x61\x63tive\x18\t \x01(\x08R\x06\x61\x63tive\x12\x1b\n\thas_sizes\x18\n \x01(\x08R\x08hasSizes\"\x8a\x08\n\x11MonitorpageConfig\x12\x10\n\x03url\x18\x01 \x01(\tR\x03url\x12\x17\n\x07is_html\x18\x02 \x01(\x08R\x06isHtml\x12\x42\n\x0fproducts_config\x18\x03 \x01(\x0b\x32\x19.scraper.v1.ProcessConfigR\x0eproductsConfig\x12\x36\n\tid_config\x18\x04 \x01(\x0b\x32\x19.scraper.v1.ProcessConfigR\x08idConfig\x12:\n\x0bname_config\x18\x05 \x01(\x0b\x32\x19.scraper.v1.ProcessConfigR\nnameConfig\x12:\n\x0bhref_config\x18\x06 \x01(\x0b\x32\x19.scraper.v1.ProcessConfigR\nhrefConfig\x12\x38\n\nimg_config\x18\x07 \x01(\x0b\x32\x19.scraper.v1.ProcessConfigR\timgConfig\x12<\n\x0cprice_config\x18\x08 \x01(\x0b\x32\x19.scraper.v1.ProcessConfigR\x0bpriceConfig\x12>\n\ractive_config\x18\t \x01(\x0b\x32\x19.scraper.v1.ProcessConfigR\x0c\x61\x63tiveConfig\x12\x41\n\x0fsold_out_config\x18\n \x01(\x0b\x32\x19.scraper.v1.ProcessConfigR\rsoldOutConfig\x12\x43\n\x10has_sizes_config\x18\x0b \x01(\x0b\x32\x19.scraper.v1.ProcessConfigR\x0ehasSizesConfig\x12<\n\x0csizes_config\x18\x0c \x01(\x0b\x32\x19.scraper.v1.ProcessConfigR\x0bsizesConfig\x12L\n\x15sizes_sold_out_config\x18\r \x01(\x0b\x32\x19.scraper.v1.ProcessConfigR\x12sizesSoldOutConfig\x12.\n\x13\x61ll_sizes_available\x18\x0e \x01(\x08R\x11\x61llSizesAvailable\x12/\n\x14sold_out_check_sizes\x18\x0f \x01(\x08R\x11soldOutCheckSizes\x12.\n\x13has_parent_products\x18\x10 \x01(\x08R\x11hasParentProducts\x12,\n\x12has_child_products\x18\x11 \x01(\x08R\x10hasChildProducts\x12K\n\x14\x63hild_product_config\x18\x12 \x01(\x0b\x32\x19.scraper.v1.ProcessConfigR\x12\x63hildProductConfig\"b\n\rProcessConfig\x12\x12\n\x04pipe\x18\x01 \x03(\tR\x04pipe\x12!\n\x0chas_constant\x18\x02 \x01(\x08R\x0bhasConstant\x12\x1a\n\x08\x63onstant\x18\x03 \x01(\x08R\x08\x63onstant2\x87\x01\n\x0eScraperService\x12;\n\x04Test\x12\x17.scraper.v1.TestRequest\x1a\x18.scraper.v1.TestResponse\"\x00\x12\x38\n\x03Run\x12\x16.scraper.v1.RunRequest\x1a\x17.scraper.v1.RunResponse\"\x00\x62\x06proto3'
+  serialized_pb=b'\n\x18scraper/v1/scraper.proto\x12\nscraper.v1\"L\n\nGetRequest\x12\x10\n\x03url\x18\x01 \x01(\tR\x03url\x12\x14\n\x05proxy\x18\x02 \x01(\tR\x05proxy\x12\x16\n\x06isHtml\x18\x03 \x01(\x08R\x06isHtml\"W\n\x0bGetResponse\x12\x18\n\x07success\x18\x01 \x01(\x08R\x07success\x12\x18\n\x07\x63ontent\x18\x02 \x01(\tR\x07\x63ontent\x12\x14\n\x05\x65rror\x18\x03 \x01(\tR\x05\x65rror2J\n\x0eScraperService\x12\x38\n\x03Get\x12\x16.scraper.v1.GetRequest\x1a\x17.scraper.v1.GetResponse\"\x00\x62\x06proto3'
 )
 
 
 
 
-_TESTREQUEST = _descriptor.Descriptor(
-  name='TestRequest',
-  full_name='scraper.v1.TestRequest',
+_GETREQUEST = _descriptor.Descriptor(
+  name='GetRequest',
+  full_name='scraper.v1.GetRequest',
   filename=None,
   file=DESCRIPTOR,
   containing_type=None,
   create_key=_descriptor._internal_create_key,
   fields=[
     _descriptor.FieldDescriptor(
-      name='config', full_name='scraper.v1.TestRequest.config', index=0,
-      number=1, type=11, cpp_type=10, label=1,
-      has_default_value=False, default_value=None,
-      message_type=None, enum_type=None, containing_type=None,
-      is_extension=False, extension_scope=None,
-      serialized_options=None, json_name='config', file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
-    _descriptor.FieldDescriptor(
-      name='reload_content', full_name='scraper.v1.TestRequest.reload_content', index=1,
-      number=2, type=8, cpp_type=7, label=1,
-      has_default_value=False, default_value=False,
-      message_type=None, enum_type=None, containing_type=None,
-      is_extension=False, extension_scope=None,
-      serialized_options=None, json_name='reloadContent', file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
-    _descriptor.FieldDescriptor(
-      name='proxy', full_name='scraper.v1.TestRequest.proxy', index=2,
-      number=3, type=9, cpp_type=9, label=1,
-      has_default_value=False, default_value=b"".decode('utf-8'),
-      message_type=None, enum_type=None, containing_type=None,
-      is_extension=False, extension_scope=None,
-      serialized_options=None, json_name='proxy', file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
-  ],
-  extensions=[
-  ],
-  nested_types=[],
-  enum_types=[
-  ],
-  serialized_options=None,
-  is_extendable=False,
-  syntax='proto3',
-  extension_ranges=[],
-  oneofs=[
-  ],
-  serialized_start=41,
-  serialized_end=170,
-)
-
-
-_TESTRESPONSE = _descriptor.Descriptor(
-  name='TestResponse',
-  full_name='scraper.v1.TestResponse',
-  filename=None,
-  file=DESCRIPTOR,
-  containing_type=None,
-  create_key=_descriptor._internal_create_key,
-  fields=[
-    _descriptor.FieldDescriptor(
-      name='success', full_name='scraper.v1.TestResponse.success', index=0,
-      number=1, type=8, cpp_type=7, label=1,
-      has_default_value=False, default_value=False,
-      message_type=None, enum_type=None, containing_type=None,
-      is_extension=False, extension_scope=None,
-      serialized_options=None, json_name='success', file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
-    _descriptor.FieldDescriptor(
-      name='message', full_name='scraper.v1.TestResponse.message', index=1,
-      number=2, type=9, cpp_type=9, label=1,
-      has_default_value=False, default_value=b"".decode('utf-8'),
-      message_type=None, enum_type=None, containing_type=None,
-      is_extension=False, extension_scope=None,
-      serialized_options=None, json_name='message', file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
-    _descriptor.FieldDescriptor(
-      name='products', full_name='scraper.v1.TestResponse.products', index=2,
-      number=3, type=11, cpp_type=10, label=3,
-      has_default_value=False, default_value=[],
-      message_type=None, enum_type=None, containing_type=None,
-      is_extension=False, extension_scope=None,
-      serialized_options=None, json_name='products', file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
-  ],
-  extensions=[
-  ],
-  nested_types=[],
-  enum_types=[
-  ],
-  serialized_options=None,
-  is_extendable=False,
-  syntax='proto3',
-  extension_ranges=[],
-  oneofs=[
-  ],
-  serialized_start=172,
-  serialized_end=287,
-)
-
-
-_RUNREQUEST = _descriptor.Descriptor(
-  name='RunRequest',
-  full_name='scraper.v1.RunRequest',
-  filename=None,
-  file=DESCRIPTOR,
-  containing_type=None,
-  create_key=_descriptor._internal_create_key,
-  fields=[
-    _descriptor.FieldDescriptor(
-      name='config', full_name='scraper.v1.RunRequest.config', index=0,
-      number=1, type=11, cpp_type=10, label=1,
-      has_default_value=False, default_value=None,
-      message_type=None, enum_type=None, containing_type=None,
-      is_extension=False, extension_scope=None,
-      serialized_options=None, json_name='config', file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
-    _descriptor.FieldDescriptor(
-      name='proxy', full_name='scraper.v1.RunRequest.proxy', index=1,
-      number=3, type=9, cpp_type=9, label=1,
-      has_default_value=False, default_value=b"".decode('utf-8'),
-      message_type=None, enum_type=None, containing_type=None,
-      is_extension=False, extension_scope=None,
-      serialized_options=None, json_name='proxy', file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
-  ],
-  extensions=[
-  ],
-  nested_types=[],
-  enum_types=[
-  ],
-  serialized_options=None,
-  is_extendable=False,
-  syntax='proto3',
-  extension_ranges=[],
-  oneofs=[
-  ],
-  serialized_start=289,
-  serialized_end=378,
-)
-
-
-_RUNRESPONSE = _descriptor.Descriptor(
-  name='RunResponse',
-  full_name='scraper.v1.RunResponse',
-  filename=None,
-  file=DESCRIPTOR,
-  containing_type=None,
-  create_key=_descriptor._internal_create_key,
-  fields=[
-    _descriptor.FieldDescriptor(
-      name='products', full_name='scraper.v1.RunResponse.products', index=0,
-      number=1, type=11, cpp_type=10, label=3,
-      has_default_value=False, default_value=[],
-      message_type=None, enum_type=None, containing_type=None,
-      is_extension=False, extension_scope=None,
-      serialized_options=None, json_name='products', file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
-  ],
-  extensions=[
-  ],
-  nested_types=[],
-  enum_types=[
-  ],
-  serialized_options=None,
-  is_extendable=False,
-  syntax='proto3',
-  extension_ranges=[],
-  oneofs=[
-  ],
-  serialized_start=380,
-  serialized_end=442,
-)
-
-
-_PRODUCT = _descriptor.Descriptor(
-  name='Product',
-  full_name='scraper.v1.Product',
-  filename=None,
-  file=DESCRIPTOR,
-  containing_type=None,
-  create_key=_descriptor._internal_create_key,
-  fields=[
-    _descriptor.FieldDescriptor(
-      name='id', full_name='scraper.v1.Product.id', index=0,
-      number=1, type=9, cpp_type=9, label=1,
-      has_default_value=False, default_value=b"".decode('utf-8'),
-      message_type=None, enum_type=None, containing_type=None,
-      is_extension=False, extension_scope=None,
-      serialized_options=None, json_name='id', file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
-    _descriptor.FieldDescriptor(
-      name='name', full_name='scraper.v1.Product.name', index=1,
-      number=2, type=9, cpp_type=9, label=1,
-      has_default_value=False, default_value=b"".decode('utf-8'),
-      message_type=None, enum_type=None, containing_type=None,
-      is_extension=False, extension_scope=None,
-      serialized_options=None, json_name='name', file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
-    _descriptor.FieldDescriptor(
-      name='href', full_name='scraper.v1.Product.href', index=2,
-      number=3, type=9, cpp_type=9, label=1,
-      has_default_value=False, default_value=b"".decode('utf-8'),
-      message_type=None, enum_type=None, containing_type=None,
-      is_extension=False, extension_scope=None,
-      serialized_options=None, json_name='href', file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
-    _descriptor.FieldDescriptor(
-      name='img', full_name='scraper.v1.Product.img', index=3,
-      number=4, type=9, cpp_type=9, label=1,
-      has_default_value=False, default_value=b"".decode('utf-8'),
-      message_type=None, enum_type=None, containing_type=None,
-      is_extension=False, extension_scope=None,
-      serialized_options=None, json_name='img', file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
-    _descriptor.FieldDescriptor(
-      name='price', full_name='scraper.v1.Product.price', index=4,
-      number=5, type=9, cpp_type=9, label=1,
-      has_default_value=False, default_value=b"".decode('utf-8'),
-      message_type=None, enum_type=None, containing_type=None,
-      is_extension=False, extension_scope=None,
-      serialized_options=None, json_name='price', file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
-    _descriptor.FieldDescriptor(
-      name='sizes', full_name='scraper.v1.Product.sizes', index=5,
-      number=6, type=9, cpp_type=9, label=3,
-      has_default_value=False, default_value=[],
-      message_type=None, enum_type=None, containing_type=None,
-      is_extension=False, extension_scope=None,
-      serialized_options=None, json_name='sizes', file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
-    _descriptor.FieldDescriptor(
-      name='sizes_sold_out', full_name='scraper.v1.Product.sizes_sold_out', index=6,
-      number=7, type=8, cpp_type=7, label=3,
-      has_default_value=False, default_value=[],
-      message_type=None, enum_type=None, containing_type=None,
-      is_extension=False, extension_scope=None,
-      serialized_options=None, json_name='sizesSoldOut', file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
-    _descriptor.FieldDescriptor(
-      name='sold_out', full_name='scraper.v1.Product.sold_out', index=7,
-      number=8, type=8, cpp_type=7, label=1,
-      has_default_value=False, default_value=False,
-      message_type=None, enum_type=None, containing_type=None,
-      is_extension=False, extension_scope=None,
-      serialized_options=None, json_name='soldOut', file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
-    _descriptor.FieldDescriptor(
-      name='active', full_name='scraper.v1.Product.active', index=8,
-      number=9, type=8, cpp_type=7, label=1,
-      has_default_value=False, default_value=False,
-      message_type=None, enum_type=None, containing_type=None,
-      is_extension=False, extension_scope=None,
-      serialized_options=None, json_name='active', file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
-    _descriptor.FieldDescriptor(
-      name='has_sizes', full_name='scraper.v1.Product.has_sizes', index=9,
-      number=10, type=8, cpp_type=7, label=1,
-      has_default_value=False, default_value=False,
-      message_type=None, enum_type=None, containing_type=None,
-      is_extension=False, extension_scope=None,
-      serialized_options=None, json_name='hasSizes', file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
-  ],
-  extensions=[
-  ],
-  nested_types=[],
-  enum_types=[
-  ],
-  serialized_options=None,
-  is_extendable=False,
-  syntax='proto3',
-  extension_ranges=[],
-  oneofs=[
-  ],
-  serialized_start=445,
-  serialized_end=690,
-)
-
-
-_MONITORPAGECONFIG = _descriptor.Descriptor(
-  name='MonitorpageConfig',
-  full_name='scraper.v1.MonitorpageConfig',
-  filename=None,
-  file=DESCRIPTOR,
-  containing_type=None,
-  create_key=_descriptor._internal_create_key,
-  fields=[
-    _descriptor.FieldDescriptor(
-      name='url', full_name='scraper.v1.MonitorpageConfig.url', index=0,
+      name='url', full_name='scraper.v1.GetRequest.url', index=0,
       number=1, type=9, cpp_type=9, label=1,
       has_default_value=False, default_value=b"".decode('utf-8'),
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       serialized_options=None, json_name='url', file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
     _descriptor.FieldDescriptor(
-      name='is_html', full_name='scraper.v1.MonitorpageConfig.is_html', index=1,
-      number=2, type=8, cpp_type=7, label=1,
+      name='proxy', full_name='scraper.v1.GetRequest.proxy', index=1,
+      number=2, type=9, cpp_type=9, label=1,
+      has_default_value=False, default_value=b"".decode('utf-8'),
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, json_name='proxy', file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
+    _descriptor.FieldDescriptor(
+      name='isHtml', full_name='scraper.v1.GetRequest.isHtml', index=2,
+      number=3, type=8, cpp_type=7, label=1,
       has_default_value=False, default_value=False,
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       serialized_options=None, json_name='isHtml', file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
-    _descriptor.FieldDescriptor(
-      name='products_config', full_name='scraper.v1.MonitorpageConfig.products_config', index=2,
-      number=3, type=11, cpp_type=10, label=1,
-      has_default_value=False, default_value=None,
-      message_type=None, enum_type=None, containing_type=None,
-      is_extension=False, extension_scope=None,
-      serialized_options=None, json_name='productsConfig', file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
-    _descriptor.FieldDescriptor(
-      name='id_config', full_name='scraper.v1.MonitorpageConfig.id_config', index=3,
-      number=4, type=11, cpp_type=10, label=1,
-      has_default_value=False, default_value=None,
-      message_type=None, enum_type=None, containing_type=None,
-      is_extension=False, extension_scope=None,
-      serialized_options=None, json_name='idConfig', file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
-    _descriptor.FieldDescriptor(
-      name='name_config', full_name='scraper.v1.MonitorpageConfig.name_config', index=4,
-      number=5, type=11, cpp_type=10, label=1,
-      has_default_value=False, default_value=None,
-      message_type=None, enum_type=None, containing_type=None,
-      is_extension=False, extension_scope=None,
-      serialized_options=None, json_name='nameConfig', file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
-    _descriptor.FieldDescriptor(
-      name='href_config', full_name='scraper.v1.MonitorpageConfig.href_config', index=5,
-      number=6, type=11, cpp_type=10, label=1,
-      has_default_value=False, default_value=None,
-      message_type=None, enum_type=None, containing_type=None,
-      is_extension=False, extension_scope=None,
-      serialized_options=None, json_name='hrefConfig', file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
-    _descriptor.FieldDescriptor(
-      name='img_config', full_name='scraper.v1.MonitorpageConfig.img_config', index=6,
-      number=7, type=11, cpp_type=10, label=1,
-      has_default_value=False, default_value=None,
-      message_type=None, enum_type=None, containing_type=None,
-      is_extension=False, extension_scope=None,
-      serialized_options=None, json_name='imgConfig', file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
-    _descriptor.FieldDescriptor(
-      name='price_config', full_name='scraper.v1.MonitorpageConfig.price_config', index=7,
-      number=8, type=11, cpp_type=10, label=1,
-      has_default_value=False, default_value=None,
-      message_type=None, enum_type=None, containing_type=None,
-      is_extension=False, extension_scope=None,
-      serialized_options=None, json_name='priceConfig', file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
-    _descriptor.FieldDescriptor(
-      name='active_config', full_name='scraper.v1.MonitorpageConfig.active_config', index=8,
-      number=9, type=11, cpp_type=10, label=1,
-      has_default_value=False, default_value=None,
-      message_type=None, enum_type=None, containing_type=None,
-      is_extension=False, extension_scope=None,
-      serialized_options=None, json_name='activeConfig', file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
-    _descriptor.FieldDescriptor(
-      name='sold_out_config', full_name='scraper.v1.MonitorpageConfig.sold_out_config', index=9,
-      number=10, type=11, cpp_type=10, label=1,
-      has_default_value=False, default_value=None,
-      message_type=None, enum_type=None, containing_type=None,
-      is_extension=False, extension_scope=None,
-      serialized_options=None, json_name='soldOutConfig', file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
-    _descriptor.FieldDescriptor(
-      name='has_sizes_config', full_name='scraper.v1.MonitorpageConfig.has_sizes_config', index=10,
-      number=11, type=11, cpp_type=10, label=1,
-      has_default_value=False, default_value=None,
-      message_type=None, enum_type=None, containing_type=None,
-      is_extension=False, extension_scope=None,
-      serialized_options=None, json_name='hasSizesConfig', file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
-    _descriptor.FieldDescriptor(
-      name='sizes_config', full_name='scraper.v1.MonitorpageConfig.sizes_config', index=11,
-      number=12, type=11, cpp_type=10, label=1,
-      has_default_value=False, default_value=None,
-      message_type=None, enum_type=None, containing_type=None,
-      is_extension=False, extension_scope=None,
-      serialized_options=None, json_name='sizesConfig', file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
-    _descriptor.FieldDescriptor(
-      name='sizes_sold_out_config', full_name='scraper.v1.MonitorpageConfig.sizes_sold_out_config', index=12,
-      number=13, type=11, cpp_type=10, label=1,
-      has_default_value=False, default_value=None,
-      message_type=None, enum_type=None, containing_type=None,
-      is_extension=False, extension_scope=None,
-      serialized_options=None, json_name='sizesSoldOutConfig', file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
-    _descriptor.FieldDescriptor(
-      name='all_sizes_available', full_name='scraper.v1.MonitorpageConfig.all_sizes_available', index=13,
-      number=14, type=8, cpp_type=7, label=1,
-      has_default_value=False, default_value=False,
-      message_type=None, enum_type=None, containing_type=None,
-      is_extension=False, extension_scope=None,
-      serialized_options=None, json_name='allSizesAvailable', file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
-    _descriptor.FieldDescriptor(
-      name='sold_out_check_sizes', full_name='scraper.v1.MonitorpageConfig.sold_out_check_sizes', index=14,
-      number=15, type=8, cpp_type=7, label=1,
-      has_default_value=False, default_value=False,
-      message_type=None, enum_type=None, containing_type=None,
-      is_extension=False, extension_scope=None,
-      serialized_options=None, json_name='soldOutCheckSizes', file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
-    _descriptor.FieldDescriptor(
-      name='has_parent_products', full_name='scraper.v1.MonitorpageConfig.has_parent_products', index=15,
-      number=16, type=8, cpp_type=7, label=1,
-      has_default_value=False, default_value=False,
-      message_type=None, enum_type=None, containing_type=None,
-      is_extension=False, extension_scope=None,
-      serialized_options=None, json_name='hasParentProducts', file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
-    _descriptor.FieldDescriptor(
-      name='has_child_products', full_name='scraper.v1.MonitorpageConfig.has_child_products', index=16,
-      number=17, type=8, cpp_type=7, label=1,
-      has_default_value=False, default_value=False,
-      message_type=None, enum_type=None, containing_type=None,
-      is_extension=False, extension_scope=None,
-      serialized_options=None, json_name='hasChildProducts', file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
-    _descriptor.FieldDescriptor(
-      name='child_product_config', full_name='scraper.v1.MonitorpageConfig.child_product_config', index=17,
-      number=18, type=11, cpp_type=10, label=1,
-      has_default_value=False, default_value=None,
-      message_type=None, enum_type=None, containing_type=None,
-      is_extension=False, extension_scope=None,
-      serialized_options=None, json_name='childProductConfig', file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
   ],
   extensions=[
   ],
@@ -429,40 +66,40 @@ _MONITORPAGECONFIG = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=693,
-  serialized_end=1727,
+  serialized_start=40,
+  serialized_end=116,
 )
 
 
-_PROCESSCONFIG = _descriptor.Descriptor(
-  name='ProcessConfig',
-  full_name='scraper.v1.ProcessConfig',
+_GETRESPONSE = _descriptor.Descriptor(
+  name='GetResponse',
+  full_name='scraper.v1.GetResponse',
   filename=None,
   file=DESCRIPTOR,
   containing_type=None,
   create_key=_descriptor._internal_create_key,
   fields=[
     _descriptor.FieldDescriptor(
-      name='pipe', full_name='scraper.v1.ProcessConfig.pipe', index=0,
-      number=1, type=9, cpp_type=9, label=3,
-      has_default_value=False, default_value=[],
-      message_type=None, enum_type=None, containing_type=None,
-      is_extension=False, extension_scope=None,
-      serialized_options=None, json_name='pipe', file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
-    _descriptor.FieldDescriptor(
-      name='has_constant', full_name='scraper.v1.ProcessConfig.has_constant', index=1,
-      number=2, type=8, cpp_type=7, label=1,
+      name='success', full_name='scraper.v1.GetResponse.success', index=0,
+      number=1, type=8, cpp_type=7, label=1,
       has_default_value=False, default_value=False,
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
-      serialized_options=None, json_name='hasConstant', file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
+      serialized_options=None, json_name='success', file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
     _descriptor.FieldDescriptor(
-      name='constant', full_name='scraper.v1.ProcessConfig.constant', index=2,
-      number=3, type=8, cpp_type=7, label=1,
-      has_default_value=False, default_value=False,
+      name='content', full_name='scraper.v1.GetResponse.content', index=1,
+      number=2, type=9, cpp_type=9, label=1,
+      has_default_value=False, default_value=b"".decode('utf-8'),
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
-      serialized_options=None, json_name='constant', file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
+      serialized_options=None, json_name='content', file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
+    _descriptor.FieldDescriptor(
+      name='error', full_name='scraper.v1.GetResponse.error', index=2,
+      number=3, type=9, cpp_type=9, label=1,
+      has_default_value=False, default_value=b"".decode('utf-8'),
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, json_name='error', file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
   ],
   extensions=[
   ],
@@ -475,83 +112,27 @@ _PROCESSCONFIG = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=1729,
-  serialized_end=1827,
+  serialized_start=118,
+  serialized_end=205,
 )
 
-_TESTREQUEST.fields_by_name['config'].message_type = _MONITORPAGECONFIG
-_TESTRESPONSE.fields_by_name['products'].message_type = _PRODUCT
-_RUNREQUEST.fields_by_name['config'].message_type = _MONITORPAGECONFIG
-_RUNRESPONSE.fields_by_name['products'].message_type = _PRODUCT
-_MONITORPAGECONFIG.fields_by_name['products_config'].message_type = _PROCESSCONFIG
-_MONITORPAGECONFIG.fields_by_name['id_config'].message_type = _PROCESSCONFIG
-_MONITORPAGECONFIG.fields_by_name['name_config'].message_type = _PROCESSCONFIG
-_MONITORPAGECONFIG.fields_by_name['href_config'].message_type = _PROCESSCONFIG
-_MONITORPAGECONFIG.fields_by_name['img_config'].message_type = _PROCESSCONFIG
-_MONITORPAGECONFIG.fields_by_name['price_config'].message_type = _PROCESSCONFIG
-_MONITORPAGECONFIG.fields_by_name['active_config'].message_type = _PROCESSCONFIG
-_MONITORPAGECONFIG.fields_by_name['sold_out_config'].message_type = _PROCESSCONFIG
-_MONITORPAGECONFIG.fields_by_name['has_sizes_config'].message_type = _PROCESSCONFIG
-_MONITORPAGECONFIG.fields_by_name['sizes_config'].message_type = _PROCESSCONFIG
-_MONITORPAGECONFIG.fields_by_name['sizes_sold_out_config'].message_type = _PROCESSCONFIG
-_MONITORPAGECONFIG.fields_by_name['child_product_config'].message_type = _PROCESSCONFIG
-DESCRIPTOR.message_types_by_name['TestRequest'] = _TESTREQUEST
-DESCRIPTOR.message_types_by_name['TestResponse'] = _TESTRESPONSE
-DESCRIPTOR.message_types_by_name['RunRequest'] = _RUNREQUEST
-DESCRIPTOR.message_types_by_name['RunResponse'] = _RUNRESPONSE
-DESCRIPTOR.message_types_by_name['Product'] = _PRODUCT
-DESCRIPTOR.message_types_by_name['MonitorpageConfig'] = _MONITORPAGECONFIG
-DESCRIPTOR.message_types_by_name['ProcessConfig'] = _PROCESSCONFIG
+DESCRIPTOR.message_types_by_name['GetRequest'] = _GETREQUEST
+DESCRIPTOR.message_types_by_name['GetResponse'] = _GETRESPONSE
 _sym_db.RegisterFileDescriptor(DESCRIPTOR)
 
-TestRequest = _reflection.GeneratedProtocolMessageType('TestRequest', (_message.Message,), {
-  'DESCRIPTOR' : _TESTREQUEST,
+GetRequest = _reflection.GeneratedProtocolMessageType('GetRequest', (_message.Message,), {
+  'DESCRIPTOR' : _GETREQUEST,
   '__module__' : 'scraper.v1.scraper_pb2'
-  # @@protoc_insertion_point(class_scope:scraper.v1.TestRequest)
+  # @@protoc_insertion_point(class_scope:scraper.v1.GetRequest)
   })
-_sym_db.RegisterMessage(TestRequest)
+_sym_db.RegisterMessage(GetRequest)
 
-TestResponse = _reflection.GeneratedProtocolMessageType('TestResponse', (_message.Message,), {
-  'DESCRIPTOR' : _TESTRESPONSE,
+GetResponse = _reflection.GeneratedProtocolMessageType('GetResponse', (_message.Message,), {
+  'DESCRIPTOR' : _GETRESPONSE,
   '__module__' : 'scraper.v1.scraper_pb2'
-  # @@protoc_insertion_point(class_scope:scraper.v1.TestResponse)
+  # @@protoc_insertion_point(class_scope:scraper.v1.GetResponse)
   })
-_sym_db.RegisterMessage(TestResponse)
-
-RunRequest = _reflection.GeneratedProtocolMessageType('RunRequest', (_message.Message,), {
-  'DESCRIPTOR' : _RUNREQUEST,
-  '__module__' : 'scraper.v1.scraper_pb2'
-  # @@protoc_insertion_point(class_scope:scraper.v1.RunRequest)
-  })
-_sym_db.RegisterMessage(RunRequest)
-
-RunResponse = _reflection.GeneratedProtocolMessageType('RunResponse', (_message.Message,), {
-  'DESCRIPTOR' : _RUNRESPONSE,
-  '__module__' : 'scraper.v1.scraper_pb2'
-  # @@protoc_insertion_point(class_scope:scraper.v1.RunResponse)
-  })
-_sym_db.RegisterMessage(RunResponse)
-
-Product = _reflection.GeneratedProtocolMessageType('Product', (_message.Message,), {
-  'DESCRIPTOR' : _PRODUCT,
-  '__module__' : 'scraper.v1.scraper_pb2'
-  # @@protoc_insertion_point(class_scope:scraper.v1.Product)
-  })
-_sym_db.RegisterMessage(Product)
-
-MonitorpageConfig = _reflection.GeneratedProtocolMessageType('MonitorpageConfig', (_message.Message,), {
-  'DESCRIPTOR' : _MONITORPAGECONFIG,
-  '__module__' : 'scraper.v1.scraper_pb2'
-  # @@protoc_insertion_point(class_scope:scraper.v1.MonitorpageConfig)
-  })
-_sym_db.RegisterMessage(MonitorpageConfig)
-
-ProcessConfig = _reflection.GeneratedProtocolMessageType('ProcessConfig', (_message.Message,), {
-  'DESCRIPTOR' : _PROCESSCONFIG,
-  '__module__' : 'scraper.v1.scraper_pb2'
-  # @@protoc_insertion_point(class_scope:scraper.v1.ProcessConfig)
-  })
-_sym_db.RegisterMessage(ProcessConfig)
+_sym_db.RegisterMessage(GetResponse)
 
 
 
@@ -562,26 +143,16 @@ _SCRAPERSERVICE = _descriptor.ServiceDescriptor(
   index=0,
   serialized_options=None,
   create_key=_descriptor._internal_create_key,
-  serialized_start=1830,
-  serialized_end=1965,
+  serialized_start=207,
+  serialized_end=281,
   methods=[
   _descriptor.MethodDescriptor(
-    name='Test',
-    full_name='scraper.v1.ScraperService.Test',
+    name='Get',
+    full_name='scraper.v1.ScraperService.Get',
     index=0,
     containing_service=None,
-    input_type=_TESTREQUEST,
-    output_type=_TESTRESPONSE,
-    serialized_options=None,
-    create_key=_descriptor._internal_create_key,
-  ),
-  _descriptor.MethodDescriptor(
-    name='Run',
-    full_name='scraper.v1.ScraperService.Run',
-    index=1,
-    containing_service=None,
-    input_type=_RUNREQUEST,
-    output_type=_RUNRESPONSE,
+    input_type=_GETREQUEST,
+    output_type=_GETRESPONSE,
     serialized_options=None,
     create_key=_descriptor._internal_create_key,
   ),

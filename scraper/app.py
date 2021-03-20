@@ -1,6 +1,37 @@
-import asyncio, grpc, os
-from scraper.proto.scraper.v1.scraper_pb2_grpc import add_ScraperServiceServicer_to_server
-from scraper.monitor.run import ScraperService
+import asyncio, grpc, os, requests
+from scraper.proto.scraper.v1.scraper_pb2 import GetResponse, GetRequest
+from scraper.proto.scraper.v1.scraper_pb2_grpc import add_ScraperServiceServicer_to_server, ScraperServiceServicer
+from requests_html import HTMLSession
+
+class ScraperService(ScraperServiceServicer):
+  def Get(self, request, context):
+    getResponse = GetResponse()
+    try:
+      proxies = {
+        'http': request.proxy,
+        'https': request.proxy
+      }
+      if request.isHtml:
+        session = HTMLSession()    
+        r = session.get(request.url, proxies=proxies, timeout=10)
+        if r.status_code == 200:
+          getResponse.content = r.html.html
+          getResponse.success = True
+        else:
+          getResponse.success = False
+      else:
+        r = requests.get(request.url, proxies=proxies, timeout=10)
+        if r.status_code == 200:
+          getResponse.content = r.text
+          getResponse.success = True
+        else:
+          getResponse.success = False
+      return getResponse
+    except Exception as e:
+      print('Exception: ' + str(e))
+      getResponse.success = False
+      getResponse.error = str(e)
+      return getResponse
 
 async def serve():
   server = grpc.aio.server()
