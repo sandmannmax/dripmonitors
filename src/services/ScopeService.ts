@@ -1,7 +1,6 @@
 import { Service } from 'typedi';
 import { IResult } from '../types/IResult';
 import config from '../config';
-import fetch from 'node-fetch';
 import { User } from '../types/User';
 
 @Service()
