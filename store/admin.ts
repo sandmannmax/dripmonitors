@@ -21,27 +21,18 @@ export const adminModule = {
         return response.message;
       return '';
     },
-    async updateMonitorpageVisible({ commit }, { monitorpageId, visible, auth }) {
-      let url = config.api_url + '/admin/monitorpage/' + monitorpageId;
-      let response = await patchRequest({ url, data: { visible }, auth });
+    async addMonitorpage({ commit }, { name, functionName, cc, auth }) {
+      let url = config.api_url + '/admin/monitorpage';
+      let response = await postRequest({ url, data: { name, functionName, cc }, auth });
       if (response && response.data && response.data.monitorpage)
-        commit('updateMonitorpage', response.data.monitorpage);
+        commit('addMonitorpage', response.data.monitorpage);
       if (response && response.message)
         return response.message;
       return '';
     },
-    async updateMonitorpageIsHtml({ commit }, { monitorpageId, isHtml, auth }) {
+    async updateMonitorpage({ commit }, { monitorpageId, name, cc, functionName, visible, isHtml, auth }) {
       let url = config.api_url + '/admin/monitorpage/' + monitorpageId;
-      let response = await patchRequest({ url, data: { isHtml }, auth });
-      if (response && response.data && response.data.monitorpage)
-        commit('updateMonitorpage', response.data.monitorpage);
-      if (response && response.message)
-        return response.message;
-      return '';
-    },
-    async updateMonitorpageFunc({ commit }, { monitorpageId, func, auth }) {
-      let url = config.api_url + '/admin/monitorpage/' + monitorpageId;
-      let response = await patchRequest({ url, data: { func }, auth });
+      let response = await patchRequest({ url, data: { name, cc, functionName, visible, isHtml }, auth });
       if (response && response.data && response.data.monitorpage)
         commit('updateMonitorpage', response.data.monitorpage);
       if (response && response.message)
@@ -66,11 +57,9 @@ export const adminModule = {
         return response.message;
       return '';
     },
-    async testMonitorpage({ commit }, { monitorpageId, func, auth }) {
+    async testMonitorpage({ commit }, { monitorpageId, reload, auth }) {
       let url = config.api_url + '/admin/monitorpage/' + monitorpageId + '/test';
-      let response = await postRequest({ url, data: { reloadContent: false, func }, auth });
-      if (response && response.data)
-        return response.data;
+      let response = await postRequest({ url, data: { reloadContent: reload }, auth });
       if (response && response.message)
         return response.message;
       return '';
@@ -133,6 +122,9 @@ export const adminModule = {
   mutations: {
     setMonitorpages: (state: any, monitorpages) => {
       state.monitorpages = monitorpages;
+    },
+    addMonitorpage: (state: any, monitorpage) => {
+      state.monitorpages = [...state.monitorpages, monitorpage];
     },
     updateMonitorpage: (state: any, monitorpage) => {
       let monitorpages = state.monitorpages;

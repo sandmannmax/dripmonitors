@@ -4,5 +4,5 @@
   "audience": "https://api.lazyshoebot.com",
   "serverUrl": "https://api.lazyshoebot.com",
   "callback": "/logged-in",
-  "logoutRedirectUri": "http://localhost:2999"
+  "logoutRedirectUri": "https://app.lazyshoebot.com"
 }

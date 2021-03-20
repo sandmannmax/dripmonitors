@@ -15,16 +15,6 @@
         <Monitor v-for="monitor in monitors" v-bind:key="monitor.id" v-bind:monitor="monitor"/>
       </div>    
     </div>
-    <div class="md:px-12 px-4 pb-4 flex flex-col" v-if="$auth.loggedIn && scope == 'none'">
-      <div class="flex flex-row items-center space-x-3">
-        <h1 class="md:text-4xl text-3xl font-semibold">Become Beta-Access Tester</h1>
-      </div>    
-      <div class="text-lg flex flex-col">
-        <p>The LazyShoeBot Monitor is still in Beta-Phase an you can becoma a Beta-Tester for free!</p>
-        <button class="bg-primary hover:bg-secondary transition-colors duration-150 text-white rounded-full p-1 px-2 mx-auto mt-4" @click="becomeBeta">Become Beta-Tester</button>
-        <div class="text-red-500 text-center">{{ error }}</div> 
-      </div>
-    </div>
   </div>
 </template>
 
