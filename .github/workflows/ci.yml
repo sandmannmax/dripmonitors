@@ -34,5 +34,5 @@ jobs:
       env:
         ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
       run: |
-        docker build -t $ECR_REGISTRY/lsb-api:latest -f Dockerfile.prod .
-        docker push $ECR_REGISTRY/lsb-api:latest
+        docker build -t $ECR_REGISTRY/lsb-api:$CI_COMMIT_TAG -f Dockerfile.prod .
+        docker push $ECR_REGISTRY/lsb-api:$CI_COMMIT_TAG
