@@ -321,8 +321,13 @@ export class RunService {
           await new Promise<void>((resolve, reject) => {
             try {
               setTimeout(async () => {
-                contents.push({ id: urls[i].id, content: await this.scraperClientService.Get({ url: urls[i].url, proxy, isHtml: urls[i].isHtml }) });
-                resolve();
+                try {
+                  let content = await this.scraperClientService.Get({ url: urls[i].url, proxy, isHtml: urls[i].isHtml });
+                  contents.push({ id: urls[i].id, content });
+                  resolve();
+                } catch(e) {
+                  reject(e);
+                }
               }, 500);
             } catch (e) {
               reject(e);
