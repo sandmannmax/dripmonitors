@@ -1,8 +1,6 @@
-import { DatabaseProvider } from '../provider/DatabaseProvider';
-import { Sequelize, DataTypes, Model, Optional, Association, HasManyGetAssociationsMixin, HasManyAddAssociationMixin, HasManyCreateAssociationMixin, UUIDV4 } from 'sequelize';
+import { Sequelize, DataTypes, Model, Optional, Association, HasManyGetAssociationsMixin, HasManyCreateAssociationMixin, UUIDV4 } from 'sequelize';
 import { Container } from 'typedi';
 import { Role } from './Role';
-import { Monitorrun } from './Monitorrun';
 import { Monitorsource } from './Monitorsource';
 
 interface MonitorAttributes {

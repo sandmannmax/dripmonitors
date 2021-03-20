@@ -1,5 +1,4 @@
 import { Monitorpage } from "../models/Monitorpage";
-import {  GetMonitorpageconfig_O, Monitorpageconfig_O } from "./Monitorpageconfig";
 import { GetUrls_O, Url_O } from "./Url";
 
 export class Monitorpage_O {

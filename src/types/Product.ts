@@ -1,5 +1,4 @@
 import { Product } from "../models/Product";
-import { GetMonitorpage_O, Monitorpage_O } from "./Monitorpage";
 
 export class Product_O {
   public id!: string;
