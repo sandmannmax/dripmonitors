@@ -11,6 +11,7 @@ import { Setup as RoleSetup } from '../models/Role';
 import { Setup as SizeSetup } from '../models/Size';
 import { Setup as UrlSetup } from '../models/Url';
 import pino from 'pino';
+import { QueueProvider } from '../provider/QueueProvider';
 
 const logger = pino();
 
@@ -38,11 +39,16 @@ export async function DatabaseSetup() {
   MonitorsourceSetupAssociations();
   ProductSetupAssociations();
 
+  const queue = QueueProvider.GetQueue();
   let monitorpages = await Monitorpage.findAll();
   if (monitorpages && monitorpages.length > 0) {
     for (let i = 0; i < monitorpages.length; i++) {
-      if (monitorpages[i].currentRunningState)
+      if (monitorpages[i].currentRunningState) {
         await monitorpages[i].update({ currentRunningState: false });
+      }
+      if (monitorpages[i].running) {
+        await queue.add('monitor', { id: monitorpages[i].id }, { repeat: { every: monitorpages[i].interval * 1000 }, jobId: monitorpages[i].id });
+      }
     }
   }
 }

@@ -3,7 +3,9 @@ import config from '../config';
 import redis from 'redis';
 import Container from 'typedi';
 import { RunService } from '../services/RunService';
-import { Monitorpage } from '../models/Monitorpage';
+import pino from 'pino';
+
+const logger = pino();
 
 export class QueueProvider {
   private static queue: Queue;
@@ -27,11 +29,5 @@ export class QueueProvider {
     QueueProvider.queue.process('monitor', job => {
       runService.Run({ id: job.data.id });
     });
-
-    let monitorpages = await Monitorpage.findAll({ where: { running: true }});
-
-    for (let i = 0; i < monitorpages.length; i++) {
-      await QueueProvider.queue.add('monitor', { id: monitorpages[i].id }, { repeat: { every: monitorpages[i].interval * 1000 }, jobId: monitorpages[i].id });
-    }
   }
 }
