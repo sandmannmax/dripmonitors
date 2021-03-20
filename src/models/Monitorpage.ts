@@ -7,7 +7,7 @@ interface MonitorpageAttributes {
   id: string;
   name: string;
   cc: string;
-  techname: string;
+  functionName: string;
   visible: boolean;
   running: boolean;
   currentRunningState: boolean;
@@ -15,13 +15,13 @@ interface MonitorpageAttributes {
   isHtml: boolean;
 }
 
-interface MonitorpageCreationAttributes extends Optional<MonitorpageAttributes, "id" | "visible" | "running" | "currentRunningState" | "interval" | "isHtml"> {}
+interface MonitorpageCreationAttributes extends Optional<MonitorpageAttributes, "id" | "visible" | "running" | "currentRunningState" | "interval" | "isHtml" | "functionName"> {}
 
 export class Monitorpage extends Model<MonitorpageAttributes, MonitorpageCreationAttributes> implements MonitorpageAttributes {  
   public id!: string;
   public name!: string;
   public cc!: string;
-  public techname!: string;
+  public functionName!: string;
   public visible!: boolean;
   public running!: boolean;
   public currentRunningState!: boolean;
@@ -59,7 +59,7 @@ export function Setup() {
       type: DataTypes.STRING,
       allowNull: false
     },
-    techname: {
+    functionName: {
       type: DataTypes.STRING,
       allowNull: false
     },

@@ -39,7 +39,7 @@ export function Setup() {
       allowNull: false
     },
     productId: {
-      type: DataTypes.UUID,
+      type: DataTypes.STRING,
       allowNull: false
     }
   }, {

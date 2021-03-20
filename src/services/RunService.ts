@@ -9,8 +9,8 @@ import { ProxyService } from './ProxyService';
 import { ProductScraped } from '../types/ProductScraped';
 import { DiscordService } from './DiscordService';
 import { Monitor } from '../models/Monitor';
-import { BucketService } from './BucketService';
-import safeEval from 'notevil';
+import { LambdaService } from './LambdaService';
+import { Proxy } from '../models/Proxy';
 
 @Service()
 export class RunService {
@@ -19,8 +19,8 @@ export class RunService {
   constructor(
     private proxyService: ProxyService,
     private discordService: DiscordService,
-    private bucketService: BucketService,
-    private scraperClientService: ScraperClientService
+    private scraperClientService: ScraperClientService,
+    private lambdaService: LambdaService
   ) {
     this.logger = pino();
   }
@@ -37,26 +37,6 @@ export class RunService {
         monitorpage = await monitorpage.update({ currentRunningState: true });
       else
         return;
-
-      let func = '';
-
-      try {
-        func = await this.bucketService.Download({ fileName: id + 'script.js'});
-      } catch {}
-
-      if (!func) {  
-        let error = 'No Function defined for this Monitorpage';
-
-        monitorrun.timestampEnd = new Date().getTime();
-        monitorrun.success = false;
-        monitorrun.reason = error;
-        await monitorrun.save();
-
-        loggerChild.error(error)
-  
-        await monitorpage.update({ currentRunningState: false });
-        return;
-      }
 
       let urls = await Url.findAll({ where: { monitorpageId: monitorpage.id }});
 
@@ -93,15 +73,16 @@ export class RunService {
 
       let products: Array<ProductScraped> = [];
 
-      let f = safeEval.Function('content', 'log', 'json', 'Date', func);
+      let oldProducts = await Product.findAll({ where: { monitorpageId: id }});
 
       try {
         for (let i = 0; i < urls.length; i++) {
           let content = await this.scraperClientService.Get({ url: urls[i].url, proxy: proxy.address, isHtml: monitorpage.isHtml });
 
-          let productsScraped = f(content, (text: string) => {}, JSON.parse, Date);
-  
-          products.push(...productsScraped);
+          let productsScraped = await this.RunFunction({ functionName: monitorpage.functionName, content, oldProducts, proxy: proxy.address });
+
+          if (productsScraped)  
+            products.push(...productsScraped);
         }
       } catch (e) {
         loggerChild.error(e);
@@ -131,11 +112,6 @@ export class RunService {
 
         if (oldProduct == null) { // New Product
   
-          // if (monitorpage.techname === 'supreme')
-          //   product = await SupremeMonitor.ComplementProduct({ product, proxy });
-
-          // TODO: Wie complement product?
-  
           if (product) {
             let newProduct = ProductScraped.CreateProduct(product);
             newProduct.save();
@@ -156,11 +132,6 @@ export class RunService {
             }
           }        
         } else { // Product already in DB
-          if (monitorpage.techname === 'supreme') {
-            product.name = oldProduct.name;
-            product.price = oldProduct.price!;
-          }
-  
           if (product.active && !product.soldOut) { // If active and not sold out then
   
             if (!oldProduct.active || oldProduct.soldOut) { // If the old Product was inactive or soldout send all and update
@@ -319,6 +290,67 @@ export class RunService {
         // TODO: Exit Process?
       }
     }    
+  }
+
+  public async RunFunction({ functionName, content, oldProducts, proxy }: { functionName: string, content: string, oldProducts: Product[], proxy: string }): Promise<undefined | ProductScraped[]> {
+    let payload = { content, oldProducts };
+
+    let result = await this.lambdaService.Run({
+      functionName: functionName,
+      payload
+    });
+
+    if (!result.Payload) {
+      this.logger.error(`No Payload returned from ${functionName}`);
+      return;
+    }
+
+    let responsePayload = JSON.parse(result.Payload.toString());
+
+    if (responsePayload.success) {
+      let products = JSON.parse(responsePayload.products)
+
+      if (responsePayload.finished)
+        return products;
+
+      let urls = JSON.parse(responsePayload.urls);
+      let contents: any[] = [];
+
+      for (let i = 0; i < urls.length; i++) {
+        await new Promise<void>((resolve, reject) => {
+          try {
+            setTimeout(async () => {
+              contents.push({ id: urls[i].id, content: await this.scraperClientService.Get({ url: urls[i].url, proxy, isHtml: urls[i].isHtml }) });
+              resolve();
+            }, 500);
+          } catch (e) {
+            reject(e);
+          }
+        });
+      }
+
+      let payload = { contents, products, complement: true };
+
+      let result = await this.lambdaService.Run({
+        functionName: functionName,
+        payload
+      });
+
+      if (!result.Payload) {
+        this.logger.error(`No Payload returned from ${functionName}`);
+        return;
+      }
+
+      responsePayload = JSON.parse(result.Payload.toString());
+
+      if (responsePayload.success) {
+        return JSON.parse(responsePayload.products)
+      } else {
+        this.logger.info('Error from Lambda: ' + responsePayload.error);
+      }
+    } else {
+      this.logger.info('Error from Lambda: ' + responsePayload.error);
+    }
   }
 
   private async UpdateProduct({ product, oldProduct }: { product: ProductScraped, oldProduct: Product }): Promise<Product> {

@@ -24,8 +24,8 @@ export class AdminRoutes {
     });
 
     this.router.post('/monitorpage', async (req, res, next) => {
-      let { techname, name, cc } = req.body;
-      let result = await this.adminService.CreateMonitorpage({ techname, name, cc });
+      let { functionName, name, cc } = req.body;
+      let result = await this.adminService.CreateMonitorpage({ functionName, name, cc });
       if (result.success)
         res.json(result.data);
       else if (result.error)
@@ -38,8 +38,8 @@ export class AdminRoutes {
     
     this.router.patch('/monitorpage/:id', async (req, res, next) => {
       let id = req.params.id;
-      let { techname, name, visible, cc, isHtml, func } = req.body;
-      let result = await this.adminService.UpdateMonitorpage({ id, techname, name, visible, cc, isHtml, func });
+      let { functionName, name, visible, cc, isHtml, func } = req.body;
+      let result = await this.adminService.UpdateMonitorpage({ id, functionName, name, visible, cc, isHtml, func });
       if (result.success)
         res.json(result.data);
       else if (result.error)
@@ -148,8 +148,8 @@ export class AdminRoutes {
 
     this.router.post('/monitorpage/:id/test', async (req, res, next) => {
       let id = req.params.id;
-      let { func, reloadContent } = req.body;
-      let result = await this.adminService.TestMonitorpage({ id, func, reloadContent });
+      let { reloadContent } = req.body;
+      let result = await this.adminService.TestMonitorpage({ id, reloadContent });
       if (result.success)
         res.json(result.data);
       else if (result.error)

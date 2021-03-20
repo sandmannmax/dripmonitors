@@ -47,7 +47,8 @@ export class DiscordService {
   }
 
   async SendMessage({ monitors, product, size, page }: {monitors: Array<Monitor>, product: ProductScraped, size: string, page: string}) {
-    monitors.forEach(monitor => {
+    for (let i = 0; i < monitors.length; i++) {
+      let monitor = monitors[i];
       try {
         if (!monitor.botName)
           monitor.botName = 'Lazy Monitor';
@@ -71,9 +72,11 @@ export class DiscordService {
           description += `\n**Size:** ${size}`;
 
         let message;
-        
-        if (monitor.roles)
-          message = monitor.roles.map(o => "<@&" + o.roleId + ">").join(' ');
+
+        let roles = await monitor.getRoles();
+
+        if (roles)
+          message = roles.map(o => "<@&" + o.roleId + ">").join(' ');
 
         let embed: MessageEmbed = new MessageEmbed()
           .setColor(colors[index])
@@ -96,6 +99,6 @@ export class DiscordService {
       } catch (error) {
         this.logger.error(`Error in DiscordService with ${monitor.id} ${product.id}: ${JSON.stringify(error)}`);
       }
-    });    
+    }  
   }
 }
