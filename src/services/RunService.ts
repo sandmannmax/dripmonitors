@@ -318,21 +318,8 @@ export class RunService {
 
       for (let i = 0; i < urls.length; i++) {
         try {
-          await new Promise<void>((resolve, reject) => {
-            try {
-              setTimeout(async () => {
-                try {
-                  let content = await this.scraperClientService.Get({ url: urls[i].url, proxy, isHtml: urls[i].isHtml });
-                  contents.push({ id: urls[i].id, content });
-                  resolve();
-                } catch(e) {
-                  reject(e);
-                }
-              }, 500);
-            } catch (e) {
-              reject(e);
-            }
-          });
+          let content = await this.scraperClientService.Get({ url: urls[i].url, proxy, isHtml: urls[i].isHtml });
+          contents.push({ id: urls[i].id, content });
         } catch(e) {
           this.logger.error('Error while getting Content: ' + e.message);
         }        
