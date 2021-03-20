@@ -317,16 +317,20 @@ export class RunService {
       let contents: any[] = [];
 
       for (let i = 0; i < urls.length; i++) {
-        await new Promise<void>((resolve, reject) => {
-          try {
-            setTimeout(async () => {
-              contents.push({ id: urls[i].id, content: await this.scraperClientService.Get({ url: urls[i].url, proxy, isHtml: urls[i].isHtml }) });
-              resolve();
-            }, 500);
-          } catch (e) {
-            reject(e);
-          }
-        });
+        try {
+          await new Promise<void>((resolve, reject) => {
+            try {
+              setTimeout(async () => {
+                contents.push({ id: urls[i].id, content: await this.scraperClientService.Get({ url: urls[i].url, proxy, isHtml: urls[i].isHtml }) });
+                resolve();
+              }, 500);
+            } catch (e) {
+              reject(e);
+            }
+          });
+        } catch(e) {
+          this.logger.error('Error while getting Content: ' + e.message);
+        }        
       }
 
       let payload = { contents, products, complement: true };
