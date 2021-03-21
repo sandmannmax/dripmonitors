@@ -96,8 +96,6 @@ export class RunService {
         monitorrun.success = false;
         monitorrun.reason = error;
         await monitorrun.save();
-
-        loggerChild.error(error);
   
         await monitorpage.update({ currentRunningState: false });
         return;
