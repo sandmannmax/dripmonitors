@@ -5,8 +5,8 @@ import { IResult } from '../types/IResult';
 import { GetMonitors_O, GetMonitor_O } from '../types/Monitor';
 import { DiscordService } from './DiscordService';
 import { GetMonitorsources_O, GetMonitorsource_O } from '../types/Monitorsource';
-import { GetProducts_O, GetProduct_O } from '../types/Product';
-import { GetMonitorpages_O, GetMonitorpage_O } from '../types/Monitorpage';
+import { GetProducts_O } from '../types/Product';
+import { GetMonitorpages_O } from '../types/Monitorpage';
 import { User } from '../types/User';
 import { Sequelize } from 'sequelize';
 import { Monitorsource } from '../models/Monitorsource';
@@ -30,7 +30,8 @@ export class MonitorService {
       if (!user)
         return {success: false, error: {status: 500, message: 'Unexpected Server Error', internalMessage: `MonitorService.GetMonitor: User empty`}};   
 
-      let userId = user.sub.split('|')[1];
+      let userIdParts = user.sub.split('|');
+      let userId = userIdParts[userIdParts.length - 1];
 
       let monitors = await Monitor.findAll({ where: { userId }});
 
@@ -58,7 +59,9 @@ export class MonitorService {
       //     maxNum = num;
       // }
 
-      let userId = user.sub.split('|')[1];
+      let userIdParts = user.sub.split('|');
+      let userId = userIdParts[userIdParts.length - 1];
+
       let monitors = await Monitor.findAll({ where: { userId }});
       
       if (maxNum <= monitors.length)
@@ -82,7 +85,8 @@ export class MonitorService {
 
       let monitor = await Monitor.findByPk(id);
 
-      let userId = user.sub.split('|')[1];
+      let userIdParts = user.sub.split('|');
+      let userId = userIdParts[userIdParts.length - 1];
 
       if (!monitor)
         return {success: false, error: {status: 404, message: 'Monitor is not existing.'}};
@@ -120,7 +124,8 @@ export class MonitorService {
       if (!id)
         return {success: false, error: {status: 400, message: '\'id\' is missing'}};  
 
-      let userId = user.sub.split('|')[1];  
+      let userIdParts = user.sub.split('|');
+      let userId = userIdParts[userIdParts.length - 1]; 
 
       let monitor = await Monitor.findOne({ where: { id, userId }});
 
@@ -159,7 +164,8 @@ export class MonitorService {
       if (!user)
         return {success: false, error: {status: 500, message: 'Unexpected Server Error', internalMessage: `MonitorService.GetMonitor: User empty`}};
 
-      let userId = user.sub.split('|')[1];
+      let userIdParts = user.sub.split('|');
+      let userId = userIdParts[userIdParts.length - 1];
 
       let monitor = await Monitor.findOne({ where: { id, userId }});
 
@@ -188,7 +194,8 @@ export class MonitorService {
       if (!roleId)
         return {success: false, error: {status: 400, message: '\'roleId\' is missing'}};
 
-      let userId = user.sub.split('|')[1];
+      let userIdParts = user.sub.split('|');
+      let userId = userIdParts[userIdParts.length - 1];
 
       let monitor = await Monitor.findOne({ where: { id, userId }});
 
@@ -214,7 +221,8 @@ export class MonitorService {
       if (!roleId)
         return {success: false, error: {status: 400, message: '\'roleId\' is missing'}};    
 
-      let userId = user.sub.split('|')[1];
+      let userIdParts = user.sub.split('|');
+      let userId = userIdParts[userIdParts.length - 1];
 
       let monitor = await Monitor.findOne({ where: { id, userId }});
 
@@ -239,7 +247,8 @@ export class MonitorService {
       if (!user)
         return {success: false, error: {status: 500, message: 'Unexpected Server Error', internalMessage: `MonitorService.CreateMonitor: User empty`}}; 
 
-      let userId = user.sub.split('|')[1];  
+      let userIdParts = user.sub.split('|');
+      let userId = userIdParts[userIdParts.length - 1];
 
       let monitor = await Monitor.findOne({ where: { id, userId }});
 
@@ -267,7 +276,8 @@ export class MonitorService {
       if (!monitorId)
         return {success: false, error: {status: 400, message: '\'monitorId\' is missing'}};   
 
-      let userId = user.sub.split('|')[1]; 
+      let userIdParts = user.sub.split('|');
+      let userId = userIdParts[userIdParts.length - 1];
 
       let monitor = await Monitor.findOne({ where: { id: monitorId, userId }});
 
@@ -304,7 +314,8 @@ export class MonitorService {
       if (!monitorId)
         return {success: false, error: {status: 400, message: '\'monitorId\' is missing'}}; 
 
-      let userId = user['sub'].split('|')[1];  
+      let userIdParts = user.sub.split('|');
+      let userId = userIdParts[userIdParts.length - 1]; 
 
       let monitor = await Monitor.findOne({ where: { id: monitorId, userId }});
 
@@ -349,7 +360,8 @@ export class MonitorService {
       if (!monitorId)
         return {success: false, error: {status: 400, message: '\'monitorId\' is missing'}};    
 
-      let userId = user['sub'].split('|')[1];
+      let userIdParts = user.sub.split('|');
+      let userId = userIdParts[userIdParts.length - 1];
 
       let monitor = await Monitor.findOne({ where: { id: monitorId, userId }});  
 
@@ -377,7 +389,8 @@ export class MonitorService {
       if (!id)
         return {success: false, error: {status: 400, message: '\'id\' is missing'}};  
 
-      let userId = user['sub'].split('|')[1];
+      let userIdParts = user.sub.split('|');
+      let userId = userIdParts[userIdParts.length - 1];
 
       let monitor = await Monitor.findOne({ where: { id, userId }});
 

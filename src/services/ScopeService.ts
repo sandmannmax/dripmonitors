@@ -2,6 +2,7 @@ import { Service } from 'typedi';
 import { IResult } from '../types/IResult';
 import config from '../config';
 import { User } from '../types/User';
+import fetch from 'node-fetch';
 
 @Service()
 export class ScopeService {
@@ -35,6 +36,8 @@ export class ScopeService {
       let userId = user['sub'];
       let roles = ['rol_FA3z8bec05C0JsV8'];
 
+      console.log(userId)
+
       let response;
       let body = {            
         client_id: config.auth0_client_id,
@@ -53,7 +56,7 @@ export class ScopeService {
           body: JSON.stringify(body)
         });
       } catch (error) {
-        return {success: false, error: {status: 500, message: 'Unexpected Server Error', internalMessage: `Error in ScopeService.SetScope: Cant get accessToken from Auth0 API (${error.message} - ${error.response.status})`}};
+        return {success: false, error: {status: 500, message: 'Unexpected Server Error', internalMessage: `Error in ScopeService.SetScope: Cant get accessToken from Auth0 API (${error.message} - ${error.response})`}};
       }
 
       let json = await response.json();
