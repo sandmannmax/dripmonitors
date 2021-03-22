@@ -53,7 +53,7 @@ export class ScopeService {
           body: JSON.stringify(body)
         });
       } catch (error) {
-        return {success: false, error: {status: 500, message: 'Unexpected Server Error', internalMessage: `Error in ScopeService.SetScope: Cant get accessToken from Auth0 API (${JSON.stringify(error)})`}};
+        return {success: false, error: {status: 500, message: 'Unexpected Server Error', internalMessage: `Error in ScopeService.SetScope: Cant get accessToken from Auth0 API (${error.message} - ${error.response.status})`}};
       }
 
       let json = await response.json();
