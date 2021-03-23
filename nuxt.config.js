@@ -44,6 +44,10 @@ export default {
   modules: [
   ],
 
+  router: {
+    middleware: ['redirects'],
+  },
+
   // Build Configuration: https://go.nuxtjs.dev/config-build
   build: {
   }
