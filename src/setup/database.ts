@@ -12,6 +12,7 @@ import { Setup as SizeSetup } from '../models/Size';
 import { Setup as UrlSetup } from '../models/Url';
 import pino from 'pino';
 import { QueueProvider } from '../provider/QueueProvider';
+import { Setup as AccesskeySetup } from '../models/Accesskey';
 
 const logger = pino();
 
@@ -32,6 +33,7 @@ export async function DatabaseSetup() {
   RoleSetup();
   SizeSetup();
   UrlSetup();
+  AccesskeySetup();
 
   MonitorSetupAssociations();
   MonitorpageSetupAssociations();

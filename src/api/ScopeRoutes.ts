@@ -27,7 +27,8 @@ export class ScopeRoutes {
 
     this.router.post('/', async (req, res, next) => {
       let user = req['user'];
-      let result = await this.scopeService.SetScope({ user });
+      let { accesskey } = req.body;
+      let result = await this.scopeService.SetScope({ user, accesskey });
       if (result.success)
         res.json(result.data);
       else if (result.error)

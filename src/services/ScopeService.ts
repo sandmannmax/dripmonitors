@@ -3,6 +3,7 @@ import { IResult } from '../types/IResult';
 import config from '../config';
 import { User } from '../types/User';
 import fetch from 'node-fetch';
+import { Accesskey } from '../models/Accesskey';
 
 @Service()
 export class ScopeService {
@@ -28,15 +29,26 @@ export class ScopeService {
     }
   }
 
-  async SetScope({ user }: { user: User }): Promise<IResult> {
+  async SetScope({ user, accesskey }: { user: User, accesskey: string }): Promise<IResult> {
     try {
       if (!user)
-        return {success: false, error: {status: 500, message: 'Unexpected Server Error', internalMessage: `ScopeService.SetScope: User empty`}};    
+        return {success: false, error: {status: 500, message: 'Unexpected Server Error', internalMessage: `ScopeService.SetScope: User empty`}};  
+        
+      if (!accesskey)
+        return {success: false, error: {status: 400, message: '\'accesskey\' is missing'}};
+        
+      let uuid4regex = /^[A-F\d]{8}-[A-F\d]{4}-4[A-F\d]{3}-[89AB][A-F\d]{3}-[A-F\d]{12}$/i;
+
+      if (!uuid4regex.test(accesskey))
+        return {success: false, error: {status: 400, message: '\'accesskey\' is used or invalid'}};
+
+      let accesskeyObject = await Accesskey.findByPk(accesskey);
+
+      if (!accesskeyObject || accesskeyObject.used)
+        return {success: false, error: {status: 400, message: '\'accesskey\' is used or invalid'}};
 
       let userId = user['sub'];
       let roles = ['rol_FA3z8bec05C0JsV8'];
-
-      console.log(userId)
 
       let response;
       let body = {            
@@ -75,12 +87,13 @@ export class ScopeService {
       } catch (error) {
         return {success: false, error: {status: 500, message: 'Unexpected Server Error', internalMessage: `Error in ScopeService.SetScope: Cant set scope (error: ${JSON.stringify(error)})`}};
       }
-      
-      if (response.status === 204)
-        return {success: true, data: { message: 'Set Scope to Beta-Tester' }};
-      else {
+
+      if (response.status !== 204) {
         return {success: false, error: {status: 500, message: 'Unexpected Server Error', internalMessage: `Error in ScopeService.SetScope: Cant set scope (response: ${JSON.stringify(await response.json())})`}};
       }
+      
+      await accesskeyObject.update({ used: true });
+      return {success: true, data: { message: 'Set Scope to Beta-Tester' }};
     } catch (error) {
       return {success: false, error: {status: 500, message: 'Unexpected Server Error', internalMessage: error}};
     }
