@@ -6,13 +6,6 @@ export default function (req) {
     }
     else
       req.redirect('/');
-  } else if (req.route.path == '/signup') {
-    if (!req.$auth.loggedIn) {
-      req.redirect(req.from.path);
-      req.$auth.loginWith('auth0', { params: { screen_hint: 'signup' }});
-    }
-    else
-      req.redirect('/');
   } else if (req.route.path == '/logout') {
     if (req.$auth.loggedIn) {
       req.redirect(req.from.path);

@@ -19,9 +19,9 @@ export const userModule = {
         return response.message;
       return '';
     },
-    async setBetaScope({ commit }, { auth }) {
+    async setBetaScope({ commit }, { accesskey, auth }) {
       let url = config.api_url + '/scope';
-      let response = await postRequest({ url, data: null, auth });
+      let response = await postRequest({ url, data: { accesskey }, auth });
       if (response && response.data)
         commit('setScope', 'ct2');
       if (response && response.message)

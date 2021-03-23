@@ -23,8 +23,11 @@
           <h1 class="md:text-3xl text-2xl font-semibold">Become Beta-Access Tester</h1>
         </div>    
         <div class="text-lg flex flex-col">
-          <p>The LazyShoeBot Monitor is still in Beta-Phase and you can becoma a Beta-Tester for free!</p>
-          <button class="bg-primary hover:bg-secondary transition-colors duration-150 text-white rounded-full p-1 px-2 mx-auto mt-4" @click="becomeBeta">Become Beta-Tester</button>
+          <p>The LazyShoeBot Monitor is still in Beta-Phase and you can becoma a Beta-Tester for free! Join our <a class="text-blue-400 hover:text-blue-500 transition-colors duration-150" href="https://www.lazyshoebot.com/discord" target="blank">Discord Server</a> and claim your Accesskey!</p>
+          <div class="flex sm:flex-row flex-col mt-2 justify-center items-center sm:space-x-4 space-x-0 sm:space-y-0 space-y-2">
+            <input type="text" class="border-2 p-1 rounded-lg sm:w-64 text-center" v-model="accesskey" placeholder="Accesskey">
+            <button class="bg-primary hover:bg-secondary transition-colors duration-150 text-white rounded-lg px-2 py-1" @click="becomeBeta">Become Beta-Tester</button>
+          </div>
           <div class="text-red-500 text-center">{{ error }}</div> 
         </div>
       </div>
@@ -54,6 +57,8 @@ export default class Index extends Vue {
   @monitorModule.Action getMonitors;
   @monitorModule.Getter monitors;
 
+  accesskey = '';
+
   get runningMonitors() {
     return this.monitors.filter(monitor => monitor.running == true);
   }
@@ -79,7 +84,7 @@ export default class Index extends Vue {
   }
 
   async becomeBeta() {
-    this.error = await this.setBetaScope({ auth: this.$auth });
+    this.error = await this.setBetaScope({ accesskey: this.accesskey, auth: this.$auth });
     if (this.error === '') {
       this.$router.push('/logout');
     } else

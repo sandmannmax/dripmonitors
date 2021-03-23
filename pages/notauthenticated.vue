@@ -1,12 +1,9 @@
 <template>
   <div class="min-h-screen bg-secondary flex flex-col justify-center items-center">
-    <img class="h-32 w-32" src="/logo.png"/>
+    <img class="h-32 w-32 mb-4" src="/logo.png"/>
     <div v-if="!$auth.loggedIn">
-      <div class="flex flex-col sm:flex-row space-y-4 sm:space-y-0 space-x-0 sm:space-x-4 text-xl mt-4" v-if="apiState == 'online'">
-        <nuxt-link class="bg-primary text-white rounded py-2 px-4 w-32 text-center" to="/login">Login</nuxt-link>
-        <nuxt-link class="bg-primary text-white rounded py-2 px-4 w-32 text-center" to="/signup">Sign-Up</nuxt-link>
-      </div>
-      <div class="flex flex-col sm:flex-row space-y-4 sm:space-y-0 space-x-0 sm:space-x-4 text-xl mt-4 text-white" v-else>
+      <nuxt-link class="bg-primary text-white rounded px-4 py-3 text-center text-xl" to="/login" v-if="apiState == 'online'">Login</nuxt-link>
+      <div class="flex flex-col sm:flex-row space-y-4 sm:space-y-0 space-x-0 sm:space-x-4 text-xl text-white" v-else>
         API is offline, please try again later.
       </div>
     </div>
