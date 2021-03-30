@@ -42,7 +42,7 @@ export class DiscordService {
       if (roles)
         message += "\n" + roles.map(o => "<@&" + o.roleId + ">").join(' ');
 
-      this.webhookClient.send(message, {
+      await this.webhookClient.send(message, {
         username: monitor.botName,
         avatarURL: monitor.botImage
       });
@@ -103,7 +103,7 @@ export class DiscordService {
         if (product.href)
           embed.setURL(product.href);
         
-        webhookClient.send(message, {
+        await webhookClient.send(message, {
           embeds: [embed],
           username: monitor.botName,
           avatarURL: monitor.botImage
