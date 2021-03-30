@@ -94,9 +94,22 @@ export class MonitorService {
       if (monitor.userId != userId)
         return {success: false, error: {status: 404, message: 'Monitor is not existing.'}};
 
+      let hasWebhookError = false;
+
       if (webHook || botName != undefined || botImage != undefined || running != undefined) {
         if (!webHook && monitor.webHook)
           webHook = monitor.webHook;
+        else if (webHook) {
+          let regex = new RegExp(/https?:\/\/\)?((canary|ptb)\.)?discord(app)?\.com\/api\/webhooks\/[0-9]+\/[A-Za-z0-9\.\-\_]+\/?$/);
+
+          if (!regex.test(webHook)) {
+            hasWebhookError = true;
+            if (monitor.webHook)
+              webHook = monitor.webHook;
+            else
+              webHook = '';
+          }
+        }
 
         if (botName == undefined && monitor.botName)
           botName = monitor.botName;
@@ -109,6 +122,9 @@ export class MonitorService {
 
         monitor = await monitor.update({ webHook, botName, botImage, running });
       }
+
+      if (hasWebhookError)
+        return {success: false, error: {status: 404, message: 'Monitor Webhook is invalid'}};
       
       return {success: true, data: {monitor: await GetMonitor_O(monitor)}};
     } catch (error) {

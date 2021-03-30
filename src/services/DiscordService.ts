@@ -27,6 +27,12 @@ export class DiscordService {
       let strings = monitor.webHook!.split('/');
       let id = strings[strings.length-2];
       let token = strings[strings.length-1];
+
+      if (token.indexOf('?') != -1) {
+        strings = token.split('?');
+        token = strings[0];
+      }
+
       this.webhookClient = new WebhookClient(id, token);
 
       let message = 'Hello there!';
@@ -56,11 +62,17 @@ export class DiscordService {
         let regex = new RegExp('(https?:\/\/(?:www\.|(?!www))[a-zA-Z0-9][a-zA-Z0-9-]+[a-zA-Z0-9]\.[^\s]{2,}|www\.[a-zA-Z0-9][a-zA-Z0-9-]+[a-zA-Z0-9]\.[^\s]{2,}|https?:\/\/(?:www\.|(?!www))[a-zA-Z0-9]+\.[^\s]{2,}|www\.[a-zA-Z0-9]+\.[^\s]{2,})')
 
         if (!monitor.botImage || !regex.test(monitor.botImage))
-        monitor.botImage = 'https://lazyshoebot.com/logoWide.png';
+          monitor.botImage = 'https://lazyshoebot.com/logoWide.png';
   
         let webHookStrings = monitor.webHook!.split('/');
         let id = webHookStrings[webHookStrings.length-2];
         let token = webHookStrings[webHookStrings.length-1];
+
+        if (token.indexOf('?') != -1) {
+          webHookStrings = token.split('?');
+          token = webHookStrings[0];
+        }
+
         let webhookClient = new WebhookClient(id, token);
   
         let colors = ['#0099ff', '#aaee99', '#aaee77', '#d0d000'];
