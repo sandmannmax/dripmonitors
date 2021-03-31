@@ -1,16 +1,19 @@
 import fetch, { Response } from 'node-fetch';
+import { HttpsProxyAgent } from 'https-proxy-agent';
 import { Product } from '../types/Product';
 import { GetRandomUserAgent } from '../provider/RandomUserAgentProvider';
 import { logger } from '../logger';
-import { HttpsProxyAgent } from 'https-proxy-agent';
-import { Proxy } from '../types/Proxy'
+import { Proxy } from '../types/Proxy';
 
 export class AfewMonitor {
-
-  public static GetProducts = async function ({ proxy }: { proxy: Proxy }): Promise<Array<Product>> {
-    let items: Array<Product> = [];
+  public static GetProducts = async function ({
+    proxy,
+  }: {
+    proxy: Proxy;
+  }): Promise<Array<Product> | null> {
+    const items: Array<Product> = [];
     for (let page = 1; page < 7; page++) {
-      let url = `https://afew-store.com/collections/sneakers/products.json?page=${page}`
+      const url = `https://afew-store.com/collections/sneakers/products.json?page=${page}`;
       let response: Response;
       const controller = new AbortController();
       const timeout = setTimeout(() => controller.abort(), 10000);
@@ -19,9 +22,9 @@ export class AfewMonitor {
           method: 'GET',
           agent: new HttpsProxyAgent(proxy.address),
           headers: {
-            'User-Agent': GetRandomUserAgent()
+            'User-Agent': GetRandomUserAgent(),
           },
-          signal: controller.signal
+          signal: controller.signal,
         });
         clearTimeout(timeout);
       } catch (e) {
@@ -31,19 +34,19 @@ export class AfewMonitor {
 
       if (!response.ok) {
         if (response.status != 403) {
-          logger.error('Error in AfewMonitor.GetProducts() - Request to Afew failed with status code ' + response.status + ' - ' + response.statusText + '; Proxy: ' + proxy.address);
+          logger.error(`Error in AfewMonitor.GetProducts() - Request to Afew failed with status code ${response.status} - ${response.statusText}; Proxy: ${proxy.address}`);
         }
         return null;
       }
-      
-      let json = await response.json();
+
+      const json = await response.json();
 
       for (let i = 0; i < json.products.length; i++) {
         try {
-          let product = new Product();
-          let item = json.products[i];
-    
-          product.id = item.id.toString() + 'afew';
+          const product = new Product();
+          const item = json.products[i];
+
+          product.id = `${item.id.toString()}afew`;
           product.name = item.title;
           product.href = `https://afew-store.com/products/${item.handle}`;
           product.sizes = [];
@@ -53,15 +56,15 @@ export class AfewMonitor {
           product.price = '';
           product.hasSizes = true;
 
-          if (item.images.length > 0)
+          if (item.images.length > 0) {
             product.img = item.images[0].src;
-          else
-            product.img = ''
+          } else product.img = '';
 
-          item.variants.forEach(variant => {
-            if (product.price === '')
-              product.price = variant.price + ' EUR';
-            
+          item.variants.forEach((variant) => {
+            if (product.price === '') {
+              product.price = `${variant.price} EUR`;
+            }
+
             product.sizes.push(variant.title);
             product.sizesSoldOut.push(!variant.available);
 
@@ -76,9 +79,8 @@ export class AfewMonitor {
           logger.error('Error in AfewMonitor.GetProducts(): ', e);
         }
       }
-    }    
+    }
 
     return items;
-  }  
-
+  };
 }

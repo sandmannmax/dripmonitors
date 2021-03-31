@@ -1,0 +1,4 @@
+src/proto/scraper/v1/scraper_grpc_pb.js
+src/proto/scraper/v1/scraper_pb.js
+src/proto/monitor/v1/monitor_grpc_pb.js
+src/proto/monitor/v1/monitor_pb.js

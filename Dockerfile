@@ -1,23 +1,9 @@
 FROM node:15.5.1-alpine3.10 AS node
 
-# Api Builder Stage
-
-FROM node AS builder
+RUN apk --no-cache -U upgrade
+WORKDIR mkdir -R /app
 WORKDIR /app
-COPY package*.json ./
+COPY package*.json .
 RUN npm install
 COPY . .
-RUN npm run build
-
-# Final Stage
-
-FROM node AS final
-ENV NODE_ENV production
-RUN mkdir -p /home/node/app/dist && chown -R node:node /home/node/app
-WORKDIR /home/node/app
-RUN npm install -g pm2
-COPY --chown=node:node package*.json process.yml ./
-USER node
-RUN npm install --only=production
-COPY --chown=node:node --from=builder /app/dist ./dist
-ENTRYPOINT ["pm2-runtime", "./process.yml"]
+CMD ["npm", "start"]

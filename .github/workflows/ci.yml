@@ -20,6 +20,10 @@ jobs:
       uses: actions/setup-node@v1
       with:
         node-version: ${{ matrix.node-version }}
+    - name: Get the version
+      id: get_version
+      run: echo ::set-output name=VERSION::${GITHUB_REF/refs\/tags\//}
+    - run: npm install
     - name: Configure AWS Credentials
       uses: aws-actions/configure-aws-credentials@v1
       with:
@@ -29,17 +33,10 @@ jobs:
     - name: Login to AWS ECR
       id: login-ecr
       uses: aws-actions/amazon-ecr-login@v1
-    - name: Docker meta
-      id: docker_meta
-      uses: crazy-max/ghaction-docker-meta@v1
-      env:
-        ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
-      with:
-        images: $ECR_REGISTRY/lsb-monitor
     - name: Build, tag, and push image to Amazon ECR
       env:
         ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
+        IMAGE_TAG_V: ${{ steps.get_version.outputs.VERSION }}
       run: |
-        echo $IMAGE
-        docker build -t $ECR_REGISTRY/lsb-monitor:latest .
-        docker push $ECR_REGISTRY/lsb-monitor:latest
+        docker build -t $ECR_REGISTRY/lsb-monitor:$IMAGE_TAG_V -f Dockerfile.prod .
+        docker push $ECR_REGISTRY/lsb-monitor:$IMAGE_TAG_V

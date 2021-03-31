@@ -1,5 +1,3 @@
-import redisLoader from './loaders/redis';
-import { logger } from './logger';
+import { Start } from './util/setup';
 
-redisLoader();
-logger.info('Monitor started...')
+Start();
