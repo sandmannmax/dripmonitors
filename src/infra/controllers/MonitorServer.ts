@@ -1,24 +1,24 @@
 import { ServerUnaryCall, sendUnaryData } from '@grpc/grpc-js';
-import { GetProductsRequest, GetProductsResponse, AddMonitoredProductRequest, AddMonitoredProductResponse, RemoveMonitoredProductRequest, RemoveMonitoredProductResponse, GetFiltersRequest, GetFiltersResponse, AddFilterRequest, AddFilterResponse, RemoveFilterRequest, RemoveFilterResponse, Product as GrpcProduct, Filter } from '../../proto/monitor/v1/monitor_pb';
-import { ProductsService } from '../../application/services/ProductsService';
-import { FiltersService } from '../../application/services/FiltersService';
+import { GetProductsRequest, GetProductsResponse, ActivateProductMonitoringRequest, ActivateProductMonitoringResponse, DisableProductMonitoringRequest, DisableProductMonitoringResponse, GetFiltersRequest, GetFiltersResponse, AddFilterRequest, AddFilterResponse, RemoveFilterRequest, RemoveFilterResponse, Product as GrpcProduct, Filter } from '../../proto/monitor/v1/monitor_pb';
+import { IProductsService } from '../../application/services/ProductsService';
+import { IFiltersService } from '../../application/services/FiltersService';
 import { ProductRequestDTOToGrpcProduct } from '../mappers/ProductRequestDTOToGrpcProduct';
 import { FilterRequestDTOToGrpcFilter } from '../mappers/FilterRequestDTOToGrpcFilter';
 
 export class MonitorServer {
-  private productsService: ProductsService;
-  private filtersService: FiltersService;
+  private productsService: IProductsService;
+  private filtersService: IFiltersService;
 
-  constructor({ productsService, filtersService }: { productsService: ProductsService, filtersService: FiltersService }) {
+  constructor({ productsService, filtersService }: { productsService: IProductsService, filtersService: IFiltersService }) {
     this.productsService = productsService;
     this.filtersService = filtersService;
   }
   
   async getProducts(call: ServerUnaryCall<GetProductsRequest, GetProductsResponse>, callback: sendUnaryData<GetProductsResponse>): Promise<void> {
     try {
-      let monitorpageName = call.request.getMonitorpageName();
+      let monitorpageId = call.request.getMonitorpageId();
 
-      let products = await this.productsService.getProductsByMonitorpageName({ monitorpageName });
+      let products = await this.productsService.getProductsByMonitorpageId({ monitorpageId });
       let grpcProducts: GrpcProduct[] = ProductRequestDTOToGrpcProduct.MultiMap(products);
 
       let response = new GetProductsResponse();
@@ -30,26 +30,26 @@ export class MonitorServer {
     }
   }
 
-  async addMonitoredProduct(call: ServerUnaryCall<AddMonitoredProductRequest, AddMonitoredProductResponse>, callback: sendUnaryData<AddMonitoredProductResponse>): Promise<void> {
+  async activateProductMonitoring(call: ServerUnaryCall<ActivateProductMonitoringRequest, ActivateProductMonitoringResponse>, callback: sendUnaryData<ActivateProductMonitoringResponse>): Promise<void> {
     try {
       let productId = call.request.getId();
 
-      await this.productsService.addMonitoredProduct({ productId });
+      await this.productsService.activateProductMonitoring({ productId });
 
-      let response = new AddMonitoredProductResponse();
+      let response = new ActivateProductMonitoringResponse();
       callback(null, response);
     } catch (e) {
       callback(e, null);
     }
   }
   
-  async removeMonitoredProduct(call: ServerUnaryCall<RemoveMonitoredProductRequest, RemoveMonitoredProductResponse>, callback: sendUnaryData<RemoveMonitoredProductResponse>): Promise<void> {
+  async disableProductMonitoring(call: ServerUnaryCall<DisableProductMonitoringRequest, DisableProductMonitoringResponse>, callback: sendUnaryData<DisableProductMonitoringResponse>): Promise<void> {
     try {
       let productId = call.request.getId();
 
-      await this.productsService.removeMonitoredProduct({ productId });
+      await this.productsService.disableProductMonitoring({ productId });
       
-      let response = new RemoveMonitoredProductResponse();
+      let response = new DisableProductMonitoringResponse();
       callback(null, response);
     } catch (e) {
       callback(e, null);
@@ -58,9 +58,9 @@ export class MonitorServer {
 
   async getFilters(call: ServerUnaryCall<GetFiltersRequest, GetFiltersResponse>, callback: sendUnaryData<GetFiltersResponse>): Promise<void> {
     try {
-      let monitorpageName = call.request.getMonitorpageName();
+      let monitorpageId = call.request.getMonitorpageId();
 
-      let filters = await this.filtersService.getFiltersByMonitorpageName({ monitorpageName });
+      let filters = await this.filtersService.getFiltersByMonitorpageId({ monitorpageId });
       let grpcFilters: Filter[] = FilterRequestDTOToGrpcFilter.MultiMap(filters);
 
       let response = new GetFiltersResponse();
@@ -75,15 +75,14 @@ export class MonitorServer {
 
   async addFilter(call: ServerUnaryCall<AddFilterRequest, AddFilterResponse>, callback: sendUnaryData<AddFilterResponse>): Promise<void> {
     try {
-      let monitorpageName = call.request.getMonitorpageName();
+      let monitorpageId = call.request.getMonitorpageId();
       let filterValue = call.request.getValue();
 
-      let filter = await this.filtersService.addFilter({ monitorpageName, filterValue });
+      let filter = await this.filtersService.addFilter({ monitorpageId, filterValue });
       let grpcFilter: Filter = FilterRequestDTOToGrpcFilter.Map(filter);
 
       let response = new AddFilterResponse();
       response.setFilter(grpcFilter);
-      response.setMonitorpageName(monitorpageName);
 
       callback(null, response);
     } catch (e) {
@@ -93,10 +92,9 @@ export class MonitorServer {
 
   async removeFilter(call: ServerUnaryCall<RemoveFilterRequest, RemoveFilterResponse>, callback: sendUnaryData<RemoveFilterResponse>): Promise<void> {
     try {
-      let monitorpageName = call.request.getMonitorpageName();
       let filterId = call.request.getId();
 
-      await this.filtersService.deleteFilter({ monitorpageName, filterId });
+      await this.filtersService.deleteFilter({ filterId });
 
       let response = new RemoveFilterResponse();
 

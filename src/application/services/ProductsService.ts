@@ -1,6 +1,12 @@
-import { ProductRequestDTO } from "../dto/ProductRequestDTO";
-import { IProductRepo } from "../interface/IProductRepo";
+import { ProductDTO } from "../dto/ProductDTO";
+import { IProductRepo } from "../../domain/repos/IProductRepo";
 import { ProductMap } from "../mappers/ProductMap";
+
+export interface IProductsService {
+  getProductsByMonitorpageId({ monitorpageId }: { monitorpageId: string }): Promise<ProductDTO[]>;
+  activateProductMonitoring({ productId }: { productId: string }): Promise<void>;
+  disableProductMonitoring({ productId }: { productId: string }): Promise<void>;
+}
 
 export class ProductsService {
   private readonly productRepo: IProductRepo;
@@ -9,10 +15,10 @@ export class ProductsService {
     this.productRepo = productRepo;
   }
 
-  public async getProductsByMonitorpageName({ monitorpageName }: { monitorpageName: string }): Promise<ProductRequestDTO[]> {
-    let products = await this.productRepo.getProductsByMonitorpageName(monitorpageName);
+  public async getProductsByMonitorpageId({ monitorpageId }: { monitorpageId: string }): Promise<ProductDTO[]> {
+    let products = await this.productRepo.getProductsByMonitorpageId(monitorpageId);
 
-    let productsDTO: ProductRequestDTO[] = [];
+    let productsDTO: ProductDTO[] = [];
 
     for (let i = 0; i < products.length; i++) {
       productsDTO.push(ProductMap.toDTO(products[i]));
@@ -21,15 +27,15 @@ export class ProductsService {
     return productsDTO;
   }
 
-  public async addMonitoredProduct({ productId }: { productId: string }): Promise<void> {
+  public async activateProductMonitoring({ productId }: { productId: string }): Promise<void> {
     let product = await this.productRepo.getProductById(productId);
-    product.monitored = true;
+    product.activateMonitoring();
     await this.productRepo.save(product);
   }
 
-  public async removeMonitoredProduct({ productId }: { productId: string }): Promise<void> {
+  public async disableProductMonitoring({ productId }: { productId: string }): Promise<void> {
     let product = await this.productRepo.getProductById(productId);
-    product.monitored = false;
+    product.disableMonitoring();
     await this.productRepo.save(product);
   }
 }

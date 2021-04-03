@@ -1,6 +1,5 @@
-import { ValueObject } from "../base/ValueObject";
-import { Guard } from "../logic/Guard";
-import { Result } from "../logic/Result";
+import { ValueObject } from "../../core/base/ValueObject";
+import { Validator } from "../../core/logic/Validator";
 
 interface SizeProps {
   value: string;
@@ -12,19 +11,13 @@ export class Size extends ValueObject<SizeProps> {
     super(props);
   }
 
-  public static create (props: SizeProps): Result<Size> {
-    const guardResult = Guard.againstNullOrUndefinedBulk([
+  public static create (props: SizeProps): Size {
+    Validator.notNullOrUndefinedBulk([
       { argument: props.value, argumentName: 'value' },
       { argument: props.soldOut, argumentName: 'soldOut' }
     ]);
-
-    if (!guardResult.succeeded) {
-      return Result.fail<Size>(guardResult.message);
-    }
     
-    const size = new Size(props);
-
-    return Result.ok<Size>(size);
+    return new Size(props);
   }
 
   get value(): string { return this.props.value; }

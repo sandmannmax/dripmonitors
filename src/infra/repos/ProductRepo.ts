@@ -1,7 +1,7 @@
 import { RedisClient } from 'redis';
 import { createNodeRedisClient, WrappedNodeRedisClient } from 'handy-redis';
-import { IProductRepo } from '../../application/interface/IProductRepo';
-import { Product } from '../../core/entities/Product';
+import { IProductRepo } from '../../domain/repos/IProductRepo';
+import { Product } from '../../domain/models/Product';
 import { ProductMap } from '../../application/mappers/ProductMap';
 import { RedisRawMap } from '../mappers/RedisRawMap';
 
@@ -12,7 +12,7 @@ export class ProductRepo implements IProductRepo {
     this.redisClient = createNodeRedisClient(redisClient);
   }
 
-  async getProductById(id: string): Promise<Product | null> {
+  async getProductById(id: string): Promise<Product> {
     let product = await this.redisClient.hgetall(`product:${id}`);
     let sizes = await this.redisClient.hgetall(`product:${id}:sizes`);
     let productRaw = RedisRawMap.toRaw(product);
@@ -20,7 +20,7 @@ export class ProductRepo implements IProductRepo {
     return ProductMap.toAggregate(productRaw);
   }
 
-  async getProductsByMonitorpageName(monitorpageName: string): Promise<Product[]> {
+  async getProductsByMonitorpageId(monitorpageId: string): Promise<Product[]> {
     let ids = await this.redisClient.smembers(`product:monitorpage:${monitorpageName}`);
 
     let productPromises: Promise<Product | null>[] = [];

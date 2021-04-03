@@ -10,8 +10,8 @@ import * as monitor_v1_monitor_pb from "../../monitor/v1/monitor_pb";
 
 interface IMonitorServiceService extends grpc.ServiceDefinition<grpc.UntypedServiceImplementation> {
     getProducts: IMonitorServiceService_IGetProducts;
-    addMonitoredProduct: IMonitorServiceService_IAddMonitoredProduct;
-    removeMonitoredProduct: IMonitorServiceService_IRemoveMonitoredProduct;
+    activateProductMonitoring: IMonitorServiceService_IActivateProductMonitoring;
+    disableProductMonitoring: IMonitorServiceService_IDisableProductMonitoring;
     getFilters: IMonitorServiceService_IGetFilters;
     addFilter: IMonitorServiceService_IAddFilter;
     removeFilter: IMonitorServiceService_IRemoveFilter;
@@ -26,23 +26,23 @@ interface IMonitorServiceService_IGetProducts extends grpc.MethodDefinition<moni
     responseSerialize: grpc.serialize<monitor_v1_monitor_pb.GetProductsResponse>;
     responseDeserialize: grpc.deserialize<monitor_v1_monitor_pb.GetProductsResponse>;
 }
-interface IMonitorServiceService_IAddMonitoredProduct extends grpc.MethodDefinition<monitor_v1_monitor_pb.AddMonitoredProductRequest, monitor_v1_monitor_pb.AddMonitoredProductResponse> {
-    path: "/monitor.v1.MonitorService/AddMonitoredProduct";
+interface IMonitorServiceService_IActivateProductMonitoring extends grpc.MethodDefinition<monitor_v1_monitor_pb.ActivateProductMonitoringRequest, monitor_v1_monitor_pb.ActivateProductMonitoringResponse> {
+    path: "/monitor.v1.MonitorService/ActivateProductMonitoring";
     requestStream: false;
     responseStream: false;
-    requestSerialize: grpc.serialize<monitor_v1_monitor_pb.AddMonitoredProductRequest>;
-    requestDeserialize: grpc.deserialize<monitor_v1_monitor_pb.AddMonitoredProductRequest>;
-    responseSerialize: grpc.serialize<monitor_v1_monitor_pb.AddMonitoredProductResponse>;
-    responseDeserialize: grpc.deserialize<monitor_v1_monitor_pb.AddMonitoredProductResponse>;
+    requestSerialize: grpc.serialize<monitor_v1_monitor_pb.ActivateProductMonitoringRequest>;
+    requestDeserialize: grpc.deserialize<monitor_v1_monitor_pb.ActivateProductMonitoringRequest>;
+    responseSerialize: grpc.serialize<monitor_v1_monitor_pb.ActivateProductMonitoringResponse>;
+    responseDeserialize: grpc.deserialize<monitor_v1_monitor_pb.ActivateProductMonitoringResponse>;
 }
-interface IMonitorServiceService_IRemoveMonitoredProduct extends grpc.MethodDefinition<monitor_v1_monitor_pb.RemoveMonitoredProductRequest, monitor_v1_monitor_pb.RemoveMonitoredProductResponse> {
-    path: "/monitor.v1.MonitorService/RemoveMonitoredProduct";
+interface IMonitorServiceService_IDisableProductMonitoring extends grpc.MethodDefinition<monitor_v1_monitor_pb.DisableProductMonitoringRequest, monitor_v1_monitor_pb.DisableProductMonitoringResponse> {
+    path: "/monitor.v1.MonitorService/DisableProductMonitoring";
     requestStream: false;
     responseStream: false;
-    requestSerialize: grpc.serialize<monitor_v1_monitor_pb.RemoveMonitoredProductRequest>;
-    requestDeserialize: grpc.deserialize<monitor_v1_monitor_pb.RemoveMonitoredProductRequest>;
-    responseSerialize: grpc.serialize<monitor_v1_monitor_pb.RemoveMonitoredProductResponse>;
-    responseDeserialize: grpc.deserialize<monitor_v1_monitor_pb.RemoveMonitoredProductResponse>;
+    requestSerialize: grpc.serialize<monitor_v1_monitor_pb.DisableProductMonitoringRequest>;
+    requestDeserialize: grpc.deserialize<monitor_v1_monitor_pb.DisableProductMonitoringRequest>;
+    responseSerialize: grpc.serialize<monitor_v1_monitor_pb.DisableProductMonitoringResponse>;
+    responseDeserialize: grpc.deserialize<monitor_v1_monitor_pb.DisableProductMonitoringResponse>;
 }
 interface IMonitorServiceService_IGetFilters extends grpc.MethodDefinition<monitor_v1_monitor_pb.GetFiltersRequest, monitor_v1_monitor_pb.GetFiltersResponse> {
     path: "/monitor.v1.MonitorService/GetFilters";
@@ -76,8 +76,8 @@ export const MonitorServiceService: IMonitorServiceService;
 
 export interface IMonitorServiceServer extends grpc.UntypedServiceImplementation {
     getProducts: grpc.handleUnaryCall<monitor_v1_monitor_pb.GetProductsRequest, monitor_v1_monitor_pb.GetProductsResponse>;
-    addMonitoredProduct: grpc.handleUnaryCall<monitor_v1_monitor_pb.AddMonitoredProductRequest, monitor_v1_monitor_pb.AddMonitoredProductResponse>;
-    removeMonitoredProduct: grpc.handleUnaryCall<monitor_v1_monitor_pb.RemoveMonitoredProductRequest, monitor_v1_monitor_pb.RemoveMonitoredProductResponse>;
+    activateProductMonitoring: grpc.handleUnaryCall<monitor_v1_monitor_pb.ActivateProductMonitoringRequest, monitor_v1_monitor_pb.ActivateProductMonitoringResponse>;
+    disableProductMonitoring: grpc.handleUnaryCall<monitor_v1_monitor_pb.DisableProductMonitoringRequest, monitor_v1_monitor_pb.DisableProductMonitoringResponse>;
     getFilters: grpc.handleUnaryCall<monitor_v1_monitor_pb.GetFiltersRequest, monitor_v1_monitor_pb.GetFiltersResponse>;
     addFilter: grpc.handleUnaryCall<monitor_v1_monitor_pb.AddFilterRequest, monitor_v1_monitor_pb.AddFilterResponse>;
     removeFilter: grpc.handleUnaryCall<monitor_v1_monitor_pb.RemoveFilterRequest, monitor_v1_monitor_pb.RemoveFilterResponse>;
@@ -87,12 +87,12 @@ export interface IMonitorServiceClient {
     getProducts(request: monitor_v1_monitor_pb.GetProductsRequest, callback: (error: grpc.ServiceError | null, response: monitor_v1_monitor_pb.GetProductsResponse) => void): grpc.ClientUnaryCall;
     getProducts(request: monitor_v1_monitor_pb.GetProductsRequest, metadata: grpc.Metadata, callback: (error: grpc.ServiceError | null, response: monitor_v1_monitor_pb.GetProductsResponse) => void): grpc.ClientUnaryCall;
     getProducts(request: monitor_v1_monitor_pb.GetProductsRequest, metadata: grpc.Metadata, options: Partial<grpc.CallOptions>, callback: (error: grpc.ServiceError | null, response: monitor_v1_monitor_pb.GetProductsResponse) => void): grpc.ClientUnaryCall;
-    addMonitoredProduct(request: monitor_v1_monitor_pb.AddMonitoredProductRequest, callback: (error: grpc.ServiceError | null, response: monitor_v1_monitor_pb.AddMonitoredProductResponse) => void): grpc.ClientUnaryCall;
-    addMonitoredProduct(request: monitor_v1_monitor_pb.AddMonitoredProductRequest, metadata: grpc.Metadata, callback: (error: grpc.ServiceError | null, response: monitor_v1_monitor_pb.AddMonitoredProductResponse) => void): grpc.ClientUnaryCall;
-    addMonitoredProduct(request: monitor_v1_monitor_pb.AddMonitoredProductRequest, metadata: grpc.Metadata, options: Partial<grpc.CallOptions>, callback: (error: grpc.ServiceError | null, response: monitor_v1_monitor_pb.AddMonitoredProductResponse) => void): grpc.ClientUnaryCall;
-    removeMonitoredProduct(request: monitor_v1_monitor_pb.RemoveMonitoredProductRequest, callback: (error: grpc.ServiceError | null, response: monitor_v1_monitor_pb.RemoveMonitoredProductResponse) => void): grpc.ClientUnaryCall;
-    removeMonitoredProduct(request: monitor_v1_monitor_pb.RemoveMonitoredProductRequest, metadata: grpc.Metadata, callback: (error: grpc.ServiceError | null, response: monitor_v1_monitor_pb.RemoveMonitoredProductResponse) => void): grpc.ClientUnaryCall;
-    removeMonitoredProduct(request: monitor_v1_monitor_pb.RemoveMonitoredProductRequest, metadata: grpc.Metadata, options: Partial<grpc.CallOptions>, callback: (error: grpc.ServiceError | null, response: monitor_v1_monitor_pb.RemoveMonitoredProductResponse) => void): grpc.ClientUnaryCall;
+    activateProductMonitoring(request: monitor_v1_monitor_pb.ActivateProductMonitoringRequest, callback: (error: grpc.ServiceError | null, response: monitor_v1_monitor_pb.ActivateProductMonitoringResponse) => void): grpc.ClientUnaryCall;
+    activateProductMonitoring(request: monitor_v1_monitor_pb.ActivateProductMonitoringRequest, metadata: grpc.Metadata, callback: (error: grpc.ServiceError | null, response: monitor_v1_monitor_pb.ActivateProductMonitoringResponse) => void): grpc.ClientUnaryCall;
+    activateProductMonitoring(request: monitor_v1_monitor_pb.ActivateProductMonitoringRequest, metadata: grpc.Metadata, options: Partial<grpc.CallOptions>, callback: (error: grpc.ServiceError | null, response: monitor_v1_monitor_pb.ActivateProductMonitoringResponse) => void): grpc.ClientUnaryCall;
+    disableProductMonitoring(request: monitor_v1_monitor_pb.DisableProductMonitoringRequest, callback: (error: grpc.ServiceError | null, response: monitor_v1_monitor_pb.DisableProductMonitoringResponse) => void): grpc.ClientUnaryCall;
+    disableProductMonitoring(request: monitor_v1_monitor_pb.DisableProductMonitoringRequest, metadata: grpc.Metadata, callback: (error: grpc.ServiceError | null, response: monitor_v1_monitor_pb.DisableProductMonitoringResponse) => void): grpc.ClientUnaryCall;
+    disableProductMonitoring(request: monitor_v1_monitor_pb.DisableProductMonitoringRequest, metadata: grpc.Metadata, options: Partial<grpc.CallOptions>, callback: (error: grpc.ServiceError | null, response: monitor_v1_monitor_pb.DisableProductMonitoringResponse) => void): grpc.ClientUnaryCall;
     getFilters(request: monitor_v1_monitor_pb.GetFiltersRequest, callback: (error: grpc.ServiceError | null, response: monitor_v1_monitor_pb.GetFiltersResponse) => void): grpc.ClientUnaryCall;
     getFilters(request: monitor_v1_monitor_pb.GetFiltersRequest, metadata: grpc.Metadata, callback: (error: grpc.ServiceError | null, response: monitor_v1_monitor_pb.GetFiltersResponse) => void): grpc.ClientUnaryCall;
     getFilters(request: monitor_v1_monitor_pb.GetFiltersRequest, metadata: grpc.Metadata, options: Partial<grpc.CallOptions>, callback: (error: grpc.ServiceError | null, response: monitor_v1_monitor_pb.GetFiltersResponse) => void): grpc.ClientUnaryCall;
@@ -109,12 +109,12 @@ export class MonitorServiceClient extends grpc.Client implements IMonitorService
     public getProducts(request: monitor_v1_monitor_pb.GetProductsRequest, callback: (error: grpc.ServiceError | null, response: monitor_v1_monitor_pb.GetProductsResponse) => void): grpc.ClientUnaryCall;
     public getProducts(request: monitor_v1_monitor_pb.GetProductsRequest, metadata: grpc.Metadata, callback: (error: grpc.ServiceError | null, response: monitor_v1_monitor_pb.GetProductsResponse) => void): grpc.ClientUnaryCall;
     public getProducts(request: monitor_v1_monitor_pb.GetProductsRequest, metadata: grpc.Metadata, options: Partial<grpc.CallOptions>, callback: (error: grpc.ServiceError | null, response: monitor_v1_monitor_pb.GetProductsResponse) => void): grpc.ClientUnaryCall;
-    public addMonitoredProduct(request: monitor_v1_monitor_pb.AddMonitoredProductRequest, callback: (error: grpc.ServiceError | null, response: monitor_v1_monitor_pb.AddMonitoredProductResponse) => void): grpc.ClientUnaryCall;
-    public addMonitoredProduct(request: monitor_v1_monitor_pb.AddMonitoredProductRequest, metadata: grpc.Metadata, callback: (error: grpc.ServiceError | null, response: monitor_v1_monitor_pb.AddMonitoredProductResponse) => void): grpc.ClientUnaryCall;
-    public addMonitoredProduct(request: monitor_v1_monitor_pb.AddMonitoredProductRequest, metadata: grpc.Metadata, options: Partial<grpc.CallOptions>, callback: (error: grpc.ServiceError | null, response: monitor_v1_monitor_pb.AddMonitoredProductResponse) => void): grpc.ClientUnaryCall;
-    public removeMonitoredProduct(request: monitor_v1_monitor_pb.RemoveMonitoredProductRequest, callback: (error: grpc.ServiceError | null, response: monitor_v1_monitor_pb.RemoveMonitoredProductResponse) => void): grpc.ClientUnaryCall;
-    public removeMonitoredProduct(request: monitor_v1_monitor_pb.RemoveMonitoredProductRequest, metadata: grpc.Metadata, callback: (error: grpc.ServiceError | null, response: monitor_v1_monitor_pb.RemoveMonitoredProductResponse) => void): grpc.ClientUnaryCall;
-    public removeMonitoredProduct(request: monitor_v1_monitor_pb.RemoveMonitoredProductRequest, metadata: grpc.Metadata, options: Partial<grpc.CallOptions>, callback: (error: grpc.ServiceError | null, response: monitor_v1_monitor_pb.RemoveMonitoredProductResponse) => void): grpc.ClientUnaryCall;
+    public activateProductMonitoring(request: monitor_v1_monitor_pb.ActivateProductMonitoringRequest, callback: (error: grpc.ServiceError | null, response: monitor_v1_monitor_pb.ActivateProductMonitoringResponse) => void): grpc.ClientUnaryCall;
+    public activateProductMonitoring(request: monitor_v1_monitor_pb.ActivateProductMonitoringRequest, metadata: grpc.Metadata, callback: (error: grpc.ServiceError | null, response: monitor_v1_monitor_pb.ActivateProductMonitoringResponse) => void): grpc.ClientUnaryCall;
+    public activateProductMonitoring(request: monitor_v1_monitor_pb.ActivateProductMonitoringRequest, metadata: grpc.Metadata, options: Partial<grpc.CallOptions>, callback: (error: grpc.ServiceError | null, response: monitor_v1_monitor_pb.ActivateProductMonitoringResponse) => void): grpc.ClientUnaryCall;
+    public disableProductMonitoring(request: monitor_v1_monitor_pb.DisableProductMonitoringRequest, callback: (error: grpc.ServiceError | null, response: monitor_v1_monitor_pb.DisableProductMonitoringResponse) => void): grpc.ClientUnaryCall;
+    public disableProductMonitoring(request: monitor_v1_monitor_pb.DisableProductMonitoringRequest, metadata: grpc.Metadata, callback: (error: grpc.ServiceError | null, response: monitor_v1_monitor_pb.DisableProductMonitoringResponse) => void): grpc.ClientUnaryCall;
+    public disableProductMonitoring(request: monitor_v1_monitor_pb.DisableProductMonitoringRequest, metadata: grpc.Metadata, options: Partial<grpc.CallOptions>, callback: (error: grpc.ServiceError | null, response: monitor_v1_monitor_pb.DisableProductMonitoringResponse) => void): grpc.ClientUnaryCall;
     public getFilters(request: monitor_v1_monitor_pb.GetFiltersRequest, callback: (error: grpc.ServiceError | null, response: monitor_v1_monitor_pb.GetFiltersResponse) => void): grpc.ClientUnaryCall;
     public getFilters(request: monitor_v1_monitor_pb.GetFiltersRequest, metadata: grpc.Metadata, callback: (error: grpc.ServiceError | null, response: monitor_v1_monitor_pb.GetFiltersResponse) => void): grpc.ClientUnaryCall;
     public getFilters(request: monitor_v1_monitor_pb.GetFiltersRequest, metadata: grpc.Metadata, options: Partial<grpc.CallOptions>, callback: (error: grpc.ServiceError | null, response: monitor_v1_monitor_pb.GetFiltersResponse) => void): grpc.ClientUnaryCall;

@@ -1,18 +1,15 @@
 import { RedisClient } from 'redis';
 import { createNodeRedisClient, WrappedNodeRedisClient } from 'handy-redis';
-import pino, { Logger } from 'pino';
-import { MonitorService } from '../../application/services/MonitorService';
+import { IMonitorService } from '../../application/services/MonitorService';
+import { logger } from '../../util/logger';
 
 export class RedisController {
-  private logger: Logger;
-  private monitorService: MonitorService;
+  private monitorService: IMonitorService;
   private client: WrappedNodeRedisClient;
 
-  constructor({ client, monitorService }: { client: RedisClient, monitorService: MonitorService }) {
-    this.logger = pino();
+  constructor({ client, monitorService }: { client: RedisClient, monitorService: IMonitorService }) {
     this.monitorService = monitorService;
     this.client = createNodeRedisClient(client);
-
 
     this.client.nodeRedis.on('ready', () => this.OnReady());
     this.client.nodeRedis.on('error', (error: string) => this.OnError(error));  
@@ -21,11 +18,11 @@ export class RedisController {
 
   private async OnReady() {
     await this.client.psubscribe(['monitor:*']);
-    this.logger.info('Redis ready and set up.');
+    logger.info('Redis ready and set up.');
   }
 
   private OnError(error: string) {
-    this.logger.error(error);
+    logger.error(error);
   }
 
   private OnPMessage(pattern: string, channel: string, message: string): void {
@@ -36,14 +33,14 @@ export class RedisController {
     const splitName = channel.split(':');
 
     if (splitName.length !== 2) {
-      this.logger.error(`Received channel is invalid: ${channel}`);
+      logger.error(`Received channel is invalid: ${channel}`);
       return;
     }
 
     const name = splitName[1];
 
-    if (!this.monitorService.CheckMonitorAvailable({ name })) {
-      this.logger.error(`${name} is no defined monitor`);
+    if (!this.monitorService.checkMonitorAvailable({ name })) {
+      logger.error(`${name} is no defined monitor`);
       return;
     }
 
@@ -52,10 +49,10 @@ export class RedisController {
     try {
       content = JSON.parse(message);
     } catch (e) {
-      this.logger.error(`Error while parsing message from redis for ${name}: ${e.message}`);
+      logger.error(`Error while parsing message from redis for ${name}: ${e.message}`);
       return;
     }
 
-    this.monitorService.RunMonitor({ name, content });
+    this.monitorService.runMonitor({ name, content });
   }
 }

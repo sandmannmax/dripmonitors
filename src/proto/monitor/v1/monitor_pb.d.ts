@@ -7,8 +7,8 @@
 import * as jspb from "google-protobuf";
 
 export class GetProductsRequest extends jspb.Message { 
-    getMonitorpageName(): string;
-    setMonitorpageName(value: string): GetProductsRequest;
+    getMonitorpageId(): string;
+    setMonitorpageId(value: string): GetProductsRequest;
 
     serializeBinary(): Uint8Array;
     toObject(includeInstance?: boolean): GetProductsRequest.AsObject;
@@ -22,7 +22,7 @@ export class GetProductsRequest extends jspb.Message {
 
 export namespace GetProductsRequest {
     export type AsObject = {
-        monitorpageName: string,
+        monitorpageId: string,
     }
 }
 
@@ -51,6 +51,8 @@ export namespace GetProductsResponse {
 export class Product extends jspb.Message { 
     getId(): string;
     setId(value: string): Product;
+    getProductId(): string;
+    setProductId(value: string): Product;
     getName(): string;
     setName(value: string): Product;
     getHref(): string;
@@ -73,6 +75,7 @@ export class Product extends jspb.Message {
 export namespace Product {
     export type AsObject = {
         id: string,
+        productId: string,
         name: string,
         href: string,
         img: string,
@@ -80,89 +83,89 @@ export namespace Product {
     }
 }
 
-export class AddMonitoredProductRequest extends jspb.Message { 
-    getMonitorpageName(): string;
-    setMonitorpageName(value: string): AddMonitoredProductRequest;
+export class ActivateProductMonitoringRequest extends jspb.Message { 
+    getMonitorpageId(): string;
+    setMonitorpageId(value: string): ActivateProductMonitoringRequest;
     getId(): string;
-    setId(value: string): AddMonitoredProductRequest;
+    setId(value: string): ActivateProductMonitoringRequest;
 
     serializeBinary(): Uint8Array;
-    toObject(includeInstance?: boolean): AddMonitoredProductRequest.AsObject;
-    static toObject(includeInstance: boolean, msg: AddMonitoredProductRequest): AddMonitoredProductRequest.AsObject;
+    toObject(includeInstance?: boolean): ActivateProductMonitoringRequest.AsObject;
+    static toObject(includeInstance: boolean, msg: ActivateProductMonitoringRequest): ActivateProductMonitoringRequest.AsObject;
     static extensions: {[key: number]: jspb.ExtensionFieldInfo<jspb.Message>};
     static extensionsBinary: {[key: number]: jspb.ExtensionFieldBinaryInfo<jspb.Message>};
-    static serializeBinaryToWriter(message: AddMonitoredProductRequest, writer: jspb.BinaryWriter): void;
-    static deserializeBinary(bytes: Uint8Array): AddMonitoredProductRequest;
-    static deserializeBinaryFromReader(message: AddMonitoredProductRequest, reader: jspb.BinaryReader): AddMonitoredProductRequest;
+    static serializeBinaryToWriter(message: ActivateProductMonitoringRequest, writer: jspb.BinaryWriter): void;
+    static deserializeBinary(bytes: Uint8Array): ActivateProductMonitoringRequest;
+    static deserializeBinaryFromReader(message: ActivateProductMonitoringRequest, reader: jspb.BinaryReader): ActivateProductMonitoringRequest;
 }
 
-export namespace AddMonitoredProductRequest {
+export namespace ActivateProductMonitoringRequest {
     export type AsObject = {
-        monitorpageName: string,
+        monitorpageId: string,
         id: string,
     }
 }
 
-export class AddMonitoredProductResponse extends jspb.Message { 
+export class ActivateProductMonitoringResponse extends jspb.Message { 
 
     serializeBinary(): Uint8Array;
-    toObject(includeInstance?: boolean): AddMonitoredProductResponse.AsObject;
-    static toObject(includeInstance: boolean, msg: AddMonitoredProductResponse): AddMonitoredProductResponse.AsObject;
+    toObject(includeInstance?: boolean): ActivateProductMonitoringResponse.AsObject;
+    static toObject(includeInstance: boolean, msg: ActivateProductMonitoringResponse): ActivateProductMonitoringResponse.AsObject;
     static extensions: {[key: number]: jspb.ExtensionFieldInfo<jspb.Message>};
     static extensionsBinary: {[key: number]: jspb.ExtensionFieldBinaryInfo<jspb.Message>};
-    static serializeBinaryToWriter(message: AddMonitoredProductResponse, writer: jspb.BinaryWriter): void;
-    static deserializeBinary(bytes: Uint8Array): AddMonitoredProductResponse;
-    static deserializeBinaryFromReader(message: AddMonitoredProductResponse, reader: jspb.BinaryReader): AddMonitoredProductResponse;
+    static serializeBinaryToWriter(message: ActivateProductMonitoringResponse, writer: jspb.BinaryWriter): void;
+    static deserializeBinary(bytes: Uint8Array): ActivateProductMonitoringResponse;
+    static deserializeBinaryFromReader(message: ActivateProductMonitoringResponse, reader: jspb.BinaryReader): ActivateProductMonitoringResponse;
 }
 
-export namespace AddMonitoredProductResponse {
+export namespace ActivateProductMonitoringResponse {
     export type AsObject = {
     }
 }
 
-export class RemoveMonitoredProductRequest extends jspb.Message { 
-    getMonitorpageName(): string;
-    setMonitorpageName(value: string): RemoveMonitoredProductRequest;
+export class DisableProductMonitoringRequest extends jspb.Message { 
+    getMonitorpageId(): string;
+    setMonitorpageId(value: string): DisableProductMonitoringRequest;
     getId(): string;
-    setId(value: string): RemoveMonitoredProductRequest;
+    setId(value: string): DisableProductMonitoringRequest;
 
     serializeBinary(): Uint8Array;
-    toObject(includeInstance?: boolean): RemoveMonitoredProductRequest.AsObject;
-    static toObject(includeInstance: boolean, msg: RemoveMonitoredProductRequest): RemoveMonitoredProductRequest.AsObject;
+    toObject(includeInstance?: boolean): DisableProductMonitoringRequest.AsObject;
+    static toObject(includeInstance: boolean, msg: DisableProductMonitoringRequest): DisableProductMonitoringRequest.AsObject;
     static extensions: {[key: number]: jspb.ExtensionFieldInfo<jspb.Message>};
     static extensionsBinary: {[key: number]: jspb.ExtensionFieldBinaryInfo<jspb.Message>};
-    static serializeBinaryToWriter(message: RemoveMonitoredProductRequest, writer: jspb.BinaryWriter): void;
-    static deserializeBinary(bytes: Uint8Array): RemoveMonitoredProductRequest;
-    static deserializeBinaryFromReader(message: RemoveMonitoredProductRequest, reader: jspb.BinaryReader): RemoveMonitoredProductRequest;
+    static serializeBinaryToWriter(message: DisableProductMonitoringRequest, writer: jspb.BinaryWriter): void;
+    static deserializeBinary(bytes: Uint8Array): DisableProductMonitoringRequest;
+    static deserializeBinaryFromReader(message: DisableProductMonitoringRequest, reader: jspb.BinaryReader): DisableProductMonitoringRequest;
 }
 
-export namespace RemoveMonitoredProductRequest {
+export namespace DisableProductMonitoringRequest {
     export type AsObject = {
-        monitorpageName: string,
+        monitorpageId: string,
         id: string,
     }
 }
 
-export class RemoveMonitoredProductResponse extends jspb.Message { 
+export class DisableProductMonitoringResponse extends jspb.Message { 
 
     serializeBinary(): Uint8Array;
-    toObject(includeInstance?: boolean): RemoveMonitoredProductResponse.AsObject;
-    static toObject(includeInstance: boolean, msg: RemoveMonitoredProductResponse): RemoveMonitoredProductResponse.AsObject;
+    toObject(includeInstance?: boolean): DisableProductMonitoringResponse.AsObject;
+    static toObject(includeInstance: boolean, msg: DisableProductMonitoringResponse): DisableProductMonitoringResponse.AsObject;
     static extensions: {[key: number]: jspb.ExtensionFieldInfo<jspb.Message>};
     static extensionsBinary: {[key: number]: jspb.ExtensionFieldBinaryInfo<jspb.Message>};
-    static serializeBinaryToWriter(message: RemoveMonitoredProductResponse, writer: jspb.BinaryWriter): void;
-    static deserializeBinary(bytes: Uint8Array): RemoveMonitoredProductResponse;
-    static deserializeBinaryFromReader(message: RemoveMonitoredProductResponse, reader: jspb.BinaryReader): RemoveMonitoredProductResponse;
+    static serializeBinaryToWriter(message: DisableProductMonitoringResponse, writer: jspb.BinaryWriter): void;
+    static deserializeBinary(bytes: Uint8Array): DisableProductMonitoringResponse;
+    static deserializeBinaryFromReader(message: DisableProductMonitoringResponse, reader: jspb.BinaryReader): DisableProductMonitoringResponse;
 }
 
-export namespace RemoveMonitoredProductResponse {
+export namespace DisableProductMonitoringResponse {
     export type AsObject = {
     }
 }
 
 export class GetFiltersRequest extends jspb.Message { 
-    getMonitorpageName(): string;
-    setMonitorpageName(value: string): GetFiltersRequest;
+    getMonitorpageId(): string;
+    setMonitorpageId(value: string): GetFiltersRequest;
 
     serializeBinary(): Uint8Array;
     toObject(includeInstance?: boolean): GetFiltersRequest.AsObject;
@@ -176,7 +179,7 @@ export class GetFiltersRequest extends jspb.Message {
 
 export namespace GetFiltersRequest {
     export type AsObject = {
-        monitorpageName: string,
+        monitorpageId: string,
     }
 }
 
@@ -203,8 +206,8 @@ export namespace GetFiltersResponse {
 }
 
 export class AddFilterRequest extends jspb.Message { 
-    getMonitorpageName(): string;
-    setMonitorpageName(value: string): AddFilterRequest;
+    getMonitorpageId(): string;
+    setMonitorpageId(value: string): AddFilterRequest;
     getValue(): string;
     setValue(value: string): AddFilterRequest;
 
@@ -220,14 +223,12 @@ export class AddFilterRequest extends jspb.Message {
 
 export namespace AddFilterRequest {
     export type AsObject = {
-        monitorpageName: string,
+        monitorpageId: string,
         value: string,
     }
 }
 
 export class AddFilterResponse extends jspb.Message { 
-    getMonitorpageName(): string;
-    setMonitorpageName(value: string): AddFilterResponse;
 
     hasFilter(): boolean;
     clearFilter(): void;
@@ -246,7 +247,6 @@ export class AddFilterResponse extends jspb.Message {
 
 export namespace AddFilterResponse {
     export type AsObject = {
-        monitorpageName: string,
         filter?: Filter.AsObject,
     }
 }
@@ -275,8 +275,8 @@ export namespace Filter {
 }
 
 export class RemoveFilterRequest extends jspb.Message { 
-    getMonitorpageName(): string;
-    setMonitorpageName(value: string): RemoveFilterRequest;
+    getMonitorpageId(): string;
+    setMonitorpageId(value: string): RemoveFilterRequest;
     getId(): string;
     setId(value: string): RemoveFilterRequest;
 
@@ -292,7 +292,7 @@ export class RemoveFilterRequest extends jspb.Message {
 
 export namespace RemoveFilterRequest {
     export type AsObject = {
-        monitorpageName: string,
+        monitorpageId: string,
         id: string,
     }
 }

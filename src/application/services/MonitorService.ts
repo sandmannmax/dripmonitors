@@ -1,25 +1,27 @@
-import pino, { Logger } from 'pino';
 import { IMonitors } from '../monitors/IMonitors';
 import { NikeMonitor } from '../monitors/NikeMonitor';
 
+export interface IMonitorService {
+  checkMonitorAvailable({ name }: { name: string }): boolean;
+  runMonitor({ name, content }: { name: string; content: any }): void;
+}
+
 export class MonitorService {
-  private logger: Logger;
   private monitors: IMonitors;
 
   constructor(
     nikeMonitor: NikeMonitor
   ) {
-    this.logger = pino();
     this.monitors = {
       'nike-de': nikeMonitor,
     };
   }
 
-  public CheckMonitorAvailable({ name }: { name: string }): boolean {
+  public checkMonitorAvailable({ name }: { name: string }): boolean {
     return this.monitors.hasOwnProperty(name);
   }
 
-  public RunMonitor({ name, content }: { name: string; content: any }) {
+  public runMonitor({ name, content }: { name: string; content: any }): void {
     this.monitors[name].run({ content });
   }
 }

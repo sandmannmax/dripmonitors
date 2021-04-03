@@ -1,33 +1,30 @@
-import { Filter } from "../../core/entities/Filter";
-import { Monitorpage } from "../../core/entities/Monitorpage";
-import { FilterRequestDTO } from "../dto/FilterRequestDTO";
+import { Filter } from "../../domain/models/Filter";
+import { MonitorpageId } from "../../domain/models/MonitorpageId";
+import { FilterDTO } from "../dto/FilterDTO";
 
 export class FilterMap {
-  public static toDTO(filter: Filter): FilterRequestDTO {
-    let id = filter.id;
+  public static toDTO(filter: Filter): FilterDTO {
+    let id = filter.id.toValue().toString();
     let value = filter.value;
-    return { id, value };
+    let monitorpageId = filter.monitorpageId.value;
+    return { id, value, monitorpageId };
   }
 
-  public static toAggregate(raw: any): Filter | null {
-    let monitorpageOrError = Monitorpage.create({
-      name: raw.monitorpageName
+  public static toAggregate(raw: any): Filter {
+    let monitorpageId = MonitorpageId.create({
+      value: raw.monitorpageId
     });
 
-    if (monitorpageOrError.isFailure) return null;
-
-    let filterOrError = Filter.create({
+    return Filter.create({
       value: raw.value,
-      monitorpage: monitorpageOrError.getValue()
-    })
-    
-    return filterOrError.isSuccess ? filterOrError.getValue() : null;    
+      monitorpageId
+    });  
   }
 
   public static toPersistence(filter: Filter): any {
     let raw: any = {};
     raw.value = filter.value;  
-    raw.monitorpageName = filter.monitorpage.name;
+    raw.monitorpageId = filter.monitorpageId.value;
     return raw;
   }
 }

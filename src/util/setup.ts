@@ -1,5 +1,5 @@
 import redis from 'redis';
-import { Server, ServerCredentials } from '@grpc/grpc-js';
+import { sendUnaryData, Server, ServerCredentials, ServerUnaryCall } from '@grpc/grpc-js';
 import config, { ConfigSetup } from './config';
 import { RedisController } from '../infra/controllers/RedisController';
 import { MonitorServiceService } from '../proto/monitor/v1/monitor_grpc_pb';
@@ -10,8 +10,9 @@ import { MonitorService } from '../application/services/MonitorService';
 import { NikeMonitor } from '../application/monitors/NikeMonitor';
 import { ProductRepo } from '../infra/repos/ProductRepo';
 import { FilterRepo } from '../infra/repos/FilterRepo';
+import { AddFilterRequest, AddFilterResponse, ActivateProductMonitoringRequest, ActivateProductMonitoringResponse, GetFiltersRequest, GetFiltersResponse, GetProductsRequest, GetProductsResponse, RemoveFilterRequest, RemoveFilterResponse, DisableProductMonitoringRequest, DisableProductMonitoringResponse } from '../proto/monitor/v1/monitor_pb';
 
-export async function Start() {
+export async function Start(): Promise<void> {
   ConfigSetup();
 
   const client = redis.createClient({
@@ -36,12 +37,30 @@ export async function Start() {
 function GrpcSetup({ monitorServer }: { monitorServer: MonitorServer}) {
   const server = new Server();
   server.addService(MonitorServiceService, {
-    getProducts: monitorServer.getProducts,
-    addMonitoredProduct: monitorServer.addMonitoredProduct,
-    removeMonitoredProduct: monitorServer.removeMonitoredProduct,
-    getFilters: monitorServer.getFilters,
-    addFilter: monitorServer.addFilter,
-    removeFilter: monitorServer.removeFilter,
+    getProducts: (
+      call: ServerUnaryCall<GetProductsRequest, GetProductsResponse>,
+      callback: sendUnaryData<GetProductsResponse>,
+    ) => monitorServer.getProducts(call, callback),
+    activateProductMonitoring: (
+      call: ServerUnaryCall<ActivateProductMonitoringRequest, ActivateProductMonitoringResponse>,
+      callback: sendUnaryData<ActivateProductMonitoringResponse>,
+    ) => monitorServer.activateProductMonitoring(call, callback),
+    disableProductMonitoring: (
+      call: ServerUnaryCall<DisableProductMonitoringRequest, DisableProductMonitoringResponse>,
+      callback: sendUnaryData<DisableProductMonitoringResponse>,
+    ) => monitorServer.disableProductMonitoring(call, callback),
+    getFilters: (
+      call: ServerUnaryCall<GetFiltersRequest, GetFiltersResponse>,
+      callback: sendUnaryData<GetFiltersResponse>,
+    ) => monitorServer.getFilters(call, callback),
+    addFilter: (
+      call: ServerUnaryCall<AddFilterRequest, AddFilterResponse>,
+      callback: sendUnaryData<AddFilterResponse>,
+    ) => monitorServer.addFilter(call, callback),
+    removeFilter: (
+      call: ServerUnaryCall<RemoveFilterRequest, RemoveFilterResponse>,
+      callback: sendUnaryData<RemoveFilterResponse>,
+    ) => monitorServer.removeFilter(call, callback),
   });
   server.bindAsync(`0.0.0.0:${config.port}`, ServerCredentials.createInsecure(), () => {
     server.start();

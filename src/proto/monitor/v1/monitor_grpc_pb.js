@@ -4,6 +4,28 @@
 var grpc = require('@grpc/grpc-js');
 var monitor_v1_monitor_pb = require('../../monitor/v1/monitor_pb.js');
 
+function serialize_monitor_v1_ActivateProductMonitoringRequest(arg) {
+  if (!(arg instanceof monitor_v1_monitor_pb.ActivateProductMonitoringRequest)) {
+    throw new Error('Expected argument of type monitor.v1.ActivateProductMonitoringRequest');
+  }
+  return Buffer.from(arg.serializeBinary());
+}
+
+function deserialize_monitor_v1_ActivateProductMonitoringRequest(buffer_arg) {
+  return monitor_v1_monitor_pb.ActivateProductMonitoringRequest.deserializeBinary(new Uint8Array(buffer_arg));
+}
+
+function serialize_monitor_v1_ActivateProductMonitoringResponse(arg) {
+  if (!(arg instanceof monitor_v1_monitor_pb.ActivateProductMonitoringResponse)) {
+    throw new Error('Expected argument of type monitor.v1.ActivateProductMonitoringResponse');
+  }
+  return Buffer.from(arg.serializeBinary());
+}
+
+function deserialize_monitor_v1_ActivateProductMonitoringResponse(buffer_arg) {
+  return monitor_v1_monitor_pb.ActivateProductMonitoringResponse.deserializeBinary(new Uint8Array(buffer_arg));
+}
+
 function serialize_monitor_v1_AddFilterRequest(arg) {
   if (!(arg instanceof monitor_v1_monitor_pb.AddFilterRequest)) {
     throw new Error('Expected argument of type monitor.v1.AddFilterRequest');
@@ -26,26 +48,26 @@ function deserialize_monitor_v1_AddFilterResponse(buffer_arg) {
   return monitor_v1_monitor_pb.AddFilterResponse.deserializeBinary(new Uint8Array(buffer_arg));
 }
 
-function serialize_monitor_v1_AddMonitoredProductRequest(arg) {
-  if (!(arg instanceof monitor_v1_monitor_pb.AddMonitoredProductRequest)) {
-    throw new Error('Expected argument of type monitor.v1.AddMonitoredProductRequest');
+function serialize_monitor_v1_DisableProductMonitoringRequest(arg) {
+  if (!(arg instanceof monitor_v1_monitor_pb.DisableProductMonitoringRequest)) {
+    throw new Error('Expected argument of type monitor.v1.DisableProductMonitoringRequest');
   }
   return Buffer.from(arg.serializeBinary());
 }
 
-function deserialize_monitor_v1_AddMonitoredProductRequest(buffer_arg) {
-  return monitor_v1_monitor_pb.AddMonitoredProductRequest.deserializeBinary(new Uint8Array(buffer_arg));
+function deserialize_monitor_v1_DisableProductMonitoringRequest(buffer_arg) {
+  return monitor_v1_monitor_pb.DisableProductMonitoringRequest.deserializeBinary(new Uint8Array(buffer_arg));
 }
 
-function serialize_monitor_v1_AddMonitoredProductResponse(arg) {
-  if (!(arg instanceof monitor_v1_monitor_pb.AddMonitoredProductResponse)) {
-    throw new Error('Expected argument of type monitor.v1.AddMonitoredProductResponse');
+function serialize_monitor_v1_DisableProductMonitoringResponse(arg) {
+  if (!(arg instanceof monitor_v1_monitor_pb.DisableProductMonitoringResponse)) {
+    throw new Error('Expected argument of type monitor.v1.DisableProductMonitoringResponse');
   }
   return Buffer.from(arg.serializeBinary());
 }
 
-function deserialize_monitor_v1_AddMonitoredProductResponse(buffer_arg) {
-  return monitor_v1_monitor_pb.AddMonitoredProductResponse.deserializeBinary(new Uint8Array(buffer_arg));
+function deserialize_monitor_v1_DisableProductMonitoringResponse(buffer_arg) {
+  return monitor_v1_monitor_pb.DisableProductMonitoringResponse.deserializeBinary(new Uint8Array(buffer_arg));
 }
 
 function serialize_monitor_v1_GetFiltersRequest(arg) {
@@ -114,28 +136,6 @@ function deserialize_monitor_v1_RemoveFilterResponse(buffer_arg) {
   return monitor_v1_monitor_pb.RemoveFilterResponse.deserializeBinary(new Uint8Array(buffer_arg));
 }
 
-function serialize_monitor_v1_RemoveMonitoredProductRequest(arg) {
-  if (!(arg instanceof monitor_v1_monitor_pb.RemoveMonitoredProductRequest)) {
-    throw new Error('Expected argument of type monitor.v1.RemoveMonitoredProductRequest');
-  }
-  return Buffer.from(arg.serializeBinary());
-}
-
-function deserialize_monitor_v1_RemoveMonitoredProductRequest(buffer_arg) {
-  return monitor_v1_monitor_pb.RemoveMonitoredProductRequest.deserializeBinary(new Uint8Array(buffer_arg));
-}
-
-function serialize_monitor_v1_RemoveMonitoredProductResponse(arg) {
-  if (!(arg instanceof monitor_v1_monitor_pb.RemoveMonitoredProductResponse)) {
-    throw new Error('Expected argument of type monitor.v1.RemoveMonitoredProductResponse');
-  }
-  return Buffer.from(arg.serializeBinary());
-}
-
-function deserialize_monitor_v1_RemoveMonitoredProductResponse(buffer_arg) {
-  return monitor_v1_monitor_pb.RemoveMonitoredProductResponse.deserializeBinary(new Uint8Array(buffer_arg));
-}
-
 
 var MonitorServiceService = exports.MonitorServiceService = {
   getProducts: {
@@ -149,27 +149,27 @@ var MonitorServiceService = exports.MonitorServiceService = {
     responseSerialize: serialize_monitor_v1_GetProductsResponse,
     responseDeserialize: deserialize_monitor_v1_GetProductsResponse,
   },
-  addMonitoredProduct: {
-    path: '/monitor.v1.MonitorService/AddMonitoredProduct',
+  activateProductMonitoring: {
+    path: '/monitor.v1.MonitorService/ActivateProductMonitoring',
     requestStream: false,
     responseStream: false,
-    requestType: monitor_v1_monitor_pb.AddMonitoredProductRequest,
-    responseType: monitor_v1_monitor_pb.AddMonitoredProductResponse,
-    requestSerialize: serialize_monitor_v1_AddMonitoredProductRequest,
-    requestDeserialize: deserialize_monitor_v1_AddMonitoredProductRequest,
-    responseSerialize: serialize_monitor_v1_AddMonitoredProductResponse,
-    responseDeserialize: deserialize_monitor_v1_AddMonitoredProductResponse,
+    requestType: monitor_v1_monitor_pb.ActivateProductMonitoringRequest,
+    responseType: monitor_v1_monitor_pb.ActivateProductMonitoringResponse,
+    requestSerialize: serialize_monitor_v1_ActivateProductMonitoringRequest,
+    requestDeserialize: deserialize_monitor_v1_ActivateProductMonitoringRequest,
+    responseSerialize: serialize_monitor_v1_ActivateProductMonitoringResponse,
+    responseDeserialize: deserialize_monitor_v1_ActivateProductMonitoringResponse,
   },
-  removeMonitoredProduct: {
-    path: '/monitor.v1.MonitorService/RemoveMonitoredProduct',
+  disableProductMonitoring: {
+    path: '/monitor.v1.MonitorService/DisableProductMonitoring',
     requestStream: false,
     responseStream: false,
-    requestType: monitor_v1_monitor_pb.RemoveMonitoredProductRequest,
-    responseType: monitor_v1_monitor_pb.RemoveMonitoredProductResponse,
-    requestSerialize: serialize_monitor_v1_RemoveMonitoredProductRequest,
-    requestDeserialize: deserialize_monitor_v1_RemoveMonitoredProductRequest,
-    responseSerialize: serialize_monitor_v1_RemoveMonitoredProductResponse,
-    responseDeserialize: deserialize_monitor_v1_RemoveMonitoredProductResponse,
+    requestType: monitor_v1_monitor_pb.DisableProductMonitoringRequest,
+    responseType: monitor_v1_monitor_pb.DisableProductMonitoringResponse,
+    requestSerialize: serialize_monitor_v1_DisableProductMonitoringRequest,
+    requestDeserialize: deserialize_monitor_v1_DisableProductMonitoringRequest,
+    responseSerialize: serialize_monitor_v1_DisableProductMonitoringResponse,
+    responseDeserialize: deserialize_monitor_v1_DisableProductMonitoringResponse,
   },
   getFilters: {
     path: '/monitor.v1.MonitorService/GetFilters',

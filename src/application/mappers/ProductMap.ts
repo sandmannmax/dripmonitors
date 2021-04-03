@@ -1,11 +1,11 @@
-import { Monitorpage } from "../../core/entities/Monitorpage";
-import { Product } from "../../core/entities/Product";
-import { Size } from "../../core/entities/Size";
-import { ProductRequestDTO } from "../dto/ProductRequestDTO";
+import { MonitorpageId } from "../../domain/models/MonitorpageId";
+import { Product } from "../../domain/models/Product";
+import { Size } from "../../domain/models/Size";
+import { ProductDTO } from "../dto/ProductDTO";
 
 export class ProductMap {
-  public static toDTO(product: Product): ProductRequestDTO {
-    let id = product.id;
+  public static toDTO(product: Product): ProductDTO {
+    let id = product.id.toValue().toString();
     let productId = product.productId;
     let name = product.name;
     let href = product.href;
@@ -14,28 +14,26 @@ export class ProductMap {
     return { id, productId, name, href, img, monitored };
   }
 
-  public static toAggregate(raw: any): Product | null {
-    let monitorpageOrError = Monitorpage.create({
-      name: raw.monitorpageName
+  public static toAggregate(raw: any): Product {
+    let monitorpageId = MonitorpageId.create({
+      value: raw.monitorpageId
     });
-    let sizes: Size[] | undefined = ProductMap.getSizes({ sizesPersistence: raw.sizes });
-    
-    if (monitorpageOrError.isFailure) return null;
 
-    let filterOrError = Product.create({
+    let sizes: Size[] | undefined = ProductMap.getSizes({ sizesPersistence: raw.sizes });
+
+    let product = Product.create({
       productId: raw.productId,
       name: raw.name,
       href: raw.href,
       img: raw.img,
-      monitorpage: monitorpageOrError.getValue(),
+      monitorpageId: monitorpageId,
       monitored: raw.monitored === '1',
       price: !!raw.price ? raw.price : undefined,
       active: !!raw.active ? raw.active === '1' : undefined,
-      soldOut: !!raw.soldOut ? raw.soldOut === '1' : undefined,
       sizes
     });
     
-    return filterOrError.isSuccess ? filterOrError.getValue() : null;    
+    return product;    
   }
 
   public static toPersistence(product: Product): { productPersistence: any, sizesPersistence?: any } {
@@ -47,11 +45,9 @@ export class ProductMap {
     result.productPersistence.href = product.href;
     result.productPersistence.img = product.img;
     result.productPersistence.monitored = product.monitored ? '1' : '0';
-    result.productPersistence.monitorpage = product.monitorpage.name;
+    result.productPersistence.monitorpageId = product.monitorpageId.value;
     if (!!product.active)
       result.productPersistence.active = product.active ? '1' : '0';
-    if (!!product.soldOut)
-      result.productPersistence.soldOut = product.soldOut ? '1' : '0';
     if (!!product.price)
       result.productPersistence.price = product.price;
     if (!!product.sizes) {
@@ -67,11 +63,11 @@ export class ProductMap {
     if (!!sizesPersistence) {
       let sizes: Size[] = [];
       for (let key in sizesPersistence) {
-        let sizeOrError = Size.create({
+        let size = Size.create({
           value: key,
           soldOut: sizesPersistence[key] === '1'
         });
-        if (sizeOrError.isSuccess) sizes.push(sizeOrError.getValue());
+        sizes.push(size);
       }
       return sizes;
     } else {

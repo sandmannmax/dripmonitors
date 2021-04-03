@@ -3,8 +3,8 @@
   "version": "1.0.0",
   "scripts": {
     "start": "nodemon",
-    "lint": "eslint src/*",
-    "lintf": "eslint --fix src/*",
+    "lint": "eslint src/application src/core src/domain src/infra src/util src/index.ts",
+    "lintf": "eslint --fix src/application src/core src/domain src/infra src/util src/index.ts",
     "test": "ts-mocha ./src/*.spec.ts ./src/**/*.spec.ts",
     "build": "tsc --build"
   },
@@ -23,6 +23,7 @@
   },
   "devDependencies": {
     "@types/chai": "^4.2.15",
+    "@types/google-protobuf": "^3.7.4",
     "@types/md5": "^2.3.0",
     "@types/mocha": "^8.2.2",
     "@types/node": "^14.14.10",

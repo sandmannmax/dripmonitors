@@ -1,4 +1,4 @@
-import { Product } from '../../core/entities/Product';
+import { Product } from '../../domain/models/Product';
 import { ChannelDTO } from '../dto/ChannelDTO';
 import { WebhookDTO } from '../dto/WebhookDTO';
 

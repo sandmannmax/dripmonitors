@@ -1,18 +1,25 @@
-import { Filter } from "../../core/entities/Filter";
-import { FilterRequestDTO } from "../dto/FilterRequestDTO";
-import { IFilterRepo } from "../interface/IFilterRepo";
+import { Filter } from "../../domain/models/Filter";
+import { FilterDTO } from "../dto/FilterDTO";
+import { IFilterRepo } from "../../domain/repos/IFilterRepo";
 import { FilterMap } from "../mappers/FilterMap";
+import { MonitorpageId } from "../../domain/models/MonitorpageId";
 
-export class FiltersService {
+export interface IFiltersService {
+  getFiltersByMonitorpageId({ monitorpageId }: { monitorpageId: string }): Promise<FilterDTO[]>;
+  addFilter({ monitorpageId, filterValue }: { monitorpageId: string, filterValue: string }): Promise<FilterDTO>;
+  deleteFilter({ filterId }: { filterId: string }): Promise<void>;
+}
+
+export class FiltersService implements IFiltersService {
   private readonly filterRepo: IFilterRepo;
 
   constructor(filterRepo: IFilterRepo) {
     this.filterRepo = filterRepo;
   }
 
-  public async getFiltersByMonitorpageName({ monitorpageName }: { monitorpageName: string }): Promise<FilterRequestDTO[]> {
-    let filters = await this.filterRepo.getFiltersByMonitorpageName(monitorpageName);
-    let filtersDTO: FilterRequestDTO[] = [];
+  public async getFiltersByMonitorpageId({ monitorpageId }: { monitorpageId: string }): Promise<FilterDTO[]> {
+    let filters = await this.filterRepo.getFiltersByMonitorpageId(monitorpageId);
+    let filtersDTO: FilterDTO[] = [];
 
     for (let i = 0; i < filters.length; i++) {
       filtersDTO.push(FilterMap.toDTO(filters[i]));
@@ -21,8 +28,10 @@ export class FiltersService {
     return filtersDTO;
   }
 
-  public async addFilter({ monitorpageName, filterValue }: { monitorpageName: string, filterValue: string }): Promise<FilterRequestDTO> {
-    let filter = Filter.create({ value: filterValue });
+  public async addFilter({ monitorpageId, filterValue }: { monitorpageId: string, filterValue: string }): Promise<FilterDTO> {
+    let monitorpageIdObject = MonitorpageId.create({ value: monitorpageId });
+
+    let filter = Filter.create({ value: filterValue, monitorpageId: monitorpageIdObject });
 
     await this.filterRepo.save(filter);
 

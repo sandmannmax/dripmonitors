@@ -1,7 +1,7 @@
 import { RedisClient } from "redis";
 import { createNodeRedisClient, WrappedNodeRedisClient } from 'handy-redis';
-import { IFilterRepo } from "../../application/interface/IFilterRepo";
-import { Filter } from "../../core/entities/Filter";
+import { IFilterRepo } from "../../domain/repos/IFilterRepo";
+import { Filter } from "../../domain/models/Filter";
 import { FilterMap } from "../../application/mappers/FilterMap";
 import { RedisRawMap } from "../mappers/RedisRawMap";
 
@@ -12,14 +12,14 @@ export class FilterRepo implements IFilterRepo {
     this.redisClient = createNodeRedisClient(redisClient);
   }
   
-  async getFilterById(id: string): Promise<Filter | null> {
+  async getFilterById(id: string): Promise<Filter> {
     let filter = await this.redisClient.hgetall(`filter:${id}`);
     let filterRaw = RedisRawMap.toRaw(filter);
     return FilterMap.toAggregate(filterRaw);
   }
 
-  async getFiltersByMonitorpageName(monitorpageName: string): Promise<Filter[]> {
-    let ids = await this.redisClient.smembers(`filter:monitorpage:${monitorpageName}`);
+  async getFiltersByMonitorpageId(monitorpageId: string): Promise<Filter[]> {
+    let ids = await this.redisClient.smembers(`filter:monitorpage:${monitorpageId}`);
 
     let filterPromises: Promise<Filter | null>[] = [];
     for (let i = 0; i < ids.length; i++) {
@@ -55,7 +55,7 @@ export class FilterRepo implements IFilterRepo {
     } else {
       await this.redisClient.multi()
         .sadd('filter', filterId)
-        .sadd(`filter:monitorpage:${filter.monitorpage.name}`, filterId)
+        .sadd(`filter:monitorpage:${filter.monitorpageId.value}`, filterId)
         .hset(`filter:${filterId}`, ...RedisRawMap.toPersistence(filterPersistence))
         .exec();
     }
@@ -69,7 +69,7 @@ export class FilterRepo implements IFilterRepo {
 
       await this.redisClient.multi()
         .srem('filter', id)
-        .srem(`filter:monitorpage:${filter.monitorpage.name}`, id)
+        .srem(`filter:monitorpage:${filter.monitorpageId.value}`, id)
         .hdel(`filter:${id}`, ...fields)
         .exec();
     }
