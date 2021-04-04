@@ -223,6 +223,87 @@ export class AdminRoutes {
         next(err);
       }
     });
+
+    this.router.get('/product', async (req, res, next) => {
+      let { monitorpageId } = req.body;
+      let result = await this.adminService.GetProducts({ monitorpageId });
+      if (result.success)
+        res.json(result.data);
+      else if (result.error)
+        next(result.error);
+      else {
+        let err: IError = {status: 500, message: 'Unexpected Error'};
+        next(err);
+      }
+    });
+
+    this.router.post('/product/:id/activate', async (req, res, next) => {
+      let id = req.params.id;
+      let { monitorpageId } = req.body;
+      let result = await this.adminService.ActivateProductMonitoring({ id, monitorpageId });
+      if (result.success)
+        res.json(result.data);
+      else if (result.error)
+        next(result.error);
+      else {
+        let err: IError = {status: 500, message: 'Unexpected Error'};
+        next(err);
+      }
+    });
+
+    this.router.post('/product/:id/disable', async (req, res, next) => {
+      let id = req.params.id;
+      let { monitorpageId } = req.body;
+      let result = await this.adminService.DisableProductMonitoring({ id, monitorpageId });
+      if (result.success)
+        res.json(result.data);
+      else if (result.error)
+        next(result.error);
+      else {
+        let err: IError = {status: 500, message: 'Unexpected Error'};
+        next(err);
+      }
+    });
+
+    this.router.get('/filter', async (req, res, next) => {
+      let { monitorpageId } = req.body;
+      let result = await this.adminService.GetFilters({ monitorpageId });
+      if (result.success)
+        res.json(result.data);
+      else if (result.error)
+        next(result.error);
+      else {
+        let err: IError = {status: 500, message: 'Unexpected Error'};
+        next(err);
+      }
+    });
+
+    this.router.post('/filter', async (req, res, next) => {
+      let { value, monitorpageId } = req.body;
+      let result = await this.adminService.AddFilter({ value, monitorpageId });
+      if (result.success)
+        res.json(result.data);
+      else if (result.error)
+        next(result.error);
+      else {
+        let err: IError = {status: 500, message: 'Unexpected Error'};
+        next(err);
+      }
+    });
+
+    this.router.delete('/filter/:id', async (req, res, next) => {
+      let id = req.params.id;
+      let { monitorpageId } = req.body;
+      let result = await this.adminService.RemoveFilter({ id, monitorpageId });
+      if (result.success)
+        res.json(result.data);
+      else if (result.error)
+        next(result.error);
+      else {
+        let err: IError = {status: 500, message: 'Unexpected Error'};
+        next(err);
+      }
+    });
   }
 
   public GetRouter(): Router {

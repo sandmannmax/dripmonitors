@@ -18,6 +18,7 @@ import { GetMonitorruns_O } from '../types/Monitorrun';
 import { GetProxies_O, GetProxy_O } from '../types/Proxy';
 import { Product } from '../models/Product';
 import { RunService } from './RunService';
+import { MonitorClientService } from './MonitorClientService';
 
 @Service()
 export class AdminService {
@@ -31,7 +32,8 @@ export class AdminService {
   constructor(
     private proxyService: ProxyService,
     private scraperClientService: ScraperClientService,
-    private runService: RunService
+    private runService: RunService,
+    private monitorClientService: MonitorClientService
   ) {
     this.queue = QueueProvider.GetQueue();
     this.redis = createClient({
@@ -390,6 +392,115 @@ export class AdminService {
       let monitorruns = await Monitorrun.findAll({ order: [ ['timestampStart', 'DESC'] ]});
         
       return {success: true, data: { monitorruns: GetMonitorruns_O(monitorruns) }};
+    } catch (error) {
+      return {success: false, error: {status: 500, message: 'Unexpected Server Error', internalMessage: error}};
+    }
+  }
+
+  async GetProducts({ monitorpageId }: { monitorpageId: string }): Promise<IResult> {
+    try {
+      if (!monitorpageId)
+        return {success: false, error: {status: 400, message: '\'monitorpageId\' is missing'}};
+
+      let products = await this.monitorClientService.GetProducts({ monitorpageId });
+
+      let productsOut = [];
+
+      for (let i = 0; i < products.length; i++) {
+        let productOut: { id: string, name: string, href: string, img: string, monitored: boolean } = { id: '', name: '', href: '', img: '', monitored: false };
+        productOut.id = products[i].getId();
+        productOut.name = products[i].getName();
+        productOut.href = products[i].getHref();
+        productOut.img = products[i].getImg();
+        productOut.monitored = products[i].getMonitored();
+        productsOut.push(productOut);
+      }
+        
+      return {success: true, data: { products: productsOut }};
+    } catch (error) {
+      return {success: false, error: {status: 500, message: 'Unexpected Server Error', internalMessage: error}};
+    }
+  }
+
+  async ActivateProductMonitoring({ id, monitorpageId }: { id: string, monitorpageId: string }): Promise<IResult> {
+    try {
+      if (!monitorpageId)
+        return {success: false, error: {status: 400, message: '\'monitorpageId\' is missing'}};
+
+      await this.monitorClientService.ActivateProductMonitoring({ id, monitorpageId });
+        
+      return { success: true };
+    } catch (error) {
+      return {success: false, error: {status: 500, message: 'Unexpected Server Error', internalMessage: error}};
+    }
+  }
+
+  async DisableProductMonitoring({ id, monitorpageId }: { id: string, monitorpageId: string }): Promise<IResult> {
+    try {
+      if (!monitorpageId)
+        return {success: false, error: {status: 400, message: '\'monitorpageId\' is missing'}};
+
+      await this.monitorClientService.DisableProductMonitoring({ id, monitorpageId });
+        
+      return { success: true };
+    } catch (error) {
+      return {success: false, error: {status: 500, message: 'Unexpected Server Error', internalMessage: error}};
+    }
+  }
+
+  async GetFilters({ monitorpageId }: { monitorpageId: string }): Promise<IResult> {
+    try {
+      if (!monitorpageId)
+        return {success: false, error: {status: 400, message: '\'monitorpageId\' is missing'}};
+
+      let filters = await this.monitorClientService.GetFilters({ monitorpageId });
+
+      let filtersOut = [];
+
+      for (let i = 0; i < filters.length; i++) {
+        let filterOut: { id: string, value: string } = { id: '', value: '' };
+        filterOut.id = filters[i].getId();
+        filterOut.value = filters[i].getValue();
+        filtersOut.push(filterOut);
+      }
+        
+      return {success: true, data: { filters: filtersOut }};
+    } catch (error) {
+      return {success: false, error: {status: 500, message: 'Unexpected Server Error', internalMessage: error}};
+    }
+  }
+
+  async AddFilter({ value, monitorpageId }: { value: string, monitorpageId: string }): Promise<IResult> {
+    try {
+      if (!value)
+        return {success: false, error: {status: 400, message: '\'value\' is missing'}};
+
+      if (!monitorpageId)
+        return {success: false, error: {status: 400, message: '\'monitorpageId\' is missing'}};
+
+      let filter = await this.monitorClientService.AddFilter({ value, monitorpageId });
+
+      let filterOut: { id: string, value: string } = { id: '', value: '' };
+      filterOut.id = filter.getId();
+      filterOut.value = filter.getValue();
+        
+      return {success: true, data: { filter: filterOut }};
+    } catch (error) {
+      return {success: false, error: {status: 500, message: 'Unexpected Server Error', internalMessage: error}};
+    }
+  }
+
+  async RemoveFilter({ id, monitorpageId }: { id: string, monitorpageId: string }): Promise<IResult> {
+    try {
+      if (!id)
+        return {success: false, error: {status: 400, message: '\'id\' is missing'}};
+
+      if (!monitorpageId)
+        return {success: false, error: {status: 400, message: '\'monitorpageId\' is missing'}};
+
+      await this.monitorClientService.RemoveFilter({ id, monitorpageId });
+        
+      return { success: true };
     } catch (error) {
       return {success: false, error: {status: 500, message: 'Unexpected Server Error', internalMessage: error}};
     }

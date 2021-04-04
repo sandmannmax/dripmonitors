@@ -11,6 +11,8 @@ export default {
   aws_secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY,
   redisHost: process.env.REDIS_HOST,
   redisPort: process.env.REDIS_PORT,
+  monitorHost: process.env.API_MONITOR_HOST,
+  monitorPort: process.env.API_MONITOR_PORT,
   scraperHost: process.env.API_SCRAPER_HOST,
   scraperPort: process.env.API_SCRAPER_PORT,
   postgresHost: process.env.POSTGRES_HOST,
@@ -21,7 +23,7 @@ export default {
 }
 
 export function ConfigSetup() {
-  const envs = ['API_PORT', 'API_LOG_LEVEL', 'API_HTTP_LOG_LEVEL', 'API_AUTH0_TENANT', 'API_AUTH0_AUDIENCE', 'API_AUTH0_CLIENT_ID', 'API_AUTH0_CLIENT_SECRET', 'AWS_REGION', 'AWS_ACCESS_KEY', 'AWS_SECRET_ACCESS_KEY', 'REDIS_HOST', 'REDIS_PORT', 'API_SCRAPER_HOST', 'API_SCRAPER_PORT', 'POSTGRES_HOST', 'POSTGRES_PORT', 'POSTGRES_USER', 'POSTGRES_PASSWORD', 'POSTGRES_DB']
+  const envs = ['API_PORT', 'API_LOG_LEVEL', 'API_HTTP_LOG_LEVEL', 'API_AUTH0_TENANT', 'API_AUTH0_AUDIENCE', 'API_AUTH0_CLIENT_ID', 'API_AUTH0_CLIENT_SECRET', 'AWS_REGION', 'AWS_ACCESS_KEY', 'AWS_SECRET_ACCESS_KEY', 'REDIS_HOST', 'REDIS_PORT', 'API_MONITOR_HOST', 'API_MONITOR_PORT', 'API_SCRAPER_HOST', 'API_SCRAPER_PORT', 'POSTGRES_HOST', 'POSTGRES_PORT', 'POSTGRES_USER', 'POSTGRES_PASSWORD', 'POSTGRES_DB']
 
   for (let i = 0; i < envs.length; i++) {
     if (!process.env[envs[i]]) {
