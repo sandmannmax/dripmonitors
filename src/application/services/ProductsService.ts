@@ -1,6 +1,7 @@
 import { ProductDTO } from "../dto/ProductDTO";
 import { IProductRepo } from "../../domain/repos/IProductRepo";
 import { ProductMap } from "../mappers/ProductMap";
+import { logger } from "../../util/logger";
 
 export interface IProductsService {
   getProductsByMonitorpageId({ monitorpageId }: { monitorpageId: string }): Promise<ProductDTO[]>;

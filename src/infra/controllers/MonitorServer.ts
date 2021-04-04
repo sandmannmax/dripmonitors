@@ -2,8 +2,8 @@ import { ServerUnaryCall, sendUnaryData } from '@grpc/grpc-js';
 import { GetProductsRequest, GetProductsResponse, ActivateProductMonitoringRequest, ActivateProductMonitoringResponse, DisableProductMonitoringRequest, DisableProductMonitoringResponse, GetFiltersRequest, GetFiltersResponse, AddFilterRequest, AddFilterResponse, RemoveFilterRequest, RemoveFilterResponse, Product as GrpcProduct, Filter } from '../../proto/monitor/v1/monitor_pb';
 import { IProductsService } from '../../application/services/ProductsService';
 import { IFiltersService } from '../../application/services/FiltersService';
-import { ProductRequestDTOToGrpcProduct } from '../mappers/ProductRequestDTOToGrpcProduct';
-import { FilterRequestDTOToGrpcFilter } from '../mappers/FilterRequestDTOToGrpcFilter';
+import { ProductDTOToGrpcProduct } from '../mappers/ProductDTOToGrpcProduct';
+import { FilterDTOToGrpcFilter } from '../mappers/FilterDTOToGrpcFilter';
 
 export class MonitorServer {
   private productsService: IProductsService;
@@ -19,7 +19,7 @@ export class MonitorServer {
       let monitorpageId = call.request.getMonitorpageId();
 
       let products = await this.productsService.getProductsByMonitorpageId({ monitorpageId });
-      let grpcProducts: GrpcProduct[] = ProductRequestDTOToGrpcProduct.MultiMap(products);
+      let grpcProducts: GrpcProduct[] = ProductDTOToGrpcProduct.MultiMap(products);
 
       let response = new GetProductsResponse();
       response.setProductsList(grpcProducts);
@@ -61,7 +61,7 @@ export class MonitorServer {
       let monitorpageId = call.request.getMonitorpageId();
 
       let filters = await this.filtersService.getFiltersByMonitorpageId({ monitorpageId });
-      let grpcFilters: Filter[] = FilterRequestDTOToGrpcFilter.MultiMap(filters);
+      let grpcFilters: Filter[] = FilterDTOToGrpcFilter.MultiMap(filters);
 
       let response = new GetFiltersResponse();
       response.setFiltersList(grpcFilters);
@@ -79,7 +79,7 @@ export class MonitorServer {
       let filterValue = call.request.getValue();
 
       let filter = await this.filtersService.addFilter({ monitorpageId, filterValue });
-      let grpcFilter: Filter = FilterRequestDTOToGrpcFilter.Map(filter);
+      let grpcFilter: Filter = FilterDTOToGrpcFilter.Map(filter);
 
       let response = new AddFilterResponse();
       response.setFilter(grpcFilter);

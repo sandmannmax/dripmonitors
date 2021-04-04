@@ -1,6 +1,9 @@
+import { UniqueEntityID } from "../../core/base/UniqueEntityID";
 import { MonitorpageId } from "../../domain/models/MonitorpageId";
+import { Price } from "../../domain/models/Price";
 import { Product } from "../../domain/models/Product";
 import { Size } from "../../domain/models/Size";
+import { logger } from "../../util/logger";
 import { ProductDTO } from "../dto/ProductDTO";
 
 export class ProductMap {
@@ -14,10 +17,16 @@ export class ProductMap {
     return { id, productId, name, href, img, monitored };
   }
 
-  public static toAggregate(raw: any): Product {
+  public static toAggregate(raw: any, id?: UniqueEntityID): Product {
     let monitorpageId = MonitorpageId.create({
       value: raw.monitorpageId
     });
+
+    let price;
+
+    if (raw.priceValue) {
+      price = Price.create({ value: Number.parseFloat(raw.priceValue), currency: raw.priceCurrency });
+    }
 
     let sizes: Size[] | undefined = ProductMap.getSizes({ sizesPersistence: raw.sizes });
 
@@ -28,10 +37,10 @@ export class ProductMap {
       img: raw.img,
       monitorpageId: monitorpageId,
       monitored: raw.monitored === '1',
-      price: !!raw.price ? raw.price : undefined,
+      price,
       active: !!raw.active ? raw.active === '1' : undefined,
       sizes
-    });
+    }, id);
     
     return product;    
   }
@@ -48,9 +57,11 @@ export class ProductMap {
     result.productPersistence.monitorpageId = product.monitorpageId.value;
     if (!!product.active)
       result.productPersistence.active = product.active ? '1' : '0';
-    if (!!product.price)
-      result.productPersistence.price = product.price;
-    if (!!product.sizes) {
+    if (!!product.price) {
+      result.productPersistence.priceValue = product.price.value.toFixed(2);
+      result.productPersistence.priceCurrency = product.price.currency;
+    }
+    if (!!product.sizes && product.sizes.length > 0) {
       result.sizesPersistence = {};
       for (let i = 0; i < product.sizes.length; i++) {
         result.sizesPersistence[product.sizes[i].value] = product.sizes[i].soldOut ? '1' : '0';

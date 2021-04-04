@@ -1,71 +1,75 @@
 import { MessageEmbed, WebhookClient } from 'discord.js';
-import { Product } from '../types/Product';
+import { ChannelDTO, IsChannelDTO } from '../../application/dto/ChannelDTO';
+import { NotifySubjectDTO } from '../../application/dto/NotifySubjectDTO';
+import { IsWebhookDTO, WebhookDTO } from '../../application/dto/WebhookDTO';
+import { INotificationService } from '../../application/interface/INotificationService';
+import { logger } from '../../util/logger';
 
-export class DiscordService {
-  export async function SendMessage({
-    monitors,
-    product,
-    size,
-    page,
-  }: {
-    monitors: Array<Monitor>;
-    product: Product;
-    size: string;
-    page: string;
-  }) {
-    monitors.forEach((monitor) => {
-      try {
-        if (!monitor.botName) {
-          monitor.botName = 'Lazy Monitor';
+export class DiscordService implements INotificationService {
+  notify(subject: NotifySubjectDTO, targets: ChannelDTO[] | WebhookDTO[]): void {
+    for (let i = 0; i < targets.length; i++) {
+      let target = targets[i];
+
+      if (IsChannelDTO(target)) {
+        target = target as ChannelDTO;
+        logger.warn('NotificationService with ChannelDTO is not implemented yet!');
+      } else if (IsWebhookDTO(target)) {
+        target = target as WebhookDTO;
+        const webhookClient = new WebhookClient(target.webhookId, target.webhookToken);
+        let name = target.name;
+        let img = target.img;
+
+        if (!name) {
+          name = 'Lazy Monitor';
         }
 
-        if (!monitor.botImage)
-          monitor.botImage = 'https://lazyshoebot.com/logoWide.png';
-
-        const webHookStrings = monitor.webHook.split('/');
-        const id = webHookStrings[webHookStrings.length - 2];
-        const token = webHookStrings[webHookStrings.length - 1];
-        const webhookClient = new WebhookClient(id, token);
-
-        const colors = ['#0099ff', '#aaee99', '#aaee77', '#d0d000'];
-        const index = Math.floor(Math.random() * colors.length);
-
-        let description = `**Page:** ${page}\n**Price:** ${product.price}`;
-
-        if (size) {
-          description += `\n**Size:** ${size}`;
+        if (!img) {
+          img = 'https://www.lazyshoebot.com/logoWide.png';
         }
 
+        const color = '#db3e3e';
         let message;
 
-        if (monitor.role) {
-          message = monitor.role;
+        if (target.roles) {
+          message = target.roles.map(roleId => "<@&" + roleId + ">").join(' ');
         }
 
-        const embed: MessageEmbed = new MessageEmbed()
-          .setColor(colors[index])
-          .setTitle(product.name)
-          .setThumbnail(product.img)
-          .setURL(product.href)
-          .setDescription(description)
+        let embed: MessageEmbed = new MessageEmbed()
+          .setColor(color)
+          .setTitle(subject.name)
+          .setThumbnail(subject.img)
+          .setURL(subject.href)
           .setTimestamp()
           .setFooter(
             'Powered by LazyShoeBot - Still in Beta',
-            'http://lazyshoebot.com/logoWide.png'
+            'https://www.lazyshoebot.com/logoWide.png'
           );
 
-        webhookClient.send(message, {
-          embeds: [embed],
-          username: monitor.botName,
-          avatarURL: monitor.botImage,
-        });
-      } catch (error) {
-        logger.error(
-          `Error in DiscordService with ${monitor.id} ${
-            product.id
-          }: ${JSON.stringify(error)}`,
-        );
+        embed = embed.addField('Price', subject.price);
+
+        let sizes = '';
+
+        for (let i = 0; i < subject.sizes.length; i++) {
+          sizes += subject.sizes[i];
+          if (i != subject.sizes.length - 1) {
+            sizes += ' - '
+          }
+        }
+
+        embed = embed.addField('Sizes', sizes);
+
+        try {
+          webhookClient.send(message, {
+            embeds: [embed],
+            username: name,
+            avatarURL: img,
+          });
+        } catch (error) {
+          logger.error(`Error in DiscordService: ${JSON.stringify(error)}`);
+        }
+      } else {
+        logger.error('Target can\'t be notified.');
       }
-    });
+    }
   }
 }

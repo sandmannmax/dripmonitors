@@ -4,6 +4,8 @@ import { IProductRepo } from '../../domain/repos/IProductRepo';
 import { Product } from '../../domain/models/Product';
 import { ProductMap } from '../../application/mappers/ProductMap';
 import { RedisRawMap } from '../mappers/RedisRawMap';
+import { UniqueEntityID } from '../../core/base/UniqueEntityID';
+import { logger } from '../../util/logger';
 
 export class ProductRepo implements IProductRepo {
   private redisClient: WrappedNodeRedisClient;
@@ -17,11 +19,11 @@ export class ProductRepo implements IProductRepo {
     let sizes = await this.redisClient.hgetall(`product:${id}:sizes`);
     let productRaw = RedisRawMap.toRaw(product);
     productRaw.sizes = RedisRawMap.toRaw(sizes);
-    return ProductMap.toAggregate(productRaw);
+    return ProductMap.toAggregate(productRaw, new UniqueEntityID(id));
   }
 
   async getProductsByMonitorpageId(monitorpageId: string): Promise<Product[]> {
-    let ids = await this.redisClient.smembers(`product:monitorpage:${monitorpageName}`);
+    let ids = await this.redisClient.smembers(`product:monitorpage:${monitorpageId}`);
 
     let productPromises: Promise<Product | null>[] = [];
     for (let i = 0; i < ids.length; i++) {
@@ -64,7 +66,7 @@ export class ProductRepo implements IProductRepo {
     } else {
       let multi: any = this.redisClient.multi()
         .sadd('product', productId)
-        .sadd(`product:monitorpage:${product.monitorpage.name}`, productId)
+        .sadd(`product:monitorpage:${product.monitorpageId.value}`, productId)
         .hset(`product:${productId}`, ...RedisRawMap.toPersistence(productPersistence));
 
       if (sizesPersistence) {
@@ -83,7 +85,7 @@ export class ProductRepo implements IProductRepo {
 
       let multi: any = this.redisClient.multi()
         .srem('product', id)
-        .srem(`product:monitorpage:${product.monitorpage.name}`, id)
+        .srem(`product:monitorpage:${product.monitorpageId.value}`, id)
         .hdel(`product:${id}`, ...fields);
 
       if (product.sizes) {

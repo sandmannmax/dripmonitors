@@ -11,6 +11,12 @@ import { NikeMonitor } from '../application/monitors/NikeMonitor';
 import { ProductRepo } from '../infra/repos/ProductRepo';
 import { FilterRepo } from '../infra/repos/FilterRepo';
 import { AddFilterRequest, AddFilterResponse, ActivateProductMonitoringRequest, ActivateProductMonitoringResponse, GetFiltersRequest, GetFiltersResponse, GetProductsRequest, GetProductsResponse, RemoveFilterRequest, RemoveFilterResponse, DisableProductMonitoringRequest, DisableProductMonitoringResponse } from '../proto/monitor/v1/monitor_pb';
+import { ScraperClientService } from '../infra/services/ScraperClientService';
+import { DiscordService } from '../infra/services/DiscordService';
+import { SupremeMonitor } from '../application/monitors/SupremeMonitor';
+import { ZalandoMonitor } from '../application/monitors/ZalandoMonitor';
+import { AfewMonitor } from '../application/monitors/AfewMonitor';
+import { FootlockerMonitor } from '../application/monitors/FootlockerMonitor';
 
 export async function Start(): Promise<void> {
   ConfigSetup();
@@ -21,11 +27,19 @@ export async function Start(): Promise<void> {
   });
   const subscriber = client.duplicate();
 
-  const nikeMonitor = new NikeMonitor();
-  const monitorService = new MonitorService(nikeMonitor);
-  const redisController = new RedisController({ client: subscriber, monitorService });
   const productRepo = new ProductRepo(client);
   const filterRepo = new FilterRepo(client);
+
+  const discordService = new DiscordService();
+
+  const scraperService = new ScraperClientService();
+  const nikeMonitor = new NikeMonitor(scraperService, productRepo, filterRepo, discordService);
+  const supremeMonitor = new SupremeMonitor(scraperService, productRepo, filterRepo, discordService);
+  const zalandoMonitor = new ZalandoMonitor(scraperService, productRepo, filterRepo, discordService);
+  const afewMonitor = new AfewMonitor(scraperService, productRepo, filterRepo, discordService);
+  const footlockerMonitor = new FootlockerMonitor(scraperService, productRepo, filterRepo, discordService);
+  const monitorService = new MonitorService(nikeMonitor, supremeMonitor, zalandoMonitor, afewMonitor, footlockerMonitor);
+  const redisController = new RedisController({ client: subscriber, monitorService });
 
   const productsService = new ProductsService(productRepo);
   const filtersService = new FiltersService(filterRepo);

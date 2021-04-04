@@ -2,6 +2,7 @@ import { RedisClient } from 'redis';
 import { createNodeRedisClient, WrappedNodeRedisClient } from 'handy-redis';
 import { IMonitorService } from '../../application/services/MonitorService';
 import { logger } from '../../util/logger';
+import { IsMonitorJobContentDTO } from '../../application/dto/MonitorJobContentDTO';
 
 export class RedisController {
   private monitorService: IMonitorService;
@@ -53,6 +54,15 @@ export class RedisController {
       return;
     }
 
-    this.monitorService.runMonitor({ name, content });
+    if (!IsMonitorJobContentDTO(content)) {
+      logger.error('Received content is not of type MonitorJobContentDTO.');
+      return;
+    }
+
+    try {
+      this.monitorService.runMonitor({ name, content });
+    } catch(e) {
+      logger.error(JSON.stringify(e));
+    }
   }
 }

@@ -11,10 +11,10 @@
   "dependencies": {
     "@grpc/grpc-js": "^1.2.8",
     "aws-sdk": "^2.839.0",
+    "cheerio": "^1.0.0-rc.5",
     "discord.js": "^12.5.1",
     "google-protobuf": "^3.15.3",
     "handy-redis": "^2.2.1",
-    "jssoup": "0.0.12",
     "md5": "^2.3.0",
     "pino": "^6.11.2",
     "redis": "^3.0.2",

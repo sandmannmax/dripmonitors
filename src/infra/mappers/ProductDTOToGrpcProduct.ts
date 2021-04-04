@@ -1,7 +1,7 @@
 import { ProductDTO } from "../../application/dto/ProductDTO";
 import { Product } from "../../proto/monitor/v1/monitor_pb";
 
-export class ProductRequestDTOToGrpcProduct {
+export class ProductDTOToGrpcProduct {
   public static Map(product: ProductDTO): Product {
     let mappedProduct: Product = new Product;
     mappedProduct.setId(product.id);
@@ -15,7 +15,7 @@ export class ProductRequestDTOToGrpcProduct {
   public static MultiMap(products: ProductDTO[]): Product[] {
     let mappedProducts: Product[] = [];
     for (let i = 0; i < products.length; i++) {
-      mappedProducts.push(ProductRequestDTOToGrpcProduct.Map(products[i]));
+      mappedProducts.push(ProductDTOToGrpcProduct.Map(products[i]));
     }
     return mappedProducts;
   }

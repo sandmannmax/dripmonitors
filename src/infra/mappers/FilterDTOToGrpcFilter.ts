@@ -1,10 +1,10 @@
 import { FilterDTO } from "../../application/dto/FilterDTO";
 import { Filter } from "../../proto/monitor/v1/monitor_pb";
 
-export class FilterRequestDTOToGrpcFilter {
+export class FilterDTOToGrpcFilter {
   public static Map(filter: FilterDTO): Filter {
     let mappedFilter: Filter = new Filter;
-    mappedFilter.setId(filter.id.toValue().toString());
+    mappedFilter.setId(filter.id);
     mappedFilter.setValue(filter.value);
     return mappedFilter;
   }
@@ -12,7 +12,7 @@ export class FilterRequestDTOToGrpcFilter {
   public static MultiMap(filters: FilterDTO[]): Filter[] {
     let mappedFilters: Filter[] = [];
     for (let i = 0; i < filters.length; i++) {
-      mappedFilters.push(FilterRequestDTOToGrpcFilter.Map(filters[i]));
+      mappedFilters.push(FilterDTOToGrpcFilter.Map(filters[i]));
     }
     return mappedFilters;
   }

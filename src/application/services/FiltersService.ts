@@ -3,6 +3,7 @@ import { FilterDTO } from "../dto/FilterDTO";
 import { IFilterRepo } from "../../domain/repos/IFilterRepo";
 import { FilterMap } from "../mappers/FilterMap";
 import { MonitorpageId } from "../../domain/models/MonitorpageId";
+import { logger } from "../../util/logger";
 
 export interface IFiltersService {
   getFiltersByMonitorpageId({ monitorpageId }: { monitorpageId: string }): Promise<FilterDTO[]>;

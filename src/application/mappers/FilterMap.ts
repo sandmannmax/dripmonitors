@@ -1,5 +1,7 @@
+import { UniqueEntityID } from "../../core/base/UniqueEntityID";
 import { Filter } from "../../domain/models/Filter";
 import { MonitorpageId } from "../../domain/models/MonitorpageId";
+import { logger } from "../../util/logger";
 import { FilterDTO } from "../dto/FilterDTO";
 
 export class FilterMap {
@@ -10,7 +12,7 @@ export class FilterMap {
     return { id, value, monitorpageId };
   }
 
-  public static toAggregate(raw: any): Filter {
+  public static toAggregate(raw: any, id: string): Filter {
     let monitorpageId = MonitorpageId.create({
       value: raw.monitorpageId
     });
@@ -18,7 +20,7 @@ export class FilterMap {
     return Filter.create({
       value: raw.value,
       monitorpageId
-    });  
+    }, new UniqueEntityID(id));  
   }
 
   public static toPersistence(filter: Filter): any {

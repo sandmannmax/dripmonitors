@@ -4,6 +4,7 @@ import { IFilterRepo } from "../../domain/repos/IFilterRepo";
 import { Filter } from "../../domain/models/Filter";
 import { FilterMap } from "../../application/mappers/FilterMap";
 import { RedisRawMap } from "../mappers/RedisRawMap";
+import { logger } from "../../util/logger";
 
 export class FilterRepo implements IFilterRepo {
   private redisClient: WrappedNodeRedisClient;
@@ -15,7 +16,7 @@ export class FilterRepo implements IFilterRepo {
   async getFilterById(id: string): Promise<Filter> {
     let filter = await this.redisClient.hgetall(`filter:${id}`);
     let filterRaw = RedisRawMap.toRaw(filter);
-    return FilterMap.toAggregate(filterRaw);
+    return FilterMap.toAggregate(filterRaw, id);
   }
 
   async getFiltersByMonitorpageId(monitorpageId: string): Promise<Filter[]> {
