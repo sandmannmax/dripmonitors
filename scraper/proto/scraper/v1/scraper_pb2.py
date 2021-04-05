@@ -19,7 +19,7 @@ DESCRIPTOR = _descriptor.FileDescriptor(
   syntax='proto3',
   serialized_options=None,
   create_key=_descriptor._internal_create_key,
-  serialized_pb=b'\n\x18scraper/v1/scraper.proto\x12\nscraper.v1\"L\n\nGetRequest\x12\x10\n\x03url\x18\x01 \x01(\tR\x03url\x12\x14\n\x05proxy\x18\x02 \x01(\tR\x05proxy\x12\x16\n\x06isHtml\x18\x03 \x01(\x08R\x06isHtml\"W\n\x0bGetResponse\x12\x18\n\x07success\x18\x01 \x01(\x08R\x07success\x12\x18\n\x07\x63ontent\x18\x02 \x01(\tR\x07\x63ontent\x12\x14\n\x05\x65rror\x18\x03 \x01(\tR\x05\x65rror2J\n\x0eScraperService\x12\x38\n\x03Get\x12\x16.scraper.v1.GetRequest\x1a\x17.scraper.v1.GetResponse\"\x00\x62\x06proto3'
+  serialized_pb=b'\n\x18scraper/v1/scraper.proto\x12\nscraper.v1\"M\n\nGetRequest\x12\x10\n\x03url\x18\x01 \x01(\tR\x03url\x12\x14\n\x05proxy\x18\x02 \x01(\tR\x05proxy\x12\x17\n\x07is_html\x18\x03 \x01(\x08R\x06isHtml\"\x7f\n\x0bGetResponse\x12\x1f\n\x0bstatus_code\x18\x01 \x01(\x05R\nstatusCode\x12\x1f\n\x0bproxy_error\x18\x02 \x01(\x08R\nproxyError\x12\x18\n\x07\x63ontent\x18\x03 \x01(\tR\x07\x63ontent\x12\x14\n\x05\x65rror\x18\x04 \x01(\tR\x05\x65rror2J\n\x0eScraperService\x12\x38\n\x03Get\x12\x16.scraper.v1.GetRequest\x1a\x17.scraper.v1.GetResponse\"\x00\x62\x06proto3'
 )
 
 
@@ -48,7 +48,7 @@ _GETREQUEST = _descriptor.Descriptor(
       is_extension=False, extension_scope=None,
       serialized_options=None, json_name='proxy', file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
     _descriptor.FieldDescriptor(
-      name='isHtml', full_name='scraper.v1.GetRequest.isHtml', index=2,
+      name='is_html', full_name='scraper.v1.GetRequest.is_html', index=2,
       number=3, type=8, cpp_type=7, label=1,
       has_default_value=False, default_value=False,
       message_type=None, enum_type=None, containing_type=None,
@@ -67,7 +67,7 @@ _GETREQUEST = _descriptor.Descriptor(
   oneofs=[
   ],
   serialized_start=40,
-  serialized_end=116,
+  serialized_end=117,
 )
 
 
@@ -80,22 +80,29 @@ _GETRESPONSE = _descriptor.Descriptor(
   create_key=_descriptor._internal_create_key,
   fields=[
     _descriptor.FieldDescriptor(
-      name='success', full_name='scraper.v1.GetResponse.success', index=0,
-      number=1, type=8, cpp_type=7, label=1,
+      name='status_code', full_name='scraper.v1.GetResponse.status_code', index=0,
+      number=1, type=5, cpp_type=1, label=1,
+      has_default_value=False, default_value=0,
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, json_name='statusCode', file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
+    _descriptor.FieldDescriptor(
+      name='proxy_error', full_name='scraper.v1.GetResponse.proxy_error', index=1,
+      number=2, type=8, cpp_type=7, label=1,
       has_default_value=False, default_value=False,
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
-      serialized_options=None, json_name='success', file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
+      serialized_options=None, json_name='proxyError', file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
     _descriptor.FieldDescriptor(
-      name='content', full_name='scraper.v1.GetResponse.content', index=1,
-      number=2, type=9, cpp_type=9, label=1,
+      name='content', full_name='scraper.v1.GetResponse.content', index=2,
+      number=3, type=9, cpp_type=9, label=1,
       has_default_value=False, default_value=b"".decode('utf-8'),
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       serialized_options=None, json_name='content', file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
     _descriptor.FieldDescriptor(
-      name='error', full_name='scraper.v1.GetResponse.error', index=2,
-      number=3, type=9, cpp_type=9, label=1,
+      name='error', full_name='scraper.v1.GetResponse.error', index=3,
+      number=4, type=9, cpp_type=9, label=1,
       has_default_value=False, default_value=b"".decode('utf-8'),
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
@@ -112,8 +119,8 @@ _GETRESPONSE = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=118,
-  serialized_end=205,
+  serialized_start=119,
+  serialized_end=246,
 )
 
 DESCRIPTOR.message_types_by_name['GetRequest'] = _GETREQUEST
@@ -143,8 +150,8 @@ _SCRAPERSERVICE = _descriptor.ServiceDescriptor(
   index=0,
   serialized_options=None,
   create_key=_descriptor._internal_create_key,
-  serialized_start=207,
-  serialized_end=281,
+  serialized_start=248,
+  serialized_end=322,
   methods=[
   _descriptor.MethodDescriptor(
     name='Get',

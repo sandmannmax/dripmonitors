@@ -12,6 +12,9 @@ jobs:
 
     steps:
     - uses: actions/checkout@v2
+    - name: Get the version
+      id: get_version
+      run: echo ::set-output name=VERSION::${GITHUB_REF/refs\/tags\//}
     - name: Configure AWS Credentials
       uses: aws-actions/configure-aws-credentials@v1
       with:
@@ -31,7 +34,8 @@ jobs:
     - name: Build, tag, and push image to Amazon ECR
       env:
         ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
+        IMAGE_TAG_V: ${{ steps.get_version.outputs.VERSION }}
       run: |
         echo $IMAGE
-        docker build -t $ECR_REGISTRY/lsb-scraper:latest .
-        docker push $ECR_REGISTRY/lsb-scraper:latest
+        docker build -t $ECR_REGISTRY/lsb-scraper:$IMAGE_TAG_V  .
+        docker push $ECR_REGISTRY/lsb-scraper:$IMAGE_TAG_V 
