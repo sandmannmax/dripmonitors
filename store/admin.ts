@@ -117,7 +117,34 @@ export const adminModule = {
       if (response && response.message)
         return response.message;
       return '';
-    }
+    },
+    async getProducts({ commit }, { monitorpageId, auth }) {
+      let urlApi = config.api_url + '/admin/monitorpage/' + monitorpageId + '/product';
+      let response = await getRequest({ url: urlApi, auth });
+      if (response && response.data && response.data.products)
+        commit('setProducts', { monitorpageId, products: response.data.products });
+      if (response && response.message)
+        return response.message;
+      return '';
+    },
+    async activateMonitoringProduct({ commit }, { productId, monitorpageId, auth }) {
+      let urlApi = config.api_url + '/admin/monitorpage/' + monitorpageId + '/product/' + productId + '/activate';
+      let response = await postRequest({ url: urlApi, data: null, auth });
+      if (response && response.data == '')
+        commit('activateMonitoringProduct', { productId, monitorpageId });
+      if (response && response.message)
+        return response.message;
+      return '';
+    },
+    async disableMonitoringProduct({ commit }, { productId, monitorpageId, auth }) {
+      let urlApi = config.api_url + '/admin/monitorpage/' + monitorpageId + '/product/' + productId + '/disable';
+      let response = await postRequest({ url: urlApi, data: null, auth });
+      if (response && response.data == '')
+        commit('disableMonitoringProduct', { productId, monitorpageId });
+      if (response && response.message)
+        return response.message;
+      return '';
+    },
   },  
   mutations: {
     setMonitorpages: (state: any, monitorpages) => {
@@ -191,6 +218,30 @@ export const adminModule = {
         proxies.splice(index, 1);
       }
       state.proxies = [...proxies];
-    }
+    },
+    setProducts: (state: any, { monitorpageId, products }) => {
+      let monitorpages = state.monitorpages;
+      let index = monitorpages.findIndex(item => item.id === monitorpageId);
+      monitorpages[index].products = [...products];
+      state.monitorpages = [...monitorpages];
+    },
+    activateMonitoringProduct: (state: any, { productId, monitorpageId }) => {
+      let monitorpages = state.monitorpages;
+      let index = monitorpages.findIndex(item => item.id === monitorpageId);
+      let products = monitorpages[index].products;
+      let productIndex = products.findIndex(item => item.id === productId);
+      products[productIndex].monitored = true;
+      monitorpages[index].products = [...products];
+      state.monitorpages = [...monitorpages];
+    },
+    disableMonitoringProduct: (state: any, { productId, monitorpageId }) => {
+      let monitorpages = state.monitorpages;
+      let index = monitorpages.findIndex(item => item.id === monitorpageId);
+      let products = monitorpages[index].products;
+      let productIndex = products.findIndex(item => item.id === productId);
+      products[productIndex].monitored = false;
+      monitorpages[index].products = [...products];
+      state.monitorpages = [...monitorpages];
+    },
   }
 }

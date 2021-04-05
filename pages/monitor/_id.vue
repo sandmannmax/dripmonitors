@@ -101,7 +101,7 @@
 import { Component, Vue, Watch } from 'vue-property-decorator';
 import { Action, Getter, namespace } from 'vuex-class';
 import Toggle from '../../components/Toggle.vue';
-import Monitorsource from '../../components/Monitorsource.vue';
+import Monitorsource from '../../components/MonitorSource.vue';
 
 const monitorModule = namespace('monitorModule');
 

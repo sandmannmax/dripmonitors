@@ -37,6 +37,7 @@
         </div>
       </div>
       <Urls :urls="selectedMonitorpage.urls" :monitorpageId="selectedMonitorpage.id"/>
+      <Products :products="selectedMonitorpage.products" :monitorpageId="selectedMonitorpage.id"/>
     </div>
     <div v-if="showModalTest" class="fixed flex justify-center items-center w-screen h-screen top-0 left-0 bg-gray-100 bg-opacity-50 z-10 text-lg">
         <div class="bg-white px-8 py-4 rounded border-gray-600 border-2 flex flex-col md:w-4/12 sm:w-6/12 w-11/12 ">
@@ -56,12 +57,13 @@ import ProxiesAdmin from '../../../components/admin/Proxies.vue';
 import MonitorpagesAdmin from '../../../components/admin/Monitorpages.vue';
 import Urls from '../../../components/admin/Urls.vue';
 import Url from '../../../components/admin/Url.vue';
+import Products from '../../../components/admin/Products.vue';
 
 const userModule = namespace('userModule');
 const adminModule = namespace('adminModule');
 
 @Component({
-  components: { ProxiesAdmin, MonitorpagesAdmin, Urls, Url }
+  components: { ProxiesAdmin, MonitorpagesAdmin, Urls, Url, Products }
 })
 export default class Monitorpage extends Vue {
   $auth;
@@ -74,6 +76,7 @@ export default class Monitorpage extends Vue {
   @adminModule.Action stopMonitorpage;
   @adminModule.Action testMonitorpage;
   @adminModule.Action updateMonitorpage;
+  @adminModule.Action getProducts;
 
   name = '';
   cc = '';
@@ -96,6 +99,7 @@ export default class Monitorpage extends Vue {
       if (!this.$route.params.id)
         this.$router.push('/admin')
       else {
+        await this.getProducts({ monitorpageId: this.$route.params.id, auth: this.$auth });
         this.updateSelectedMonitorpage();
       }
     }
