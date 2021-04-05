@@ -146,20 +146,6 @@ export class AdminRoutes {
       }
     });
 
-    this.router.post('/monitorpage/:id/test', async (req, res, next) => {
-      let id = req.params.id;
-      let { reloadContent } = req.body;
-      let result = await this.adminService.TestMonitorpage({ id, reloadContent });
-      if (result.success)
-        res.json(result.data);
-      else if (result.error)
-        next(result.error);
-      else {
-        let err: IError = {status: 500, message: 'Unexpected Error'};
-        next(err);
-      }
-    });
-
     this.router.get('/proxy', async (req, res, next) => {
       let result = await this.adminService.GetProxies();
       if (result.success)
@@ -224,8 +210,8 @@ export class AdminRoutes {
       }
     });
 
-    this.router.get('/product', async (req, res, next) => {
-      let { monitorpageId } = req.body;
+    this.router.get('/monitorpage/:monitorpageId/product', async (req, res, next) => {
+      let monitorpageId = req.params.monitorpageId;
       let result = await this.adminService.GetProducts({ monitorpageId });
       if (result.success)
         res.json(result.data);
@@ -237,9 +223,9 @@ export class AdminRoutes {
       }
     });
 
-    this.router.post('/product/:id/activate', async (req, res, next) => {
+    this.router.post('/monitorpage/:monitorpageId/product/:id/activate', async (req, res, next) => {
       let id = req.params.id;
-      let { monitorpageId } = req.body;
+      let monitorpageId = req.params.monitorpageId;
       let result = await this.adminService.ActivateProductMonitoring({ id, monitorpageId });
       if (result.success)
         res.json(result.data);
@@ -251,9 +237,9 @@ export class AdminRoutes {
       }
     });
 
-    this.router.post('/product/:id/disable', async (req, res, next) => {
+    this.router.post('/monitorpage/:monitorpageId/product/:id/disable', async (req, res, next) => {
       let id = req.params.id;
-      let { monitorpageId } = req.body;
+      let monitorpageId = req.params.monitorpageId;
       let result = await this.adminService.DisableProductMonitoring({ id, monitorpageId });
       if (result.success)
         res.json(result.data);
@@ -265,8 +251,8 @@ export class AdminRoutes {
       }
     });
 
-    this.router.get('/filter', async (req, res, next) => {
-      let { monitorpageId } = req.body;
+    this.router.get('/monitorpage/:monitorpageId/filter', async (req, res, next) => {
+      let monitorpageId = req.params.monitorpageId;
       let result = await this.adminService.GetFilters({ monitorpageId });
       if (result.success)
         res.json(result.data);
@@ -278,9 +264,10 @@ export class AdminRoutes {
       }
     });
 
-    this.router.post('/filter', async (req, res, next) => {
-      let { value, monitorpageId } = req.body;
-      let result = await this.adminService.AddFilter({ value, monitorpageId });
+    this.router.post('/monitorpage/:monitorpageId/filter', async (req, res, next) => {
+      let monitorpageId = req.params.monitorpageId;
+      let { value } = req.body;
+      let result = await this.adminService.AddFilter({ monitorpageId, value });
       if (result.success)
         res.json(result.data);
       else if (result.error)
@@ -291,9 +278,9 @@ export class AdminRoutes {
       }
     });
 
-    this.router.delete('/filter/:id', async (req, res, next) => {
+    this.router.delete('/monitorpage/:monitorpageId/filter/:id', async (req, res, next) => {
       let id = req.params.id;
-      let { monitorpageId } = req.body;
+      let monitorpageId = req.params.monitorpageId;
       let result = await this.adminService.RemoveFilter({ id, monitorpageId });
       if (result.success)
         res.json(result.data);

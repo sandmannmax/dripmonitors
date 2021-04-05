@@ -1,16 +1,7 @@
 import Container, { Service } from 'typedi';
-import pino from 'pino';
-import { ScraperClientService } from './ScraperClientService';
-import { Monitorrun } from '../models/Monitorrun';
 import { Monitorpage } from '../models/Monitorpage';
 import { Url } from '../models/Url';
-import { Product } from '../models/Product';
 import { ProxyService } from './ProxyService';
-import { ProductScraped } from '../types/ProductScraped';
-import { DiscordService } from './DiscordService';
-import { Monitor } from '../models/Monitor';
-import { LambdaService } from './LambdaService';
-import { Proxy } from '../models/Proxy';
 import { RedisClient, createClient } from 'redis';
 import config from '../config';
 import { logger } from '../utils/logger';
@@ -65,7 +56,7 @@ export class RunService {
 
       let monitors = await Promise.all(monitorPromises);
 
-      let channels = [];
+      let targets = [];
 
       for (let i = 0; i < monitors.length; i++) {
         let webHook = monitors[i].webHook;
@@ -82,11 +73,11 @@ export class RunService {
           const monitorRoles = await monitors[i].getRoles();
           const roles = monitorRoles.map(role => role.roleId);
 
-          channels.push({ webhookId: id, webhookToken: token, name: monitors[i].botName, img: monitors[i].botImage, roles });
+          targets.push({ webhookId: id, webhookToken: token, name: monitors[i].botName, img: monitors[i].botImage, roles });
         }
       }
       
-      this.redisClient.publish(channel, JSON.stringify({ urls: urlsMessage, proxy: proxy.address, isHtml: monitorpage.isHtml, channels }));
+      this.redisClient.publish(channel, JSON.stringify({ urls: urlsMessage, proxy: proxy.address, targets }));
     }
     catch (e) {
       logger.error(`Error: ${e}`);

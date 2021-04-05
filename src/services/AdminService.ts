@@ -3,7 +3,6 @@ import { IResult } from '../types/IResult';
 import { Monitorpage } from '../models/Monitorpage';
 import { Queue } from 'bull';
 import { QueueProvider } from '../provider/QueueProvider';
-import { ScraperClientService } from './ScraperClientService';
 import { GetMonitorpages_OA, GetMonitorpage_OA } from '../types/Monitorpage';
 import { Url } from '../models/Url';
 import { GetUrls_O, GetUrl_O } from '../types/Url';
@@ -31,7 +30,6 @@ export class AdminService {
 
   constructor(
     private proxyService: ProxyService,
-    private scraperClientService: ScraperClientService,
     private runService: RunService,
     private monitorClientService: MonitorClientService
   ) {
@@ -256,63 +254,6 @@ export class AdminService {
     }
   }
 
-  async TestMonitorpage({ id, reloadContent }: { id: string, reloadContent: boolean }): Promise<IResult> {
-    try {
-      if (!id)
-        return {success: false, error: {status: 400, message: '\'id\' is missing'}};
-
-      if (reloadContent == undefined)
-        return {success: false, error: {status: 400, message: '\'reloadContent\' is missing'}};
-
-      let monitorpage = await Monitorpage.findByPk(id);
-
-      if (!monitorpage)
-        return {success: false, error: {status: 400, message: 'monitorpage is not existing'}};
-
-      if (!monitorpage.functionName)
-        return {success: false, error: {status: 400, message: 'monitorpage has no functionName'}};
-
-      let urls = await Url.findAll({ where: { monitorpageId: monitorpage.id }});
-
-      if (!urls || urls.length == 0)
-        return {success: false, error: {status: 400, message: 'monitorpage has no urls'}};
-
-      let content;
-
-      if (!reloadContent)
-        content = await this.redisGet(id + '-content');
-
-      let proxy = await this.proxyService.GetRandomProxy({ monitorpage });
-      let address = '';
-
-      let oldProducts = await Product.findAll({ where: { monitorpageId: id }});
-
-      if (proxy && proxy.address)
-        address = proxy.address;
-
-      if (reloadContent || !content) {
-
-        if (!proxy || !proxy.address) {
-          this.logger.warn('No Proxy available for TestMonitorpage');
-        }
-
-        content = await this.scraperClientService.Get({ url: urls[0].url, proxy: address, isHtml: monitorpage.isHtml });
-        this.redisSet(id + '-content', content);
-      }
-
-      let productsScraped = await this.runService.RunFunction({ functionName: monitorpage.functionName, content, oldProducts, proxy: address });
-
-      if (!productsScraped)
-        this.logger.info('Scraped 0 Products -> undefined');
-      else
-        this.logger.info(`Scraped ${productsScraped.length} Products`);
-
-      return { success: true, data: { productsScraped }};
-    } catch (error) {
-      return {success: false, error: {status: 500, message: 'Unexpected Server Error', internalMessage: error}};
-    }
-  }
-
   async GetProxies(): Promise<IResult> {
     try {
       let proxies = await Proxy.findAll();
@@ -402,6 +343,13 @@ export class AdminService {
       if (!monitorpageId)
         return {success: false, error: {status: 400, message: '\'monitorpageId\' is missing'}};
 
+      let monitorpage = await Monitorpage.findByPk(monitorpageId);
+
+      if (!monitorpage)
+        return {success: false, error: {status: 404, message: 'Monitorpage is not existing'}};
+
+      monitorpageId = monitorpage.functionName;
+
       let products = await this.monitorClientService.GetProducts({ monitorpageId });
 
       let productsOut = [];
@@ -427,6 +375,13 @@ export class AdminService {
       if (!monitorpageId)
         return {success: false, error: {status: 400, message: '\'monitorpageId\' is missing'}};
 
+      let monitorpage = await Monitorpage.findByPk(monitorpageId);
+
+      if (!monitorpage)
+        return {success: false, error: {status: 404, message: 'Monitorpage is not existing'}};
+
+      monitorpageId = monitorpage.functionName;
+
       await this.monitorClientService.ActivateProductMonitoring({ id, monitorpageId });
         
       return { success: true };
@@ -440,6 +395,13 @@ export class AdminService {
       if (!monitorpageId)
         return {success: false, error: {status: 400, message: '\'monitorpageId\' is missing'}};
 
+      let monitorpage = await Monitorpage.findByPk(monitorpageId);
+
+      if (!monitorpage)
+        return {success: false, error: {status: 404, message: 'Monitorpage is not existing'}};
+
+      monitorpageId = monitorpage.functionName;
+
       await this.monitorClientService.DisableProductMonitoring({ id, monitorpageId });
         
       return { success: true };
@@ -452,6 +414,13 @@ export class AdminService {
     try {
       if (!monitorpageId)
         return {success: false, error: {status: 400, message: '\'monitorpageId\' is missing'}};
+
+      let monitorpage = await Monitorpage.findByPk(monitorpageId);
+
+      if (!monitorpage)
+        return {success: false, error: {status: 404, message: 'Monitorpage is not existing'}};
+
+      monitorpageId = monitorpage.functionName;
 
       let filters = await this.monitorClientService.GetFilters({ monitorpageId });
 
@@ -478,6 +447,13 @@ export class AdminService {
       if (!monitorpageId)
         return {success: false, error: {status: 400, message: '\'monitorpageId\' is missing'}};
 
+      let monitorpage = await Monitorpage.findByPk(monitorpageId);
+
+      if (!monitorpage)
+        return {success: false, error: {status: 404, message: 'Monitorpage is not existing'}};
+
+      monitorpageId = monitorpage.functionName;
+
       let filter = await this.monitorClientService.AddFilter({ value, monitorpageId });
 
       let filterOut: { id: string, value: string } = { id: '', value: '' };
@@ -497,6 +473,13 @@ export class AdminService {
 
       if (!monitorpageId)
         return {success: false, error: {status: 400, message: '\'monitorpageId\' is missing'}};
+
+      let monitorpage = await Monitorpage.findByPk(monitorpageId);
+
+      if (!monitorpage)
+        return {success: false, error: {status: 404, message: 'Monitorpage is not existing'}};
+
+      monitorpageId = monitorpage.functionName;
 
       await this.monitorClientService.RemoveFilter({ id, monitorpageId });
         
