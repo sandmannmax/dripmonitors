@@ -5,7 +5,7 @@ import { INotificationService } from '../../application/interface/INotificationS
 import { logger } from '../../util/logger';
 
 export class DiscordService implements INotificationService {
-  notify(subject: NotifySubjectDTO, targets: WebhookDTO[]): void {
+  async notify(subject: NotifySubjectDTO, targets: WebhookDTO[]): Promise<void> {
     for (let i = 0; i < targets.length; i++) {
       let target = targets[i];
 
@@ -55,7 +55,7 @@ export class DiscordService implements INotificationService {
         embed = embed.addField('Sizes', sizes);
 
         try {
-          webhookClient.send(message, {
+          await webhookClient.send(message, {
             embeds: [embed],
             username: name,
             avatarURL: img,

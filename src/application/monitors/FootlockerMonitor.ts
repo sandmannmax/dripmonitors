@@ -31,7 +31,7 @@ export class FootlockerMonitor extends BaseMonitor {
 
           if (product.shouldNotify) {
             let notifySubject: NotifySubjectDTO = product.createNotifySubject()
-            this.notificationService.notify(notifySubject, command.targets);
+            await this.notificationService.notify(notifySubject, command.targets);
           }
 
           if (product.shouldSave) {
