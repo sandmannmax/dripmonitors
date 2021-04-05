@@ -1,5 +1,5 @@
-import { MonitorJobContentDTO } from "../dto/MonitorJobContentDTO";
+import { RunMonitorCommandDTO } from "../dto/RunMonitorCommandDTO";
 
 export interface IMonitor {
-  run({ content }: { content: MonitorJobContentDTO }): void;
+  run(command: RunMonitorCommandDTO): void;
 }

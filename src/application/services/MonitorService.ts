@@ -1,4 +1,4 @@
-import { MonitorJobContentDTO } from '../dto/MonitorJobContentDTO';
+import { RunMonitorCommandDTO } from '../dto/RunMonitorCommandDTO';
 import { AfewMonitor } from '../monitors/AfewMonitor';
 import { IMonitors } from '../monitors/IMonitors';
 import { NikeMonitor } from '../monitors/NikeMonitor';
@@ -7,11 +7,11 @@ import { ZalandoMonitor } from '../monitors/ZalandoMonitor';
 import { FootlockerMonitor } from '../monitors/FootlockerMonitor';
 
 export interface IMonitorService {
-  checkMonitorAvailable({ name }: { name: string }): boolean;
-  runMonitor({ name, content }: { name: string; content: MonitorJobContentDTO }): void;
+  checkMonitorAvailable(name: string): boolean;
+  runMonitor(name: string, command: RunMonitorCommandDTO): void;
 }
 
-export class MonitorService {
+export class MonitorService implements IMonitorService {
   private monitors: IMonitors;
 
   constructor(
@@ -30,11 +30,11 @@ export class MonitorService {
     };
   }
 
-  public checkMonitorAvailable({ name }: { name: string }): boolean {
+  public checkMonitorAvailable(name: string): boolean {
     return this.monitors.hasOwnProperty(name);
   }
 
-  public runMonitor({ name, content }: { name: string; content: MonitorJobContentDTO }): void {
-    this.monitors[name].run({ content });
+  public runMonitor(name: string, command: RunMonitorCommandDTO): void {
+    this.monitors[name].run(command);
   }
 }

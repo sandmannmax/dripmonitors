@@ -1,5 +1,6 @@
 export interface ScrapeResponseDTO {
-  success: boolean;
+  statusCode?: number;
+  proxyError: boolean;
   content?: string;
   error?: string;
 }

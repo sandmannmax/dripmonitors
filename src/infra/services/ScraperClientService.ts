@@ -21,11 +21,11 @@ export class ScraperClientService implements IScraperService {
       request.setIsHtml(req.isHtml);
 
       this.scraperServiceClient.get(request, (error, response) => {
-        if (error) resolve({ success: false, error: error.message });
-        else if (response.getSuccess()) {
-          let content = response.getContent()
-          resolve({ success: true, content });
-        } else resolve({ success: false, error: response.getError() });
+        if (error) {
+          resolve({ proxyError: false, error: error.message });
+        } else {
+          resolve({ statusCode: response.getStatusCode(), proxyError: response.getProxyError(), content: response.getContent(), error: response.getError()});
+        }
       });
     });
   }

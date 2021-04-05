@@ -1,7 +1,6 @@
 import { IFilterRepo } from "../../domain/repos/IFilterRepo";
 import { IProductRepo } from "../../domain/repos/IProductRepo";
-import { logger } from "../../util/logger";
-import { MonitorJobContentDTO } from "../dto/MonitorJobContentDTO";
+import { RunMonitorCommandDTO } from "../dto/RunMonitorCommandDTO";
 import { NotifySubjectDTO } from "../dto/NotifySubjectDTO";
 import { ProductScrapedDTO } from "../dto/ProductScrapedDTO";
 import { INotificationService } from "../interface/INotificationService";
@@ -13,7 +12,7 @@ export class FootlockerMonitor extends BaseMonitor {
     super('footlocker-de', scraperService, productRepo, filterRepo, notificationService);
   }
 
-  protected async updateMonitoredProducts(productsScraped: ProductScrapedDTO[], content: MonitorJobContentDTO): Promise<void> {
+  protected async updateMonitoredProducts(productsScraped: ProductScrapedDTO[], command: RunMonitorCommandDTO): Promise<void> {
     let products = await this.productRepo.getProductsByMonitorpageId(this.monitorpageId);
 
     products = products.filter(p => p.monitored === true);
@@ -23,38 +22,42 @@ export class FootlockerMonitor extends BaseMonitor {
       let productScraped = productsScraped.find(p => p.productId === product.productId);
 
       if (productScraped == undefined) {
-        logger.warn(this.monitorpageId + ': product not scraped');
+        this.logger.warn('product not scraped.');
       } else {
-        let complementedProduct = await this.complementProduct(productScraped, content.proxy);
+        let complementedProduct = await this.complementProduct(productScraped, command.proxy);
 
         if (complementedProduct != null) {
           product.updateMonitoredPropertiesFromScraped(complementedProduct);
 
           if (product.shouldNotify) {
             let notifySubject: NotifySubjectDTO = product.createNotifySubject()
-            this.notificationService.notify(notifySubject, content.channels);
+            this.notificationService.notify(notifySubject, command.targets);
           }
 
           if (product.shouldSave) {
             this.productRepo.save(product);
           }
         } else {
-          logger.warn(this.monitorpageId + ': product could not be complemented');
+          this.logger.warn('product could not be complemented.');
         }  
       }
     }
   }
 
-  protected async scrapeProducts(content: MonitorJobContentDTO): Promise<ProductScrapedDTO[]> {
+  protected async scrapeProducts(command: RunMonitorCommandDTO): Promise<ProductScrapedDTO[]> {
     let products: ProductScrapedDTO[] = [];
 
-    for (let i = 0; i < content.urls.length; i++) {
-      let scrapedContent = await this.scraperService.scrape({ url: content.urls[i], proxy: content.proxy, isHtml: content.isHtml });
+    for (let i = 0; i < command.urls.length; i++) {
+      let scrapeResponse = await this.scraperService.scrape({ url: command.urls[i], proxy: command.proxy, isHtml: false });
+
+      if (scrapeResponse.proxyError) {
+        this.logger.info('Proxy Error.');
+      }
 
       let productsScraped;
 
-      if (scrapedContent.success && scrapedContent.content)
-        productsScraped = await this.getProducts({ content: scrapedContent.content });
+      if (!!scrapeResponse.statusCode && scrapeResponse.statusCode == 200 && !!scrapeResponse.content)
+        productsScraped = await this.getProducts(scrapeResponse.content);
 
       if (productsScraped)  
         products.push(...productsScraped);
@@ -63,7 +66,7 @@ export class FootlockerMonitor extends BaseMonitor {
     return products;
   }
 
-  private getProducts({ content }: { content: string }): Array<ProductScrapedDTO> {
+  private getProducts(content: string): Array<ProductScrapedDTO> {
     const products: Array<ProductScrapedDTO> = [];
     const objects = JSON.parse(content).products;
     
@@ -102,13 +105,18 @@ export class FootlockerMonitor extends BaseMonitor {
     const sku = product.productId.split('_')[1];
     const url = 'https://www.footlocker.de/api/products/pdp/' + sku;
 
-    let scrapedContent = await this.scraperService.scrape({ url, proxy, isHtml: false });
+    let scrapeResponse = await this.scraperService.scrape({ url, proxy, isHtml: false });
 
-    if (!scrapedContent.success || scrapedContent.content == undefined) {
+    if (scrapeResponse.statusCode == undefined || (scrapeResponse.statusCode != 400 && scrapeResponse.statusCode != 200) || scrapeResponse.content == undefined) {
       return null;
     }
 
-    const object = JSON.parse(scrapedContent.content);
+    if (scrapeResponse.statusCode == 400) {
+      product.active = false;
+      return product;
+    }
+
+    const object = JSON.parse(scrapeResponse.content);
     const variantIndex = object.variantAttributes.findIndex((v: any) => v.sku === sku);
 
     if (variantIndex === -1) {

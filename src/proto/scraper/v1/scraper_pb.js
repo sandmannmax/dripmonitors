@@ -281,9 +281,10 @@ proto.scraper.v1.GetResponse.prototype.toObject = function(opt_includeInstance) 
  */
 proto.scraper.v1.GetResponse.toObject = function(includeInstance, msg) {
   var f, obj = {
-    success: jspb.Message.getBooleanFieldWithDefault(msg, 1, false),
-    content: jspb.Message.getFieldWithDefault(msg, 2, ""),
-    error: jspb.Message.getFieldWithDefault(msg, 3, "")
+    statusCode: jspb.Message.getFieldWithDefault(msg, 1, 0),
+    proxyError: jspb.Message.getBooleanFieldWithDefault(msg, 2, false),
+    content: jspb.Message.getFieldWithDefault(msg, 3, ""),
+    error: jspb.Message.getFieldWithDefault(msg, 4, "")
   };
 
   if (includeInstance) {
@@ -321,14 +322,18 @@ proto.scraper.v1.GetResponse.deserializeBinaryFromReader = function(msg, reader)
     var field = reader.getFieldNumber();
     switch (field) {
     case 1:
-      var value = /** @type {boolean} */ (reader.readBool());
-      msg.setSuccess(value);
+      var value = /** @type {number} */ (reader.readInt32());
+      msg.setStatusCode(value);
       break;
     case 2:
+      var value = /** @type {boolean} */ (reader.readBool());
+      msg.setProxyError(value);
+      break;
+    case 3:
       var value = /** @type {string} */ (reader.readString());
       msg.setContent(value);
       break;
-    case 3:
+    case 4:
       var value = /** @type {string} */ (reader.readString());
       msg.setError(value);
       break;
@@ -361,24 +366,31 @@ proto.scraper.v1.GetResponse.prototype.serializeBinary = function() {
  */
 proto.scraper.v1.GetResponse.serializeBinaryToWriter = function(message, writer) {
   var f = undefined;
-  f = message.getSuccess();
+  f = message.getStatusCode();
+  if (f !== 0) {
+    writer.writeInt32(
+      1,
+      f
+    );
+  }
+  f = message.getProxyError();
   if (f) {
     writer.writeBool(
-      1,
+      2,
       f
     );
   }
   f = message.getContent();
   if (f.length > 0) {
     writer.writeString(
-      2,
+      3,
       f
     );
   }
   f = message.getError();
   if (f.length > 0) {
     writer.writeString(
-      3,
+      4,
       f
     );
   }
@@ -386,11 +398,29 @@ proto.scraper.v1.GetResponse.serializeBinaryToWriter = function(message, writer)
 
 
 /**
- * optional bool success = 1;
+ * optional int32 status_code = 1;
+ * @return {number}
+ */
+proto.scraper.v1.GetResponse.prototype.getStatusCode = function() {
+  return /** @type {number} */ (jspb.Message.getFieldWithDefault(this, 1, 0));
+};
+
+
+/**
+ * @param {number} value
+ * @return {!proto.scraper.v1.GetResponse} returns this
+ */
+proto.scraper.v1.GetResponse.prototype.setStatusCode = function(value) {
+  return jspb.Message.setProto3IntField(this, 1, value);
+};
+
+
+/**
+ * optional bool proxy_error = 2;
  * @return {boolean}
  */
-proto.scraper.v1.GetResponse.prototype.getSuccess = function() {
-  return /** @type {boolean} */ (jspb.Message.getBooleanFieldWithDefault(this, 1, false));
+proto.scraper.v1.GetResponse.prototype.getProxyError = function() {
+  return /** @type {boolean} */ (jspb.Message.getBooleanFieldWithDefault(this, 2, false));
 };
 
 
@@ -398,34 +428,16 @@ proto.scraper.v1.GetResponse.prototype.getSuccess = function() {
  * @param {boolean} value
  * @return {!proto.scraper.v1.GetResponse} returns this
  */
-proto.scraper.v1.GetResponse.prototype.setSuccess = function(value) {
-  return jspb.Message.setProto3BooleanField(this, 1, value);
+proto.scraper.v1.GetResponse.prototype.setProxyError = function(value) {
+  return jspb.Message.setProto3BooleanField(this, 2, value);
 };
 
 
 /**
- * optional string content = 2;
+ * optional string content = 3;
  * @return {string}
  */
 proto.scraper.v1.GetResponse.prototype.getContent = function() {
-  return /** @type {string} */ (jspb.Message.getFieldWithDefault(this, 2, ""));
-};
-
-
-/**
- * @param {string} value
- * @return {!proto.scraper.v1.GetResponse} returns this
- */
-proto.scraper.v1.GetResponse.prototype.setContent = function(value) {
-  return jspb.Message.setProto3StringField(this, 2, value);
-};
-
-
-/**
- * optional string error = 3;
- * @return {string}
- */
-proto.scraper.v1.GetResponse.prototype.getError = function() {
   return /** @type {string} */ (jspb.Message.getFieldWithDefault(this, 3, ""));
 };
 
@@ -434,8 +446,26 @@ proto.scraper.v1.GetResponse.prototype.getError = function() {
  * @param {string} value
  * @return {!proto.scraper.v1.GetResponse} returns this
  */
-proto.scraper.v1.GetResponse.prototype.setError = function(value) {
+proto.scraper.v1.GetResponse.prototype.setContent = function(value) {
   return jspb.Message.setProto3StringField(this, 3, value);
+};
+
+
+/**
+ * optional string error = 4;
+ * @return {string}
+ */
+proto.scraper.v1.GetResponse.prototype.getError = function() {
+  return /** @type {string} */ (jspb.Message.getFieldWithDefault(this, 4, ""));
+};
+
+
+/**
+ * @param {string} value
+ * @return {!proto.scraper.v1.GetResponse} returns this
+ */
+proto.scraper.v1.GetResponse.prototype.setError = function(value) {
+  return jspb.Message.setProto3StringField(this, 4, value);
 };
 
 

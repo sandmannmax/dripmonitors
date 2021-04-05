@@ -1,7 +1,6 @@
 import { IFilterRepo } from "../../domain/repos/IFilterRepo";
 import { IProductRepo } from "../../domain/repos/IProductRepo";
-import { logger } from "../../util/logger";
-import { MonitorJobContentDTO } from "../dto/MonitorJobContentDTO";
+import { RunMonitorCommandDTO } from "../dto/RunMonitorCommandDTO";
 import { NotifySubjectDTO } from "../dto/NotifySubjectDTO";
 import { ProductScrapedDTO } from "../dto/ProductScrapedDTO";
 import { SizeDTO } from "../dto/SizeDTO";
@@ -15,7 +14,7 @@ export class SupremeMonitor extends BaseMonitor {
     super('supreme-eu', scraperService, productRepo, filterRepo, notificationService);
   }
 
-  protected async updateMonitoredProducts(productsScraped: ProductScrapedDTO[], content: MonitorJobContentDTO): Promise<void> {
+  protected async updateMonitoredProducts(productsScraped: ProductScrapedDTO[], command: RunMonitorCommandDTO): Promise<void> {
     let products = await this.productRepo.getProductsByMonitorpageId(this.monitorpageId);
 
     products = products.filter(p => p.monitored === true);
@@ -25,38 +24,42 @@ export class SupremeMonitor extends BaseMonitor {
       let productScraped = productsScraped.find(p => p.productId === product.productId);
 
       if (productScraped == undefined) {
-        logger.warn(this.monitorpageId + ': product not scraped');
+        this.logger.warn('product not scraped.');
       } else {
-        let complementedProduct = await this.complementProduct(productScraped, content.proxy);
+        let complementedProduct = await this.complementProduct(productScraped, command.proxy);
 
         if (complementedProduct != null) {
           product.updateMonitoredPropertiesFromScraped(complementedProduct);
 
           if (product.shouldNotify) {
             let notifySubject: NotifySubjectDTO = product.createNotifySubject()
-            this.notificationService.notify(notifySubject, content.channels);
+            this.notificationService.notify(notifySubject, command.targets);
           }
 
           if (product.shouldSave) {
             this.productRepo.save(product);
           }
         } else {
-          logger.warn(this.monitorpageId + ': product could not be complemented');
+          this.logger.warn('product could not be complemented.');
         }  
       }
     }
   }
 
-  protected async scrapeProducts(content: MonitorJobContentDTO): Promise<ProductScrapedDTO[]> {
+  protected async scrapeProducts(command: RunMonitorCommandDTO): Promise<ProductScrapedDTO[]> {
     let products: ProductScrapedDTO[] = [];
 
-    for (let i = 0; i < content.urls.length; i++) {
-      let scrapedContent = await this.scraperService.scrape({ url: content.urls[i], proxy: content.proxy, isHtml: content.isHtml });
+    for (let i = 0; i < command.urls.length; i++) {
+      let scrapeResponse = await this.scraperService.scrape({ url: command.urls[i], proxy: command.proxy, isHtml: true });
+
+      if (scrapeResponse.proxyError) {
+        this.logger.info('Proxy Error.');
+      }
 
       let productsScraped;
 
-      if (scrapedContent.success && scrapedContent.content)
-        productsScraped = await this.getProducts({ content: scrapedContent.content });
+      if (!!scrapeResponse.statusCode && scrapeResponse.statusCode == 200 && scrapeResponse.content)
+        productsScraped = await this.getProducts(scrapeResponse.content);
 
       if (productsScraped)  
         products.push(...productsScraped);
@@ -65,7 +68,7 @@ export class SupremeMonitor extends BaseMonitor {
     return products;
   }
 
-  private getProducts({ content }: { content: string }): Array<ProductScrapedDTO> {
+  private getProducts(content: string): Array<ProductScrapedDTO> {
     const products: Array<ProductScrapedDTO> = [];
     const $ = cheerio.load(content);
     const articles = $('article');
@@ -100,13 +103,18 @@ export class SupremeMonitor extends BaseMonitor {
   }
 
   private async complementProduct(product: ProductScrapedDTO, proxy: string): Promise<ProductScrapedDTO | null> {
-    let scrapedContent = await this.scraperService.scrape({ url: product.href, proxy, isHtml: true });
+    let scrapeResponse = await this.scraperService.scrape({ url: product.href, proxy, isHtml: true });
 
-    if (!scrapedContent.success || scrapedContent.content == undefined) {
+    if (scrapeResponse.statusCode == undefined || (scrapeResponse.statusCode != 302 && scrapeResponse.statusCode != 200) || scrapeResponse.content == undefined) {
       return null;
     }
 
-    const $ = cheerio.load(scrapedContent.content);
+    if (scrapeResponse.statusCode == 302) {
+      product.active = false;
+      return product;
+    }
+
+    const $ = cheerio.load(scrapeResponse.content);
     const price = $('p.price:first');
     const priceString = $('span:first', price).text();
     const value = Number.parseFloat(priceString.replace('€', ''));

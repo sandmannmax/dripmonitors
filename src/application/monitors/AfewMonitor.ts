@@ -1,6 +1,6 @@
 import { IFilterRepo } from "../../domain/repos/IFilterRepo";
 import { IProductRepo } from "../../domain/repos/IProductRepo";
-import { MonitorJobContentDTO } from "../dto/MonitorJobContentDTO";
+import { RunMonitorCommandDTO } from "../dto/RunMonitorCommandDTO";
 import { PriceDTO } from "../dto/PriceDTO";
 import { ProductScrapedDTO } from "../dto/ProductScrapedDTO";
 import { SizeDTO } from "../dto/SizeDTO";
@@ -13,16 +13,20 @@ export class AfewMonitor extends BaseMonitor {
     super('afew', scraperService, productRepo, filterRepo, notificationService);
   }
 
-  protected async scrapeProducts(content: MonitorJobContentDTO): Promise<ProductScrapedDTO[]> {
+  protected async scrapeProducts(command: RunMonitorCommandDTO): Promise<ProductScrapedDTO[]> {
     let products: ProductScrapedDTO[] = [];
 
-    for (let i = 0; i < content.urls.length; i++) {
-      let scrapedContent = await this.scraperService.scrape({ url: content.urls[i], proxy: content.proxy, isHtml: content.isHtml });
+    for (let i = 0; i < command.urls.length; i++) {
+      let scrapeResponse = await this.scraperService.scrape({ url: command.urls[i], proxy: command.proxy, isHtml: true });
+
+      if (scrapeResponse.proxyError) {
+        this.logger.info('Proxy Error.');
+      }
 
       let productsScraped;
 
-      if (scrapedContent.success && scrapedContent.content)
-        productsScraped = await this.getProducts({ content: scrapedContent.content });
+      if (!!scrapeResponse.statusCode && scrapeResponse.statusCode === 200 && !!scrapeResponse.content)
+        productsScraped = await this.getProducts(scrapeResponse.content);
 
       if (productsScraped)  
         products.push(...productsScraped);
@@ -31,7 +35,7 @@ export class AfewMonitor extends BaseMonitor {
     return products;
   }
 
-  private getProducts({ content }: { content: string }): Array<ProductScrapedDTO> {
+  private getProducts(content: string): Array<ProductScrapedDTO> {
     const products: Array<ProductScrapedDTO> = [];
     const objects = JSON.parse(content).products;
     

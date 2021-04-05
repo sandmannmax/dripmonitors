@@ -1,19 +1,15 @@
 import { MessageEmbed, WebhookClient } from 'discord.js';
-import { ChannelDTO, IsChannelDTO } from '../../application/dto/ChannelDTO';
 import { NotifySubjectDTO } from '../../application/dto/NotifySubjectDTO';
 import { IsWebhookDTO, WebhookDTO } from '../../application/dto/WebhookDTO';
 import { INotificationService } from '../../application/interface/INotificationService';
 import { logger } from '../../util/logger';
 
 export class DiscordService implements INotificationService {
-  notify(subject: NotifySubjectDTO, targets: ChannelDTO[] | WebhookDTO[]): void {
+  notify(subject: NotifySubjectDTO, targets: WebhookDTO[]): void {
     for (let i = 0; i < targets.length; i++) {
       let target = targets[i];
 
-      if (IsChannelDTO(target)) {
-        target = target as ChannelDTO;
-        logger.warn('NotificationService with ChannelDTO is not implemented yet!');
-      } else if (IsWebhookDTO(target)) {
+      if (IsWebhookDTO(target)) {
         target = target as WebhookDTO;
         const webhookClient = new WebhookClient(target.webhookId, target.webhookToken);
         let name = target.name;

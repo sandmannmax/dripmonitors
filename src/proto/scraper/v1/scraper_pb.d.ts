@@ -33,8 +33,10 @@ export namespace GetRequest {
 }
 
 export class GetResponse extends jspb.Message { 
-    getSuccess(): boolean;
-    setSuccess(value: boolean): GetResponse;
+    getStatusCode(): number;
+    setStatusCode(value: number): GetResponse;
+    getProxyError(): boolean;
+    setProxyError(value: boolean): GetResponse;
     getContent(): string;
     setContent(value: string): GetResponse;
     getError(): string;
@@ -52,7 +54,8 @@ export class GetResponse extends jspb.Message {
 
 export namespace GetResponse {
     export type AsObject = {
-        success: boolean,
+        statusCode: number,
+        proxyError: boolean,
         content: string,
         error: string,
     }
