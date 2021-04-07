@@ -63,6 +63,9 @@ export class AdminService {
       
       if (!cc)
         return {success: false, error: {status: 400, message: '\'cc\' is missing'}};    
+      
+      if (!functionName)
+        return {success: false, error: {status: 400, message: '\'functionName\' is missing'}}; 
 
       let monitorpage = await Monitorpage.create({ name, cc, functionName });
       
