@@ -43,16 +43,22 @@ export class DiscordService implements INotificationService {
 
         embed = embed.addField('Price', subject.price);
 
-        let sizes = '';
-
-        for (let i = 0; i < subject.sizes.length; i++) {
-          sizes += subject.sizes[i];
-          if (i != subject.sizes.length - 1) {
-            sizes += ' - '
+        if (subject.hasATC == true) {
+          for (let i = 0; i < subject.sizes.length; i++) {
+            embed = embed.addField(subject.sizes[i].value, '[[ATC]](' + subject.sizes[i].atc + ')');
           }
-        }
+        } else {
+          let sizes = '';
 
-        embed = embed.addField('Sizes', sizes);
+          for (let i = 0; i < subject.sizes.length; i++) {
+            sizes += subject.sizes[i].value;
+            if (i != subject.sizes.length - 1) {
+              sizes += ' - '
+            }
+          }
+
+          embed = embed.addField('Sizes', sizes);
+        }
 
         try {
           await webhookClient.send(message, {

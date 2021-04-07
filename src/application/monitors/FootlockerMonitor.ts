@@ -8,8 +8,8 @@ import { IScraperService } from "../interface/IScraperService";
 import { BaseMonitor } from "./BaseMonitor";
 
 export class FootlockerMonitor extends BaseMonitor {
-  constructor(scraperService: IScraperService, productRepo: IProductRepo, filterRepo: IFilterRepo, notificationService: INotificationService) {
-    super('footlocker-de', scraperService, productRepo, filterRepo, notificationService);
+  constructor(monitorpageId: string, scraperService: IScraperService, productRepo: IProductRepo, filterRepo: IFilterRepo, notificationService: INotificationService) {
+    super(monitorpageId, scraperService, productRepo, filterRepo, notificationService);
   }
 
   protected async updateMonitoredProducts(productsScraped: ProductScrapedDTO[], command: RunMonitorCommandDTO): Promise<void> {

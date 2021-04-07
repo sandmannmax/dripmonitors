@@ -3,15 +3,36 @@ import { IProductRepo } from "../../domain/repos/IProductRepo";
 import { RunMonitorCommandDTO } from "../dto/RunMonitorCommandDTO";
 import { NotifySubjectDTO } from "../dto/NotifySubjectDTO";
 import { ProductScrapedDTO } from "../dto/ProductScrapedDTO";
-import { SizeDTO } from "../dto/SizeDTO";
 import { INotificationService } from "../interface/INotificationService";
 import { IScraperService } from "../interface/IScraperService";
-import cheerio from 'cheerio';
 import { BaseMonitor } from "./BaseMonitor";
+import cheerio from 'cheerio';
 
-export class SupremeMonitor extends BaseMonitor {
-  constructor(monitorpageId: string, scraperService: IScraperService, productRepo: IProductRepo, filterRepo: IFilterRepo, notificationService: INotificationService) {
-    super(monitorpageId, scraperService, productRepo, filterRepo, notificationService);
+export class SoleboxMonitor extends BaseMonitor {
+  constructor(scraperService: IScraperService, productRepo: IProductRepo, filterRepo: IFilterRepo, notificationService: INotificationService) {
+    super('solebox', scraperService, productRepo, filterRepo, notificationService);
+  }
+
+  public async run(command: RunMonitorCommandDTO): Promise<void> {
+    this.logger.info('Starteddddd.');
+
+    try {
+      let products = await this.scrapeProducts(command);
+
+      if (products.length > 0) {
+        let p = await this.complementProduct(products[0], command.proxy);
+      }
+
+      // if (products.length == 0) {
+      //   this.logger.info('No Products retreived.');
+      //   return;
+      // }
+
+      // await this.updateProducts(products, command);
+      // await this.updateMonitoredProducts(products, command);
+    } catch (error) {
+      this.logger.error(error);
+    }
   }
 
   protected async updateMonitoredProducts(productsScraped: ProductScrapedDTO[], command: RunMonitorCommandDTO): Promise<void> {
@@ -58,8 +79,14 @@ export class SupremeMonitor extends BaseMonitor {
 
       let productsScraped;
 
-      if (!!scrapeResponse.statusCode && scrapeResponse.statusCode == 200 && scrapeResponse.content)
+      if (!!scrapeResponse.statusCode && scrapeResponse.statusCode == 200 && !!scrapeResponse.content) {
         productsScraped = await this.getProducts(scrapeResponse.content);
+      } else {
+        if (!!scrapeResponse.error)
+          this.logger.info(scrapeResponse.error);
+        if (!!scrapeResponse.statusCode)
+          this.logger.info(scrapeResponse.statusCode.toString());
+      }
 
       if (productsScraped)  
         products.push(...productsScraped);
@@ -70,67 +97,57 @@ export class SupremeMonitor extends BaseMonitor {
 
   private getProducts(content: string): Array<ProductScrapedDTO> {
     const products: Array<ProductScrapedDTO> = [];
+
     const $ = cheerio.load(content);
-    const articles = $('article');
-    for (let i = 0; i < articles.length; i++) {
-      const product: ProductScrapedDTO = { 
-        productId: '',
-        name: '',
-        href: '',
-        img: '',
-      };
+    const productDivs = $('div.b-product-tile');
 
-      let article = articles[i];
+    if (productDivs.length > 0) {
+      for (let i = 0; i < productDivs.length; i++) {
+        const dataString = productDivs[i].attribs['data-gtm'];
+        const data = JSON.parse(dataString);
+        const link = $('a.b-product-tile-body-link:first', productDivs[i]);
+        const href = link.attr().href;
+        const img = $('picture.b-dynamic-image-wrapper > source:first', productDivs[i]).attr()['data-srcset'];
+        const imgSrc = img.split(', ')[0];
 
-      const nameLink = $('h1 > a.name-link:first', article);
-      const name = nameLink.text();
-      const color = $('p > a.name-link:first', article).text();
-      product.name = name + ' ' + color;
+        const product: ProductScrapedDTO = {
+          productId: this.monitorpageId + '_' + data.id,
+          name: data.name,
+          href: 'https://www.solebox.com' + href,
+          img: imgSrc
+        };
 
-      const href = nameLink.attr().href;
-      const parts = href.split('/');
-      product.productId = this.monitorpageId + '_' + parts[parts.length - 2] + parts[parts.length - 1];
-      product.href = `https://www.supremenewyork.com${href}`;
-      const img = 'https:' + $('img', article)[0].attribs.src;
-      product.img = img;
-
-      if (product != null) {
         products.push(product);
       }
     }
-
+    
     return products;
   }
 
   private async complementProduct(product: ProductScrapedDTO, proxy: string): Promise<ProductScrapedDTO | null> {
     let scrapeResponse = await this.scraperService.scrape({ url: product.href, proxy, isHtml: true });
 
-    if (scrapeResponse.statusCode == undefined || (scrapeResponse.statusCode != 302 && scrapeResponse.statusCode != 200) || scrapeResponse.content == undefined) {
+    if (scrapeResponse.proxyError) {
+      this.logger.info('Proxy Error.');
+    }
+
+    if (!!scrapeResponse.statusCode && scrapeResponse.statusCode == 503) {
+      this.logger.info('Cloudflare...');
       return null;
     }
 
-    if (scrapeResponse.statusCode == 302) {
-      product.active = false;
-      return product;
+    if (scrapeResponse.statusCode == undefined || scrapeResponse.statusCode != 200 || scrapeResponse.content == undefined) {
+      this.logger.info('null')
+      return null;
     }
 
     const $ = cheerio.load(scrapeResponse.content);
-    const price = $('p.price:first');
-    const priceString = $('span:first', price).text();
-    const value = Number.parseFloat(priceString.replace('€', ''));
-    product.price = { value, currency: 'EUR' };
 
-    product.active = true;
+    const sizesWrapper = $('div.b-pdp-attribute--size:first');
+    const sizes = $('div.b-swatch-value-wrapper', sizesWrapper);
 
-    const sizesScraped = $('select#size').children();
-    const sizes: SizeDTO[] = [];
-
-    sizesScraped.each((i, size) => {
-      sizes.push({ value: $(size).text(), soldOut: false });
-    });
-
-    product.sizes = sizes;
-
+    this.logger.info(sizes.length.toString());
+    
     return product;
   };
 }

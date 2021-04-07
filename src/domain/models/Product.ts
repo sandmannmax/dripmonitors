@@ -11,6 +11,7 @@ import { logger } from "../../util/logger";
 import { NotifySubjectDTO } from "../../application/dto/NotifySubjectDTO";
 import { NullOrUndefinedException } from "../../core/exceptions/NullOrUndefinedException";
 import { ProductNotMonitoredException } from "../../core/exceptions/ProductNotMonitoredException";
+import { NotifySizeDTO } from "../../application/dto/NotifySizeDTO";
 
 interface ProductProps {
   productId: string;
@@ -131,7 +132,7 @@ export class Product extends AggregateRoot<ProductProps> {
       throw new ProductNotMonitoredException(`Product {${this._id}} is not monitored.`);
     }
     
-    if (!!productScraped.active && this.props.active != productScraped.active) {
+    if (productScraped.active != undefined && this.props.active != productScraped.active) {
       this.props.active = productScraped.active;
       this._shouldSave = true;
 
@@ -140,12 +141,12 @@ export class Product extends AggregateRoot<ProductProps> {
       }
     }
 
-    if (!!productScraped.price && this.props.price != productScraped.price) {
+    if (productScraped.price != undefined && this.props.price != productScraped.price) {
       this.props.price = Price.create({ value: productScraped.price.value, currency: productScraped.price.currency });
       this._shouldSave = true;
     }
 
-    if (!!productScraped.sizes && productScraped.sizes.length > 0) {
+    if (productScraped.sizes != undefined && productScraped.sizes.length > 0) {
       for (let i = 0; i < productScraped.sizes.length; i++) {
         let size = Size.create({ value: productScraped.sizes[i].value, soldOut: productScraped.sizes[i].soldOut });
         if (!!this.props.sizes) {
@@ -213,16 +214,16 @@ export class Product extends AggregateRoot<ProductProps> {
       throw new NullOrUndefinedException('sizes are undefined for product.');
     }
 
-    let sizes: string[] = [];
+    let sizes: NotifySizeDTO[] = [];
 
     if (this._sizesForNotify.length > 0) {
       for (let i = 0; i < this._sizesForNotify.length; i++) {
-        sizes.push(this._sizesForNotify[i].value);
+        sizes.push({ value: this._sizesForNotify[i].value });
       }
     } else {
       for (let i = 0; i < this.props.sizes.length; i++) {
         if (this.props.sizes[i].soldOut == false) {
-          sizes.push(this.props.sizes[i].value);
+          sizes.push({ value: this.props.sizes[i].value });
         }
       }
     }
@@ -232,7 +233,8 @@ export class Product extends AggregateRoot<ProductProps> {
       href: this.props.href,
       img: this.props.img,
       price: this.props.price.toString(),
-      sizes
+      sizes,
+      hasATC: false,
     };
     this._shouldNotify = false;
     this._sizesForNotify = [];

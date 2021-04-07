@@ -9,8 +9,8 @@ import { IScraperService } from "../interface/IScraperService";
 import { BaseMonitor } from "./BaseMonitor";
 
 export class AfewMonitor extends BaseMonitor {
-  constructor(scraperService: IScraperService, productRepo: IProductRepo, filterRepo: IFilterRepo, notificationService: INotificationService) {
-    super('afew', scraperService, productRepo, filterRepo, notificationService);
+  constructor(monitorpageId: string, scraperService: IScraperService, productRepo: IProductRepo, filterRepo: IFilterRepo, notificationService: INotificationService) {
+    super(monitorpageId, scraperService, productRepo, filterRepo, notificationService);
   }
 
   protected async scrapeProducts(command: RunMonitorCommandDTO): Promise<ProductScrapedDTO[]> {
