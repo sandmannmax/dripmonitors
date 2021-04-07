@@ -19,8 +19,8 @@
             <input type="text" id="inputName" class="border-2 p-1 rounded-lg" v-model="monitorpageName" placeholder="Name">
           </div>
           <div class="flex flex-col">
-            <label for="inputTechname">Techname</label>
-            <input type="text" id="inputTechname" class="border-2 p-1 rounded-lg" v-model="monitorpageTechname" placeholder="Techname">
+            <label for="inputFunctionname">Functionname</label>
+            <input type="text" id="inputFunctionname" class="border-2 p-1 rounded-lg" v-model="monitorpageFunctionname" placeholder="Functionname">
           </div>
           <div class="flex flex-col">
             <label for="inputCC">CC</label>
@@ -57,7 +57,7 @@ export default class Monitorpages extends Vue {
   @adminModule.Action addMonitorpage;
 
   monitorpageName = '';
-  monitorpageTechname = '';
+  monitorpageFunctionname = '';
   monitorpageCC = '';
 
   addMonitorpageError = ''
@@ -70,7 +70,7 @@ export default class Monitorpages extends Vue {
 
   addMonitorpageButton() {
     this.monitorpageName = '';
-    this.monitorpageTechname = '';
+    this.monitorpageFunctionname = '';
     this.monitorpageCC = '';
     this.addMonitorpageError = ''
     this.showModalAddMonitorpage = true;
@@ -81,8 +81,8 @@ export default class Monitorpages extends Vue {
       this.addMonitorpageError = 'Name can\'t be empty';
       return;
     }
-    if (!this.monitorpageTechname) {
-      this.addMonitorpageError = 'Techname can\'t be empty';
+    if (!this.monitorpageFunctionname) {
+      this.addMonitorpageError = 'Functionname can\'t be empty';
       return;
     }
     if (!this.monitorpageCC) {
@@ -90,7 +90,7 @@ export default class Monitorpages extends Vue {
       return;
     }
 
-    this.addMonitorpageError = await this.addMonitorpage({ name: this.monitorpageName, techname: this.monitorpageTechname, cc: this.monitorpageCC, auth: this.$auth });
+    this.addMonitorpageError = await this.addMonitorpage({ name: this.monitorpageName, functionName: this.monitorpageFunctionname, cc: this.monitorpageCC, auth: this.$auth });
 
     if (!this.addMonitorpageError)
       this.showModalAddMonitorpage = false;
