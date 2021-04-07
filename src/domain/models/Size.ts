@@ -4,6 +4,7 @@ import { Validator } from "../../core/logic/Validator";
 interface SizeProps {
   value: string;
   soldOut: boolean;
+  atc?: string;
 }
 
 export class Size extends ValueObject<SizeProps> {
@@ -22,6 +23,7 @@ export class Size extends ValueObject<SizeProps> {
 
   get value(): string { return this.props.value; }
   get soldOut(): boolean { return this.props.soldOut; }
+  get atc(): string | undefined { return this.props.atc; }
 
   public equals(size?: Size): boolean {
     if (size === null || size === undefined) {

@@ -98,8 +98,9 @@ export class NikeMonitor extends BaseMonitor {
     const sizes: SizeDTO[] = [];
     const skuIds = [];
     for (let l = 0; l < productJson.skus.length; l++) {
+      const atc = product.href + '?size=' + productJson.skus[l].nikeSize + '&productId=' + productJson.merchProduct.id;
       skuIds.push(productJson.skus[l].id);
-      sizes.push({ value: productJson.skus[l].nikeSize, soldOut: true });
+      sizes.push({ value: productJson.skus[l].nikeSize, soldOut: true, atc });
     }
     for (let l = 0; l < productJson.availableSkus.length; l++) {
       sizes[

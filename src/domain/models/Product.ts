@@ -47,7 +47,7 @@ export class Product extends AggregateRoot<ProductProps> {
       { argument: props.monitorpageId, argumentName: 'monitorpageId' }
     ]);
 
-    const isNewProduct = !!id === false;
+    const isNewProduct = id === undefined;
 
     if (isNewProduct) {
       id = Product.calculateUuid(props.productId);
@@ -93,6 +93,22 @@ export class Product extends AggregateRoot<ProductProps> {
   }
   get shouldSave(): boolean { return this._shouldSave; }
   get shouldNotify(): boolean { return this._shouldNotify; }
+
+  private get hasATC(): boolean {
+    if (this.props.sizes == undefined) {
+      return false;
+    }
+
+    let hasATC = true;
+
+    for (let i = 0; i < this.props.sizes.length; i++) {
+      if (this.props.sizes[i].atc == undefined) {
+        hasATC = false;
+      }
+    }
+
+    return hasATC;
+  }
 
   public activateMonitoring() {
     if (this.props.monitored == false) {
@@ -148,8 +164,8 @@ export class Product extends AggregateRoot<ProductProps> {
 
     if (productScraped.sizes != undefined && productScraped.sizes.length > 0) {
       for (let i = 0; i < productScraped.sizes.length; i++) {
-        let size = Size.create({ value: productScraped.sizes[i].value, soldOut: productScraped.sizes[i].soldOut });
-        if (!!this.props.sizes) {
+        let size = Size.create({ value: productScraped.sizes[i].value, soldOut: productScraped.sizes[i].soldOut, atc: productScraped.sizes[i].atc });
+        if (this.props.sizes != undefined) {
           let sameSizeIndex = this.props.sizes.findIndex(s => s.equals(size));
 
           if (sameSizeIndex != -1) {
@@ -184,18 +200,19 @@ export class Product extends AggregateRoot<ProductProps> {
       }        
     }
 
-    if (!!this.props.sizes && this.props.sizes.length > 0) {
+    if (this.props.sizes != undefined && this.props.sizes.length > 0) {
       for (let i = 0; i < this.props.sizes.length; i++) {
         const value = this.props.sizes[i].value;
+        const atc = this.props.sizes[i].atc;
 
-        if (!!productScraped.sizes && productScraped.sizes.length > 0) {
+        if (productScraped.sizes != undefined && productScraped.sizes.length > 0) {
           let sameSizeIndex = productScraped.sizes.findIndex(s => s.value == value);
 
           if (sameSizeIndex == -1) {
-            this.props.sizes[i] = Size.create({ value, soldOut: true });
+            this.props.sizes[i] = Size.create({ value, soldOut: true, atc });
           }
         } else {
-          this.props.sizes[i] = Size.create({ value, soldOut: true });          
+          this.props.sizes[i] = Size.create({ value, soldOut: true, atc });          
         }          
       }
     }
@@ -218,12 +235,12 @@ export class Product extends AggregateRoot<ProductProps> {
 
     if (this._sizesForNotify.length > 0) {
       for (let i = 0; i < this._sizesForNotify.length; i++) {
-        sizes.push({ value: this._sizesForNotify[i].value });
+        sizes.push({ value: this._sizesForNotify[i].value, atc: this._sizesForNotify[i].atc });
       }
     } else {
       for (let i = 0; i < this.props.sizes.length; i++) {
         if (this.props.sizes[i].soldOut == false) {
-          sizes.push({ value: this.props.sizes[i].value });
+          sizes.push({ value: this.props.sizes[i].value, atc: this.props.sizes[i].atc });
         }
       }
     }
@@ -234,7 +251,7 @@ export class Product extends AggregateRoot<ProductProps> {
       img: this.props.img,
       price: this.props.price.toString(),
       sizes,
-      hasATC: false,
+      hasATC: this.hasATC,
     };
     this._shouldNotify = false;
     this._sizesForNotify = [];
