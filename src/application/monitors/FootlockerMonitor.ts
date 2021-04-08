@@ -123,6 +123,14 @@ export class FootlockerMonitor extends BaseMonitor {
       product.active = false;
     } else {
       product.active = true;
+
+      if (object.variantAttributes[variantIndex].skuLaunchDate != undefined && object.variantAttributes[variantIndex].skuLaunchDate != null) {
+        const launchDate = Date.parse(object.variantAttributes[variantIndex].skuLaunchDate);
+        if (!Number.isNaN(launchDate) && Date.now() < launchDate) {
+          product.active = false;
+        }
+      }
+
       product.price = { value: object.variantAttributes[variantIndex].price.value, currency: object.variantAttributes[variantIndex].price.currencyIso };
       product.sizes = [];
 
