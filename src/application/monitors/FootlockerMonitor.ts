@@ -50,7 +50,7 @@ export class FootlockerMonitor extends BaseMonitor {
     let products: ProductScrapedDTO[] = [];
 
     for (let i = 0; i < command.urls.length; i++) {
-      let scrapeResponse = await this.scraperService.scrape({ url: command.urls[i].value, cc: command.cc.value, isHtml: false });
+      let scrapeResponse = await this.scraperService.scrape({ url: command.urls[i].value, cc: command.cc.value, jsRendering: false });
 
       if (scrapeResponse.proxyError) {
         this.logger.info('Proxy Error.');
@@ -107,7 +107,7 @@ export class FootlockerMonitor extends BaseMonitor {
     const sku = product.productPageId.split('_')[1];
     const url = 'https://www.footlocker.de/api/products/pdp/' + sku;
 
-    let scrapeResponse = await this.scraperService.scrape({ url, cc: cc.value, isHtml: false });
+    let scrapeResponse = await this.scraperService.scrape({ url, cc: cc.value, jsRendering: false });
 
     if (scrapeResponse.statusCode == undefined || (scrapeResponse.statusCode != 400 && scrapeResponse.statusCode != 200) || scrapeResponse.content == undefined) {
       return null;

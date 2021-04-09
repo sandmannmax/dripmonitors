@@ -53,8 +53,15 @@ export class MonitorpageService implements IMonitorpageService {
   }
 
   public async runMonitorpage(monitorpageUuid: string): Promise<void> {
-    const monitorpage = await this.getMonitorpageByUuidString(monitorpageUuid);
-    monitorpage.run();
+    const monitorpageUuidObject: Uuid = Uuid.create({ uuid: monitorpageUuid });
+    const isRunning = await this.monitorpageRepo.isRunning(monitorpageUuidObject);
+
+    if (!isRunning) {
+      await this.monitorpageRepo.startRunning(monitorpageUuidObject);
+      const monitorpage = await this.getMonitorpageByUuidString(monitorpageUuid);
+      await monitorpage.run();
+      await this.monitorpageRepo.stopRunning(monitorpageUuidObject);
+    }
   }
 
   public async getFiltersByMonitorpageUuid(monitorpageUuid: string): Promise<FilterDTO[]> {

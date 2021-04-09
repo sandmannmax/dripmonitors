@@ -60,8 +60,8 @@ export class Monitorpage extends AggregateRoot<MonitorpageProps> {
   get monitorAllProducts(): boolean { return this.props.monitorAllProducts; }
   get displayMonitorpagename(): boolean { return this.props.showMonitorpageDisplayName; }
 
-  public run() {
-    this.props.monitorpageFunctionality.run({ urls: this.props.urls, filters: this.props.filters, cc: this.props.cc });
+  public async run(): Promise<void> {
+    await this.props.monitorpageFunctionality.run({ urls: this.props.urls, filters: this.props.filters, cc: this.props.cc });
   }
 
   public startMonitorpage(intervalTime: IntervalTime) {

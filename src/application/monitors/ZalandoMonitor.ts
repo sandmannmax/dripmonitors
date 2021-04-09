@@ -18,7 +18,7 @@ export class ZalandoMonitor extends BaseMonitor {
     let products: ProductScrapedDTO[] = [];
 
     for (let i = 0; i < command.urls.length; i++) {
-      let scrapeResponse = await this.scraperService.scrape({ url: command.urls[i].value, cc: command.cc.value, isHtml: true });
+      let scrapeResponse = await this.scraperService.scrape({ url: command.urls[i].value, cc: command.cc.value, jsRendering: true });
 
       if (scrapeResponse.proxyError) {
         this.logger.info('Proxy Error.');

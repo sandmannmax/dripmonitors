@@ -9,5 +9,5 @@ export interface RunMonitorpageCommandDTO {
 }
 
 export interface IMonitorpageFunctionality {
-  run(command: RunMonitorpageCommandDTO): void;
+  run(command: RunMonitorpageCommandDTO): Promise<void>;
 }

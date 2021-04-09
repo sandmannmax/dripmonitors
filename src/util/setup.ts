@@ -1,7 +1,6 @@
 import redis from 'redis';
 import { sendUnaryData, Server, ServerCredentials, ServerUnaryCall } from '@grpc/grpc-js';
 import config, { ConfigSetup } from './config';
-import { RedisController } from '../infra/controllers/RedisController';
 import { MonitorServiceService } from '../proto/monitor/v1/monitor_grpc_pb';
 import { MonitorServer } from '../infra/controllers/MonitorServer';
 import { ProductsService } from '../application/services/ProductsService';
@@ -13,6 +12,9 @@ import { ScraperClientService } from '../infra/services/ScraperClientService';
 import { NotificationService } from '../infra/services/NotificationService';
 import { MonitorpageSetup } from './Monitorpages';
 import { ScheduleService } from '../infra/services/ScheduleService';
+import ioredis, { Redis } from 'ioredis';
+import { MonitorpageRunController } from '../infra/controllers/MonitorpageRunController';
+import { logger } from './logger';
 
 export async function Start(): Promise<void> {
   ConfigSetup();
@@ -21,23 +23,29 @@ export async function Start(): Promise<void> {
     host: config.redisHost,
     port: config.redisPort,
   });
-  const subscriber = client.duplicate();
+  
+  const ioredisClient: Redis = new ioredis({
+    host: config.redisHost,
+    port: config.redisPort,
+  });
 
   const productRepo = new ProductRepo(client);
   const scraperService = new ScraperClientService();
-  const notificationService = new NotificationService();
+  const notificationService = new NotificationService(ioredisClient);
   const monitorpageSetups = MonitorpageSetup(productRepo, scraperService, notificationService);
 
   const monitorpageRepo = new MonitorpageRepo(monitorpageSetups, client);
-  const scheduleService = new ScheduleService();
+  const scheduleService = new ScheduleService(ioredisClient);
   const monitorpageService = new MonitorpageService(monitorpageRepo, scheduleService);
-
-  const redisController = new RedisController({ client: subscriber, monitorpageService });
 
   const productsService = new ProductsService(productRepo);
   const monitorServer = new MonitorServer({ monitorpageService, productsService });
 
+  const monitorpageRunController = new MonitorpageRunController(monitorpageService, ioredisClient);
+
   GrpcSetup(monitorServer);
+
+  logger.info('Monitor is running')
 }
 
 function GrpcSetup(monitorServer: MonitorServer) {

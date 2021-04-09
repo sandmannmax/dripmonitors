@@ -73,7 +73,7 @@ export class SoleboxMonitor extends BaseMonitor {
     let products: ProductScrapedDTO[] = [];
 
     for (let i = 0; i < command.urls.length; i++) {
-      let scrapeResponse = await this.scraperService.scrape({ url: command.urls[i].value, cc: command.cc.value, isHtml: true });
+      let scrapeResponse = await this.scraperService.scrape({ url: command.urls[i].value, cc: command.cc.value, jsRendering: true });
 
       if (scrapeResponse.proxyError) {
         this.logger.info('Proxy Error.');
@@ -127,7 +127,7 @@ export class SoleboxMonitor extends BaseMonitor {
   }
 
   private async complementProduct(product: ProductScrapedDTO, cc: CountryCode): Promise<ProductScrapedDTO | null> {
-    let scrapeResponse = await this.scraperService.scrape({ url: product.href, cc: cc.value, isHtml: true });
+    let scrapeResponse = await this.scraperService.scrape({ url: product.href, cc: cc.value, jsRendering: true });
 
     if (scrapeResponse.proxyError) {
       this.logger.info('Proxy Error.');
