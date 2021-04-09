@@ -14,17 +14,50 @@ class ScraperServiceStub(object):
         Args:
             channel: A grpc.Channel.
         """
-        self.Get = channel.unary_unary(
-                '/scraper.v1.ScraperService/Get',
-                request_serializer=scraper_dot_v1_dot_scraper__pb2.GetRequest.SerializeToString,
-                response_deserializer=scraper_dot_v1_dot_scraper__pb2.GetResponse.FromString,
+        self.Scrape = channel.unary_unary(
+                '/scraper.v1.ScraperService/Scrape',
+                request_serializer=scraper_dot_v1_dot_scraper__pb2.ScrapeRequest.SerializeToString,
+                response_deserializer=scraper_dot_v1_dot_scraper__pb2.ScrapeResponse.FromString,
+                )
+        self.GetProxies = channel.unary_unary(
+                '/scraper.v1.ScraperService/GetProxies',
+                request_serializer=scraper_dot_v1_dot_scraper__pb2.GetProxiesRequest.SerializeToString,
+                response_deserializer=scraper_dot_v1_dot_scraper__pb2.GetProxiesResponse.FromString,
+                )
+        self.AddProxy = channel.unary_unary(
+                '/scraper.v1.ScraperService/AddProxy',
+                request_serializer=scraper_dot_v1_dot_scraper__pb2.AddProxyRequest.SerializeToString,
+                response_deserializer=scraper_dot_v1_dot_scraper__pb2.AddProxyResponse.FromString,
+                )
+        self.RemoveProxy = channel.unary_unary(
+                '/scraper.v1.ScraperService/RemoveProxy',
+                request_serializer=scraper_dot_v1_dot_scraper__pb2.RemoveProxyRequest.SerializeToString,
+                response_deserializer=scraper_dot_v1_dot_scraper__pb2.RemoveProxyRequest.FromString,
                 )
 
 
 class ScraperServiceServicer(object):
     """Missing associated documentation comment in .proto file."""
 
-    def Get(self, request, context):
+    def Scrape(self, request, context):
+        """Missing associated documentation comment in .proto file."""
+        context.set_code(grpc.StatusCode.UNIMPLEMENTED)
+        context.set_details('Method not implemented!')
+        raise NotImplementedError('Method not implemented!')
+
+    def GetProxies(self, request, context):
+        """Missing associated documentation comment in .proto file."""
+        context.set_code(grpc.StatusCode.UNIMPLEMENTED)
+        context.set_details('Method not implemented!')
+        raise NotImplementedError('Method not implemented!')
+
+    def AddProxy(self, request, context):
+        """Missing associated documentation comment in .proto file."""
+        context.set_code(grpc.StatusCode.UNIMPLEMENTED)
+        context.set_details('Method not implemented!')
+        raise NotImplementedError('Method not implemented!')
+
+    def RemoveProxy(self, request, context):
         """Missing associated documentation comment in .proto file."""
         context.set_code(grpc.StatusCode.UNIMPLEMENTED)
         context.set_details('Method not implemented!')
@@ -33,10 +66,25 @@ class ScraperServiceServicer(object):
 
 def add_ScraperServiceServicer_to_server(servicer, server):
     rpc_method_handlers = {
-            'Get': grpc.unary_unary_rpc_method_handler(
-                    servicer.Get,
-                    request_deserializer=scraper_dot_v1_dot_scraper__pb2.GetRequest.FromString,
-                    response_serializer=scraper_dot_v1_dot_scraper__pb2.GetResponse.SerializeToString,
+            'Scrape': grpc.unary_unary_rpc_method_handler(
+                    servicer.Scrape,
+                    request_deserializer=scraper_dot_v1_dot_scraper__pb2.ScrapeRequest.FromString,
+                    response_serializer=scraper_dot_v1_dot_scraper__pb2.ScrapeResponse.SerializeToString,
+            ),
+            'GetProxies': grpc.unary_unary_rpc_method_handler(
+                    servicer.GetProxies,
+                    request_deserializer=scraper_dot_v1_dot_scraper__pb2.GetProxiesRequest.FromString,
+                    response_serializer=scraper_dot_v1_dot_scraper__pb2.GetProxiesResponse.SerializeToString,
+            ),
+            'AddProxy': grpc.unary_unary_rpc_method_handler(
+                    servicer.AddProxy,
+                    request_deserializer=scraper_dot_v1_dot_scraper__pb2.AddProxyRequest.FromString,
+                    response_serializer=scraper_dot_v1_dot_scraper__pb2.AddProxyResponse.SerializeToString,
+            ),
+            'RemoveProxy': grpc.unary_unary_rpc_method_handler(
+                    servicer.RemoveProxy,
+                    request_deserializer=scraper_dot_v1_dot_scraper__pb2.RemoveProxyRequest.FromString,
+                    response_serializer=scraper_dot_v1_dot_scraper__pb2.RemoveProxyRequest.SerializeToString,
             ),
     }
     generic_handler = grpc.method_handlers_generic_handler(
@@ -49,7 +97,7 @@ class ScraperService(object):
     """Missing associated documentation comment in .proto file."""
 
     @staticmethod
-    def Get(request,
+    def Scrape(request,
             target,
             options=(),
             channel_credentials=None,
@@ -59,8 +107,59 @@ class ScraperService(object):
             wait_for_ready=None,
             timeout=None,
             metadata=None):
-        return grpc.experimental.unary_unary(request, target, '/scraper.v1.ScraperService/Get',
-            scraper_dot_v1_dot_scraper__pb2.GetRequest.SerializeToString,
-            scraper_dot_v1_dot_scraper__pb2.GetResponse.FromString,
+        return grpc.experimental.unary_unary(request, target, '/scraper.v1.ScraperService/Scrape',
+            scraper_dot_v1_dot_scraper__pb2.ScrapeRequest.SerializeToString,
+            scraper_dot_v1_dot_scraper__pb2.ScrapeResponse.FromString,
+            options, channel_credentials,
+            insecure, call_credentials, compression, wait_for_ready, timeout, metadata)
+
+    @staticmethod
+    def GetProxies(request,
+            target,
+            options=(),
+            channel_credentials=None,
+            call_credentials=None,
+            insecure=False,
+            compression=None,
+            wait_for_ready=None,
+            timeout=None,
+            metadata=None):
+        return grpc.experimental.unary_unary(request, target, '/scraper.v1.ScraperService/GetProxies',
+            scraper_dot_v1_dot_scraper__pb2.GetProxiesRequest.SerializeToString,
+            scraper_dot_v1_dot_scraper__pb2.GetProxiesResponse.FromString,
+            options, channel_credentials,
+            insecure, call_credentials, compression, wait_for_ready, timeout, metadata)
+
+    @staticmethod
+    def AddProxy(request,
+            target,
+            options=(),
+            channel_credentials=None,
+            call_credentials=None,
+            insecure=False,
+            compression=None,
+            wait_for_ready=None,
+            timeout=None,
+            metadata=None):
+        return grpc.experimental.unary_unary(request, target, '/scraper.v1.ScraperService/AddProxy',
+            scraper_dot_v1_dot_scraper__pb2.AddProxyRequest.SerializeToString,
+            scraper_dot_v1_dot_scraper__pb2.AddProxyResponse.FromString,
+            options, channel_credentials,
+            insecure, call_credentials, compression, wait_for_ready, timeout, metadata)
+
+    @staticmethod
+    def RemoveProxy(request,
+            target,
+            options=(),
+            channel_credentials=None,
+            call_credentials=None,
+            insecure=False,
+            compression=None,
+            wait_for_ready=None,
+            timeout=None,
+            metadata=None):
+        return grpc.experimental.unary_unary(request, target, '/scraper.v1.ScraperService/RemoveProxy',
+            scraper_dot_v1_dot_scraper__pb2.RemoveProxyRequest.SerializeToString,
+            scraper_dot_v1_dot_scraper__pb2.RemoveProxyRequest.FromString,
             options, channel_credentials,
             insecure, call_credentials, compression, wait_for_ready, timeout, metadata)

@@ -19,41 +19,48 @@ DESCRIPTOR = _descriptor.FileDescriptor(
   syntax='proto3',
   serialized_options=None,
   create_key=_descriptor._internal_create_key,
-  serialized_pb=b'\n\x18scraper/v1/scraper.proto\x12\nscraper.v1\"M\n\nGetRequest\x12\x10\n\x03url\x18\x01 \x01(\tR\x03url\x12\x14\n\x05proxy\x18\x02 \x01(\tR\x05proxy\x12\x17\n\x07is_html\x18\x03 \x01(\x08R\x06isHtml\"\x7f\n\x0bGetResponse\x12\x1f\n\x0bstatus_code\x18\x01 \x01(\x05R\nstatusCode\x12\x1f\n\x0bproxy_error\x18\x02 \x01(\x08R\nproxyError\x12\x18\n\x07\x63ontent\x18\x03 \x01(\tR\x07\x63ontent\x12\x14\n\x05\x65rror\x18\x04 \x01(\tR\x05\x65rror2J\n\x0eScraperService\x12\x38\n\x03Get\x12\x16.scraper.v1.GetRequest\x1a\x17.scraper.v1.GetResponse\"\x00\x62\x06proto3'
+  serialized_pb=b'\n\x18scraper/v1/scraper.proto\x12\nscraper.v1\"l\n\x05Proxy\x12\x1d\n\nproxy_uuid\x18\x01 \x01(\tR\tproxyUuid\x12\x18\n\x07\x61\x64\x64ress\x18\x02 \x01(\tR\x07\x61\x64\x64ress\x12\x0e\n\x02\x63\x63\x18\x03 \x01(\tR\x02\x63\x63\x12\x1a\n\x08provider\x18\x04 \x01(\tR\x08provider\"T\n\rScrapeRequest\x12\x10\n\x03url\x18\x01 \x01(\tR\x03url\x12\x0e\n\x02\x63\x63\x18\x02 \x01(\tR\x02\x63\x63\x12!\n\x0cjs_rendering\x18\x03 \x01(\x08R\x0bjsRendering\"\x82\x01\n\x0eScrapeResponse\x12\x1f\n\x0bstatus_code\x18\x01 \x01(\x05R\nstatusCode\x12\x1f\n\x0bproxy_error\x18\x02 \x01(\x08R\nproxyError\x12\x18\n\x07\x63ontent\x18\x03 \x01(\tR\x07\x63ontent\x12\x14\n\x05\x65rror\x18\x04 \x01(\tR\x05\x65rror\"\x13\n\x11GetProxiesRequest\"A\n\x12GetProxiesResponse\x12+\n\x07proxies\x18\x01 \x03(\x0b\x32\x11.scraper.v1.ProxyR\x07proxies\"W\n\x0f\x41\x64\x64ProxyRequest\x12\x18\n\x07\x61\x64\x64ress\x18\x01 \x01(\tR\x07\x61\x64\x64ress\x12\x0e\n\x02\x63\x63\x18\x02 \x01(\tR\x02\x63\x63\x12\x1a\n\x08provider\x18\x03 \x01(\tR\x08provider\"\x12\n\x10\x41\x64\x64ProxyResponse\"3\n\x12RemoveProxyRequest\x12\x1d\n\nproxy_uuid\x18\x01 \x01(\tR\tproxyUuid\"\x15\n\x13RemoveProxyResponse2\xbc\x02\n\x0eScraperService\x12\x41\n\x06Scrape\x12\x19.scraper.v1.ScrapeRequest\x1a\x1a.scraper.v1.ScrapeResponse\"\x00\x12M\n\nGetProxies\x12\x1d.scraper.v1.GetProxiesRequest\x1a\x1e.scraper.v1.GetProxiesResponse\"\x00\x12G\n\x08\x41\x64\x64Proxy\x12\x1b.scraper.v1.AddProxyRequest\x1a\x1c.scraper.v1.AddProxyResponse\"\x00\x12O\n\x0bRemoveProxy\x12\x1e.scraper.v1.RemoveProxyRequest\x1a\x1e.scraper.v1.RemoveProxyRequest\"\x00\x62\x06proto3'
 )
 
 
 
 
-_GETREQUEST = _descriptor.Descriptor(
-  name='GetRequest',
-  full_name='scraper.v1.GetRequest',
+_PROXY = _descriptor.Descriptor(
+  name='Proxy',
+  full_name='scraper.v1.Proxy',
   filename=None,
   file=DESCRIPTOR,
   containing_type=None,
   create_key=_descriptor._internal_create_key,
   fields=[
     _descriptor.FieldDescriptor(
-      name='url', full_name='scraper.v1.GetRequest.url', index=0,
+      name='proxy_uuid', full_name='scraper.v1.Proxy.proxy_uuid', index=0,
       number=1, type=9, cpp_type=9, label=1,
       has_default_value=False, default_value=b"".decode('utf-8'),
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
-      serialized_options=None, json_name='url', file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
+      serialized_options=None, json_name='proxyUuid', file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
     _descriptor.FieldDescriptor(
-      name='proxy', full_name='scraper.v1.GetRequest.proxy', index=1,
+      name='address', full_name='scraper.v1.Proxy.address', index=1,
       number=2, type=9, cpp_type=9, label=1,
       has_default_value=False, default_value=b"".decode('utf-8'),
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
-      serialized_options=None, json_name='proxy', file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
+      serialized_options=None, json_name='address', file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
     _descriptor.FieldDescriptor(
-      name='is_html', full_name='scraper.v1.GetRequest.is_html', index=2,
-      number=3, type=8, cpp_type=7, label=1,
-      has_default_value=False, default_value=False,
+      name='cc', full_name='scraper.v1.Proxy.cc', index=2,
+      number=3, type=9, cpp_type=9, label=1,
+      has_default_value=False, default_value=b"".decode('utf-8'),
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
-      serialized_options=None, json_name='isHtml', file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
+      serialized_options=None, json_name='cc', file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
+    _descriptor.FieldDescriptor(
+      name='provider', full_name='scraper.v1.Proxy.provider', index=3,
+      number=4, type=9, cpp_type=9, label=1,
+      has_default_value=False, default_value=b"".decode('utf-8'),
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, json_name='provider', file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
   ],
   extensions=[
   ],
@@ -67,41 +74,87 @@ _GETREQUEST = _descriptor.Descriptor(
   oneofs=[
   ],
   serialized_start=40,
-  serialized_end=117,
+  serialized_end=148,
 )
 
 
-_GETRESPONSE = _descriptor.Descriptor(
-  name='GetResponse',
-  full_name='scraper.v1.GetResponse',
+_SCRAPEREQUEST = _descriptor.Descriptor(
+  name='ScrapeRequest',
+  full_name='scraper.v1.ScrapeRequest',
   filename=None,
   file=DESCRIPTOR,
   containing_type=None,
   create_key=_descriptor._internal_create_key,
   fields=[
     _descriptor.FieldDescriptor(
-      name='status_code', full_name='scraper.v1.GetResponse.status_code', index=0,
+      name='url', full_name='scraper.v1.ScrapeRequest.url', index=0,
+      number=1, type=9, cpp_type=9, label=1,
+      has_default_value=False, default_value=b"".decode('utf-8'),
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, json_name='url', file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
+    _descriptor.FieldDescriptor(
+      name='cc', full_name='scraper.v1.ScrapeRequest.cc', index=1,
+      number=2, type=9, cpp_type=9, label=1,
+      has_default_value=False, default_value=b"".decode('utf-8'),
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, json_name='cc', file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
+    _descriptor.FieldDescriptor(
+      name='js_rendering', full_name='scraper.v1.ScrapeRequest.js_rendering', index=2,
+      number=3, type=8, cpp_type=7, label=1,
+      has_default_value=False, default_value=False,
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, json_name='jsRendering', file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
+  ],
+  extensions=[
+  ],
+  nested_types=[],
+  enum_types=[
+  ],
+  serialized_options=None,
+  is_extendable=False,
+  syntax='proto3',
+  extension_ranges=[],
+  oneofs=[
+  ],
+  serialized_start=150,
+  serialized_end=234,
+)
+
+
+_SCRAPERESPONSE = _descriptor.Descriptor(
+  name='ScrapeResponse',
+  full_name='scraper.v1.ScrapeResponse',
+  filename=None,
+  file=DESCRIPTOR,
+  containing_type=None,
+  create_key=_descriptor._internal_create_key,
+  fields=[
+    _descriptor.FieldDescriptor(
+      name='status_code', full_name='scraper.v1.ScrapeResponse.status_code', index=0,
       number=1, type=5, cpp_type=1, label=1,
       has_default_value=False, default_value=0,
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       serialized_options=None, json_name='statusCode', file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
     _descriptor.FieldDescriptor(
-      name='proxy_error', full_name='scraper.v1.GetResponse.proxy_error', index=1,
+      name='proxy_error', full_name='scraper.v1.ScrapeResponse.proxy_error', index=1,
       number=2, type=8, cpp_type=7, label=1,
       has_default_value=False, default_value=False,
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       serialized_options=None, json_name='proxyError', file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
     _descriptor.FieldDescriptor(
-      name='content', full_name='scraper.v1.GetResponse.content', index=2,
+      name='content', full_name='scraper.v1.ScrapeResponse.content', index=2,
       number=3, type=9, cpp_type=9, label=1,
       has_default_value=False, default_value=b"".decode('utf-8'),
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       serialized_options=None, json_name='content', file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
     _descriptor.FieldDescriptor(
-      name='error', full_name='scraper.v1.GetResponse.error', index=3,
+      name='error', full_name='scraper.v1.ScrapeResponse.error', index=3,
       number=4, type=9, cpp_type=9, label=1,
       has_default_value=False, default_value=b"".decode('utf-8'),
       message_type=None, enum_type=None, containing_type=None,
@@ -119,27 +172,269 @@ _GETRESPONSE = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=119,
-  serialized_end=246,
+  serialized_start=237,
+  serialized_end=367,
 )
 
-DESCRIPTOR.message_types_by_name['GetRequest'] = _GETREQUEST
-DESCRIPTOR.message_types_by_name['GetResponse'] = _GETRESPONSE
+
+_GETPROXIESREQUEST = _descriptor.Descriptor(
+  name='GetProxiesRequest',
+  full_name='scraper.v1.GetProxiesRequest',
+  filename=None,
+  file=DESCRIPTOR,
+  containing_type=None,
+  create_key=_descriptor._internal_create_key,
+  fields=[
+  ],
+  extensions=[
+  ],
+  nested_types=[],
+  enum_types=[
+  ],
+  serialized_options=None,
+  is_extendable=False,
+  syntax='proto3',
+  extension_ranges=[],
+  oneofs=[
+  ],
+  serialized_start=369,
+  serialized_end=388,
+)
+
+
+_GETPROXIESRESPONSE = _descriptor.Descriptor(
+  name='GetProxiesResponse',
+  full_name='scraper.v1.GetProxiesResponse',
+  filename=None,
+  file=DESCRIPTOR,
+  containing_type=None,
+  create_key=_descriptor._internal_create_key,
+  fields=[
+    _descriptor.FieldDescriptor(
+      name='proxies', full_name='scraper.v1.GetProxiesResponse.proxies', index=0,
+      number=1, type=11, cpp_type=10, label=3,
+      has_default_value=False, default_value=[],
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, json_name='proxies', file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
+  ],
+  extensions=[
+  ],
+  nested_types=[],
+  enum_types=[
+  ],
+  serialized_options=None,
+  is_extendable=False,
+  syntax='proto3',
+  extension_ranges=[],
+  oneofs=[
+  ],
+  serialized_start=390,
+  serialized_end=455,
+)
+
+
+_ADDPROXYREQUEST = _descriptor.Descriptor(
+  name='AddProxyRequest',
+  full_name='scraper.v1.AddProxyRequest',
+  filename=None,
+  file=DESCRIPTOR,
+  containing_type=None,
+  create_key=_descriptor._internal_create_key,
+  fields=[
+    _descriptor.FieldDescriptor(
+      name='address', full_name='scraper.v1.AddProxyRequest.address', index=0,
+      number=1, type=9, cpp_type=9, label=1,
+      has_default_value=False, default_value=b"".decode('utf-8'),
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, json_name='address', file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
+    _descriptor.FieldDescriptor(
+      name='cc', full_name='scraper.v1.AddProxyRequest.cc', index=1,
+      number=2, type=9, cpp_type=9, label=1,
+      has_default_value=False, default_value=b"".decode('utf-8'),
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, json_name='cc', file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
+    _descriptor.FieldDescriptor(
+      name='provider', full_name='scraper.v1.AddProxyRequest.provider', index=2,
+      number=3, type=9, cpp_type=9, label=1,
+      has_default_value=False, default_value=b"".decode('utf-8'),
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, json_name='provider', file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
+  ],
+  extensions=[
+  ],
+  nested_types=[],
+  enum_types=[
+  ],
+  serialized_options=None,
+  is_extendable=False,
+  syntax='proto3',
+  extension_ranges=[],
+  oneofs=[
+  ],
+  serialized_start=457,
+  serialized_end=544,
+)
+
+
+_ADDPROXYRESPONSE = _descriptor.Descriptor(
+  name='AddProxyResponse',
+  full_name='scraper.v1.AddProxyResponse',
+  filename=None,
+  file=DESCRIPTOR,
+  containing_type=None,
+  create_key=_descriptor._internal_create_key,
+  fields=[
+  ],
+  extensions=[
+  ],
+  nested_types=[],
+  enum_types=[
+  ],
+  serialized_options=None,
+  is_extendable=False,
+  syntax='proto3',
+  extension_ranges=[],
+  oneofs=[
+  ],
+  serialized_start=546,
+  serialized_end=564,
+)
+
+
+_REMOVEPROXYREQUEST = _descriptor.Descriptor(
+  name='RemoveProxyRequest',
+  full_name='scraper.v1.RemoveProxyRequest',
+  filename=None,
+  file=DESCRIPTOR,
+  containing_type=None,
+  create_key=_descriptor._internal_create_key,
+  fields=[
+    _descriptor.FieldDescriptor(
+      name='proxy_uuid', full_name='scraper.v1.RemoveProxyRequest.proxy_uuid', index=0,
+      number=1, type=9, cpp_type=9, label=1,
+      has_default_value=False, default_value=b"".decode('utf-8'),
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, json_name='proxyUuid', file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
+  ],
+  extensions=[
+  ],
+  nested_types=[],
+  enum_types=[
+  ],
+  serialized_options=None,
+  is_extendable=False,
+  syntax='proto3',
+  extension_ranges=[],
+  oneofs=[
+  ],
+  serialized_start=566,
+  serialized_end=617,
+)
+
+
+_REMOVEPROXYRESPONSE = _descriptor.Descriptor(
+  name='RemoveProxyResponse',
+  full_name='scraper.v1.RemoveProxyResponse',
+  filename=None,
+  file=DESCRIPTOR,
+  containing_type=None,
+  create_key=_descriptor._internal_create_key,
+  fields=[
+  ],
+  extensions=[
+  ],
+  nested_types=[],
+  enum_types=[
+  ],
+  serialized_options=None,
+  is_extendable=False,
+  syntax='proto3',
+  extension_ranges=[],
+  oneofs=[
+  ],
+  serialized_start=619,
+  serialized_end=640,
+)
+
+_GETPROXIESRESPONSE.fields_by_name['proxies'].message_type = _PROXY
+DESCRIPTOR.message_types_by_name['Proxy'] = _PROXY
+DESCRIPTOR.message_types_by_name['ScrapeRequest'] = _SCRAPEREQUEST
+DESCRIPTOR.message_types_by_name['ScrapeResponse'] = _SCRAPERESPONSE
+DESCRIPTOR.message_types_by_name['GetProxiesRequest'] = _GETPROXIESREQUEST
+DESCRIPTOR.message_types_by_name['GetProxiesResponse'] = _GETPROXIESRESPONSE
+DESCRIPTOR.message_types_by_name['AddProxyRequest'] = _ADDPROXYREQUEST
+DESCRIPTOR.message_types_by_name['AddProxyResponse'] = _ADDPROXYRESPONSE
+DESCRIPTOR.message_types_by_name['RemoveProxyRequest'] = _REMOVEPROXYREQUEST
+DESCRIPTOR.message_types_by_name['RemoveProxyResponse'] = _REMOVEPROXYRESPONSE
 _sym_db.RegisterFileDescriptor(DESCRIPTOR)
 
-GetRequest = _reflection.GeneratedProtocolMessageType('GetRequest', (_message.Message,), {
-  'DESCRIPTOR' : _GETREQUEST,
+Proxy = _reflection.GeneratedProtocolMessageType('Proxy', (_message.Message,), {
+  'DESCRIPTOR' : _PROXY,
   '__module__' : 'scraper.v1.scraper_pb2'
-  # @@protoc_insertion_point(class_scope:scraper.v1.GetRequest)
+  # @@protoc_insertion_point(class_scope:scraper.v1.Proxy)
   })
-_sym_db.RegisterMessage(GetRequest)
+_sym_db.RegisterMessage(Proxy)
 
-GetResponse = _reflection.GeneratedProtocolMessageType('GetResponse', (_message.Message,), {
-  'DESCRIPTOR' : _GETRESPONSE,
+ScrapeRequest = _reflection.GeneratedProtocolMessageType('ScrapeRequest', (_message.Message,), {
+  'DESCRIPTOR' : _SCRAPEREQUEST,
   '__module__' : 'scraper.v1.scraper_pb2'
-  # @@protoc_insertion_point(class_scope:scraper.v1.GetResponse)
+  # @@protoc_insertion_point(class_scope:scraper.v1.ScrapeRequest)
   })
-_sym_db.RegisterMessage(GetResponse)
+_sym_db.RegisterMessage(ScrapeRequest)
+
+ScrapeResponse = _reflection.GeneratedProtocolMessageType('ScrapeResponse', (_message.Message,), {
+  'DESCRIPTOR' : _SCRAPERESPONSE,
+  '__module__' : 'scraper.v1.scraper_pb2'
+  # @@protoc_insertion_point(class_scope:scraper.v1.ScrapeResponse)
+  })
+_sym_db.RegisterMessage(ScrapeResponse)
+
+GetProxiesRequest = _reflection.GeneratedProtocolMessageType('GetProxiesRequest', (_message.Message,), {
+  'DESCRIPTOR' : _GETPROXIESREQUEST,
+  '__module__' : 'scraper.v1.scraper_pb2'
+  # @@protoc_insertion_point(class_scope:scraper.v1.GetProxiesRequest)
+  })
+_sym_db.RegisterMessage(GetProxiesRequest)
+
+GetProxiesResponse = _reflection.GeneratedProtocolMessageType('GetProxiesResponse', (_message.Message,), {
+  'DESCRIPTOR' : _GETPROXIESRESPONSE,
+  '__module__' : 'scraper.v1.scraper_pb2'
+  # @@protoc_insertion_point(class_scope:scraper.v1.GetProxiesResponse)
+  })
+_sym_db.RegisterMessage(GetProxiesResponse)
+
+AddProxyRequest = _reflection.GeneratedProtocolMessageType('AddProxyRequest', (_message.Message,), {
+  'DESCRIPTOR' : _ADDPROXYREQUEST,
+  '__module__' : 'scraper.v1.scraper_pb2'
+  # @@protoc_insertion_point(class_scope:scraper.v1.AddProxyRequest)
+  })
+_sym_db.RegisterMessage(AddProxyRequest)
+
+AddProxyResponse = _reflection.GeneratedProtocolMessageType('AddProxyResponse', (_message.Message,), {
+  'DESCRIPTOR' : _ADDPROXYRESPONSE,
+  '__module__' : 'scraper.v1.scraper_pb2'
+  # @@protoc_insertion_point(class_scope:scraper.v1.AddProxyResponse)
+  })
+_sym_db.RegisterMessage(AddProxyResponse)
+
+RemoveProxyRequest = _reflection.GeneratedProtocolMessageType('RemoveProxyRequest', (_message.Message,), {
+  'DESCRIPTOR' : _REMOVEPROXYREQUEST,
+  '__module__' : 'scraper.v1.scraper_pb2'
+  # @@protoc_insertion_point(class_scope:scraper.v1.RemoveProxyRequest)
+  })
+_sym_db.RegisterMessage(RemoveProxyRequest)
+
+RemoveProxyResponse = _reflection.GeneratedProtocolMessageType('RemoveProxyResponse', (_message.Message,), {
+  'DESCRIPTOR' : _REMOVEPROXYRESPONSE,
+  '__module__' : 'scraper.v1.scraper_pb2'
+  # @@protoc_insertion_point(class_scope:scraper.v1.RemoveProxyResponse)
+  })
+_sym_db.RegisterMessage(RemoveProxyResponse)
 
 
 
@@ -150,16 +445,46 @@ _SCRAPERSERVICE = _descriptor.ServiceDescriptor(
   index=0,
   serialized_options=None,
   create_key=_descriptor._internal_create_key,
-  serialized_start=248,
-  serialized_end=322,
+  serialized_start=643,
+  serialized_end=959,
   methods=[
   _descriptor.MethodDescriptor(
-    name='Get',
-    full_name='scraper.v1.ScraperService.Get',
+    name='Scrape',
+    full_name='scraper.v1.ScraperService.Scrape',
     index=0,
     containing_service=None,
-    input_type=_GETREQUEST,
-    output_type=_GETRESPONSE,
+    input_type=_SCRAPEREQUEST,
+    output_type=_SCRAPERESPONSE,
+    serialized_options=None,
+    create_key=_descriptor._internal_create_key,
+  ),
+  _descriptor.MethodDescriptor(
+    name='GetProxies',
+    full_name='scraper.v1.ScraperService.GetProxies',
+    index=1,
+    containing_service=None,
+    input_type=_GETPROXIESREQUEST,
+    output_type=_GETPROXIESRESPONSE,
+    serialized_options=None,
+    create_key=_descriptor._internal_create_key,
+  ),
+  _descriptor.MethodDescriptor(
+    name='AddProxy',
+    full_name='scraper.v1.ScraperService.AddProxy',
+    index=2,
+    containing_service=None,
+    input_type=_ADDPROXYREQUEST,
+    output_type=_ADDPROXYRESPONSE,
+    serialized_options=None,
+    create_key=_descriptor._internal_create_key,
+  ),
+  _descriptor.MethodDescriptor(
+    name='RemoveProxy',
+    full_name='scraper.v1.ScraperService.RemoveProxy',
+    index=3,
+    containing_service=None,
+    input_type=_REMOVEPROXYREQUEST,
+    output_type=_REMOVEPROXYREQUEST,
     serialized_options=None,
     create_key=_descriptor._internal_create_key,
   ),
