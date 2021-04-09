@@ -1,19 +1,20 @@
 import { ValueObject } from "../../core/base/ValueObject";
 import { Validator } from "../../core/logic/Validator";
 
-interface MonitorpageIdProps {
+interface UrlProps {
   value: string;
 }
 
-export class MonitorpageId extends ValueObject<MonitorpageIdProps> {
-  private constructor (props: MonitorpageIdProps) {
+export class Url extends ValueObject<UrlProps> {
+
+  private constructor(props: UrlProps) {
     super(props);
   }
 
-  public static create (props: MonitorpageIdProps): MonitorpageId {
+  public static create(props: UrlProps): Url {
     Validator.notNullOrUndefined(props.value, 'value');
-
-    return new MonitorpageId(props);
+    
+    return new Url(props);
   }
 
   get value(): string { return this.props.value; }

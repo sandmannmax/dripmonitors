@@ -1,21 +1,19 @@
 import { AggregateRoot } from "../../core/base/AggregateRoot";
-import { UniqueEntityID } from "../../core/base/UniqueEntityID";
+import { Uuid } from "../../core/base/Uuid";
 import { Validator } from "../../core/logic/Validator";
 import { Size } from "./Size";
-import { v4 as uuidv4 } from 'uuid';
-import md5 from 'md5';
-import { MonitorpageId } from "./MonitorpageId";
+import { MonitorpageName } from "./MonitorpageName";
 import { ProductScrapedDTO } from "../../application/dto/ProductScrapedDTO";
 import { Price } from "./Price";
-import { logger } from "../../util/logger";
 import { NotifySubjectDTO } from "../../application/dto/NotifySubjectDTO";
 import { NullOrUndefinedException } from "../../core/exceptions/NullOrUndefinedException";
 import { ProductNotMonitoredException } from "../../core/exceptions/ProductNotMonitoredException";
 import { NotifySizeDTO } from "../../application/dto/NotifySizeDTO";
+import { ProductPageId } from "./ProductPageId";
 
 interface ProductProps {
-  productId: string;
-  monitorpageId: MonitorpageId;
+  productPageId: ProductPageId;
+  monitorpageUuid: Uuid;
   name: string;
   href: string;
   img: string;
@@ -30,40 +28,34 @@ export class Product extends AggregateRoot<ProductProps> {
   private _shouldNotify: boolean;
   private _sizesForNotify: Size[];
 
-  private constructor(props: ProductProps, shouldSave: boolean, id?: UniqueEntityID) {
-    super(props, id);
+  private constructor(props: ProductProps, shouldSave: boolean, uuid: Uuid) {
+    super(props, uuid);
     this._shouldSave = shouldSave;
     this._shouldNotify = false;
     this._sizesForNotify = [];
   }
 
-  public static create(props: ProductProps, id?: UniqueEntityID): Product {
+  public static create(props: ProductProps, uuid?: Uuid): Product {
     Validator.notNullOrUndefinedBulk([
-      { argument: props.productId, argumentName: 'productId' },
+      { argument: props.productPageId, argumentName: 'productPageId' },
+      { argument: props.monitorpageUuid, argumentName: 'monitorpageUuid' },
       { argument: props.name, argumentName: 'name' },
       { argument: props.href, argumentName: 'href' },
       { argument: props.img, argumentName: 'img' },
       { argument: props.monitored, argumentName: 'monitored' },
-      { argument: props.monitorpageId, argumentName: 'monitorpageId' }
     ]);
 
-    const isNewProduct = id === undefined;
+    const isNewProduct = uuid === undefined;
 
-    if (isNewProduct) {
-      id = Product.calculateUuid(props.productId);
+    if (uuid === undefined) {
+      uuid = Uuid.create({ base: props.productPageId.value });
     }
 
-    return new Product(props, isNewProduct, id);
+    return new Product(props, isNewProduct, uuid);
   }
 
-  public static calculateUuid(productId: string): UniqueEntityID {
-    const productIdHash = md5(productId);
-    const newUuid = uuidv4({ random: Buffer.from(productIdHash, 'hex') });
-    return new UniqueEntityID(newUuid);
-  }
-
-  get productId(): string { return this.props.productId; }
-  get monitorpageId(): MonitorpageId { return this.props.monitorpageId; }
+  get productPageId(): ProductPageId { return this.props.productPageId; }
+  get monitorpageUuid(): Uuid { return this.props.monitorpageUuid; }
   get name(): string { return this.props.name; }
   get href(): string { return this.props.href; }
   get img(): string { return this.props.img; }
@@ -145,7 +137,7 @@ export class Product extends AggregateRoot<ProductProps> {
 
   public updateMonitoredPropertiesFromScraped(productScraped: ProductScrapedDTO) {
     if (this.props.monitored != true) {
-      throw new ProductNotMonitoredException(`Product {${this._id}} is not monitored.`);
+      throw new ProductNotMonitoredException(`Product {${this._uuid}} is not monitored.`);
     }
     
     if (productScraped.active != undefined && this.props.active != productScraped.active) {

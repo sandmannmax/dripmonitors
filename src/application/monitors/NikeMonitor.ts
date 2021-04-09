@@ -1,6 +1,7 @@
-import { IFilterRepo } from "../../domain/repos/IFilterRepo";
+import { Uuid } from "../../core/base/Uuid";
+import { RunMonitorpageCommandDTO } from "../../domain/interfaces/IMonitorpageFunctionality";
+import { MonitorpageName } from "../../domain/models/MonitorpageName";
 import { IProductRepo } from "../../domain/repos/IProductRepo";
-import { RunMonitorCommandDTO } from "../dto/RunMonitorCommandDTO";
 import { ProductScrapedDTO } from "../dto/ProductScrapedDTO";
 import { SizeDTO } from "../dto/SizeDTO";
 import { INotificationService } from "../interface/INotificationService";
@@ -8,15 +9,15 @@ import { IScraperService } from "../interface/IScraperService";
 import { BaseMonitor } from "./BaseMonitor";
 
 export class NikeMonitor extends BaseMonitor {
-  constructor(monitorpageId: string, scraperService: IScraperService, productRepo: IProductRepo, filterRepo: IFilterRepo, notificationService: INotificationService) {
-    super(monitorpageId, scraperService, productRepo, filterRepo, notificationService);
+  constructor(monitorpageUuid: Uuid, monitorpageName: MonitorpageName, productRepo: IProductRepo, scraperService: IScraperService, notificationService: INotificationService) {
+    super(monitorpageUuid, monitorpageName, productRepo, scraperService, notificationService);
   }
 
-  protected async scrapeProducts(command: RunMonitorCommandDTO): Promise<ProductScrapedDTO[]> {
+  protected async scrapeProducts(command: RunMonitorpageCommandDTO): Promise<ProductScrapedDTO[]> {
     let products: ProductScrapedDTO[] = [];
 
     for (let i = 0; i < command.urls.length; i++) {
-      let scrapeResponse = await this.scraperService.scrape({ url: command.urls[i], proxy: command.proxy, isHtml: true });
+      let scrapeResponse = await this.scraperService.scrape({ url: command.urls[i].value, cc: command.cc.value, isHtml: true });
 
       if (scrapeResponse.proxyError) {
         this.logger.info('Proxy Error.');
@@ -73,7 +74,7 @@ export class NikeMonitor extends BaseMonitor {
       return null;
 
     const product: ProductScrapedDTO = { 
-      productId: this.monitorpageId + '_' + productJson.merchProduct.id,
+      productPageId: this.monitorpageName.value + '_' + productJson.merchProduct.id,
       name,
       href,
       img: productJson.imageUrls.productImageUrl,

@@ -1,6 +1,6 @@
 export interface ProductDTO {
-  id: string;
-  productId: string;
+  uuid: string;
+  productPageId: string;
   name: string;
   href: string;
   img: string;

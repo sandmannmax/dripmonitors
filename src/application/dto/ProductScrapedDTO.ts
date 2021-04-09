@@ -2,7 +2,7 @@ import { PriceDTO } from "./PriceDTO";
 import { SizeDTO } from "./SizeDTO";
 
 export interface ProductScrapedDTO {
-  productId: string;
+  productPageId: string;
   name: string;
   href: string;
   img: string;

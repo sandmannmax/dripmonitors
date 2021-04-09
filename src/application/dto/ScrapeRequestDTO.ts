@@ -1,5 +1,5 @@
 export interface ScrapeRequestDTO {
   url: string;
-  proxy: string;
+  cc: string;
   isHtml: boolean;
 }

@@ -1,6 +1,4 @@
-import { IFilterRepo } from "../../domain/repos/IFilterRepo";
 import { IProductRepo } from "../../domain/repos/IProductRepo";
-import { RunMonitorCommandDTO } from "../dto/RunMonitorCommandDTO";
 import { NotifySubjectDTO } from "../dto/NotifySubjectDTO";
 import { ProductScrapedDTO } from "../dto/ProductScrapedDTO";
 import { SizeDTO } from "../dto/SizeDTO";
@@ -8,32 +6,36 @@ import { INotificationService } from "../interface/INotificationService";
 import { IScraperService } from "../interface/IScraperService";
 import cheerio from 'cheerio';
 import { BaseMonitor } from "./BaseMonitor";
+import { RunMonitorpageCommandDTO } from "../../domain/interfaces/IMonitorpageFunctionality";
+import { CountryCode } from "../../domain/models/CountryCode";
+import { Uuid } from "../../core/base/Uuid";
+import { MonitorpageName } from "../../domain/models/MonitorpageName";
 
 export class SupremeMonitor extends BaseMonitor {
-  constructor(monitorpageId: string, scraperService: IScraperService, productRepo: IProductRepo, filterRepo: IFilterRepo, notificationService: INotificationService) {
-    super(monitorpageId, scraperService, productRepo, filterRepo, notificationService);
+  constructor(monitorpageUuid: Uuid, monitorpageName: MonitorpageName, productRepo: IProductRepo, scraperService: IScraperService,  notificationService: INotificationService) {
+    super(monitorpageUuid, monitorpageName, productRepo, scraperService, notificationService);
   }
 
-  protected async updateMonitoredProducts(productsScraped: ProductScrapedDTO[], command: RunMonitorCommandDTO): Promise<void> {
-    let products = await this.productRepo.getProductsByMonitorpageId(this.monitorpageId);
+  protected async updateMonitoredProducts(productsScraped: ProductScrapedDTO[], command: RunMonitorpageCommandDTO): Promise<void> {
+    let products = await this.productRepo.getProductsByMonitorpageUuid(this.monitorpageUuid);
 
     products = products.filter(p => p.monitored === true);
     
     for (let i = 0; i < products.length; i++) {
       let product = products[i];
-      let productScraped = productsScraped.find(p => p.productId === product.productId);
+      let productScraped = productsScraped.find(p => p.productPageId === product.productPageId.value);
 
       if (productScraped == undefined) {
         this.logger.warn('product not scraped.');
       } else {
-        let complementedProduct = await this.complementProduct(productScraped, command.proxy);
+        let complementedProduct = await this.complementProduct(productScraped, command.cc);
 
         if (complementedProduct != null) {
           product.updateMonitoredPropertiesFromScraped(complementedProduct);
 
           if (product.shouldNotify) {
             let notifySubject: NotifySubjectDTO = product.createNotifySubject()
-            await this.notificationService.notify(notifySubject, command.targets);
+            await this.notificationService.notify(notifySubject);
           }
 
           if (product.shouldSave) {
@@ -46,11 +48,11 @@ export class SupremeMonitor extends BaseMonitor {
     }
   }
 
-  protected async scrapeProducts(command: RunMonitorCommandDTO): Promise<ProductScrapedDTO[]> {
+  protected async scrapeProducts(command: RunMonitorpageCommandDTO): Promise<ProductScrapedDTO[]> {
     let products: ProductScrapedDTO[] = [];
 
     for (let i = 0; i < command.urls.length; i++) {
-      let scrapeResponse = await this.scraperService.scrape({ url: command.urls[i], proxy: command.proxy, isHtml: true });
+      let scrapeResponse = await this.scraperService.scrape({ url: command.urls[i].value, cc: command.cc.value, isHtml: true });
 
       if (scrapeResponse.proxyError) {
         this.logger.info('Proxy Error.');
@@ -74,7 +76,7 @@ export class SupremeMonitor extends BaseMonitor {
     const articles = $('article');
     for (let i = 0; i < articles.length; i++) {
       const product: ProductScrapedDTO = { 
-        productId: '',
+        productPageId: '',
         name: '',
         href: '',
         img: '',
@@ -89,7 +91,7 @@ export class SupremeMonitor extends BaseMonitor {
 
       const href = nameLink.attr().href;
       const parts = href.split('/');
-      product.productId = this.monitorpageId + '_' + parts[parts.length - 2] + parts[parts.length - 1];
+      product.productPageId = this.monitorpageName.value + '_' + parts[parts.length - 2] + parts[parts.length - 1];
       product.href = `https://www.supremenewyork.com${href}`;
       const img = 'https:' + $('img', article)[0].attribs.src;
       product.img = img;
@@ -102,8 +104,8 @@ export class SupremeMonitor extends BaseMonitor {
     return products;
   }
 
-  private async complementProduct(product: ProductScrapedDTO, proxy: string): Promise<ProductScrapedDTO | null> {
-    let scrapeResponse = await this.scraperService.scrape({ url: product.href, proxy, isHtml: true });
+  private async complementProduct(product: ProductScrapedDTO, cc: CountryCode): Promise<ProductScrapedDTO | null> {
+    let scrapeResponse = await this.scraperService.scrape({ url: product.href, cc: cc.value, isHtml: true });
 
     if (scrapeResponse.statusCode == undefined || (scrapeResponse.statusCode != 302 && scrapeResponse.statusCode != 200) || scrapeResponse.content == undefined) {
       return null;
@@ -122,12 +124,24 @@ export class SupremeMonitor extends BaseMonitor {
 
     product.active = true;
 
-    const sizesScraped = $('select#size').children();
+    const sizeSelect = $('select#size');
+
     const sizes: SizeDTO[] = [];
 
-    sizesScraped.each((i, size) => {
-      sizes.push({ value: $(size).text(), soldOut: false });
-    });
+    if (sizeSelect.length != 0) {
+      const sizesScraped = sizeSelect.children();
+
+      sizesScraped.each((i, size) => {
+        sizes.push({ value: $(size).text(), soldOut: false });
+      });
+    } else {
+      const addButton = $('#add-remove-buttons > input.button');
+
+      if (addButton.length != 0) {
+        sizes.push({ value: 'No-Size', soldOut: false });
+      }
+    }
+    
 
     product.sizes = sizes;
 

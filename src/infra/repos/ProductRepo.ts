@@ -4,8 +4,7 @@ import { IProductRepo } from '../../domain/repos/IProductRepo';
 import { Product } from '../../domain/models/Product';
 import { ProductMap } from '../../application/mappers/ProductMap';
 import { RedisRawMap } from '../mappers/RedisRawMap';
-import { UniqueEntityID } from '../../core/base/UniqueEntityID';
-import { logger } from '../../util/logger';
+import { Uuid } from '../../core/base/Uuid';
 
 export class ProductRepo implements IProductRepo {
   private redisClient: WrappedNodeRedisClient;
@@ -14,20 +13,19 @@ export class ProductRepo implements IProductRepo {
     this.redisClient = createNodeRedisClient(redisClient);
   }
 
-  async getProductById(id: string): Promise<Product> {
-    let product = await this.redisClient.hgetall(`product:${id}`);
-    let sizes = await this.redisClient.hgetall(`product:${id}:sizes`);
-    let productRaw = RedisRawMap.toRaw(product);
-    productRaw.sizes = RedisRawMap.toRaw(sizes);
-    return ProductMap.toAggregate(productRaw, new UniqueEntityID(id));
+  public async getProductByUuid(productUuid: Uuid): Promise<Product> {
+    const productUuidString = productUuid.toString();
+    const product = await this.getProductByUuidString(productUuidString);
+    return product;
   }
 
-  async getProductsByMonitorpageId(monitorpageId: string): Promise<Product[]> {
-    let ids = await this.redisClient.smembers(`product:monitorpage:${monitorpageId}`);
+  public async getProductsByMonitorpageUuid(monitorpageUuid: Uuid): Promise<Product[]> {
+    const monitorpageUuidString = monitorpageUuid.toString();
+    let ids = await this.redisClient.smembers(`product:monitorpage:${monitorpageUuidString}`);
 
     let productPromises: Promise<Product | null>[] = [];
     for (let i = 0; i < ids.length; i++) {
-      productPromises.push(this.getProductById(ids[i]));
+      productPromises.push(this.getProductByUuidString(ids[i]));
     }
 
     let productsOrNull = await Promise.all(productPromises);
@@ -43,58 +41,67 @@ export class ProductRepo implements IProductRepo {
     return products;
   }
 
-  async exists(id: string): Promise<boolean> {
-    let result = await this.redisClient.sismember('product', id);
+  public async exists(productUuid: Uuid): Promise<boolean> {
+    let result = await this.redisClient.sismember('product', productUuid.toString());
     return result == 1;
   }
 
-  async save(product: Product): Promise<void> {
-    let productId = product.id.toValue().toString();
-    let productExists = await this.exists(productId);
+  public async save(product: Product): Promise<void> {
+    const productUuidString = product.uuid.toString();
+    const productExists = await this.exists(product.uuid);
 
     let { productPersistence, sizesPersistence } = ProductMap.toPersistence(product);
 
     if (productExists) {
       let multi: any = this.redisClient.multi()
-        .hset(`product:${productId}`, ...RedisRawMap.toPersistence(productPersistence));
+        .hset(`product:${productUuidString}`, ...RedisRawMap.toPersistence(productPersistence));
       
       if (sizesPersistence) {
-        multi = multi.hset(`product:${productId}:sizes`, ...RedisRawMap.toPersistence(sizesPersistence));
+        multi = multi.hset(`product:${productUuidString}:sizes`, ...RedisRawMap.toPersistence(sizesPersistence));
       }
 
       await multi.exec();
     } else {
       let multi: any = this.redisClient.multi()
-        .sadd('product', productId)
-        .sadd(`product:monitorpage:${product.monitorpageId.value}`, productId)
-        .hset(`product:${productId}`, ...RedisRawMap.toPersistence(productPersistence));
+        .sadd('product', productUuidString)
+        .sadd(`product:monitorpage:${product.monitorpageUuid.toString()}`, productUuidString)
+        .hset(`product:${productUuidString}`, ...RedisRawMap.toPersistence(productPersistence));
 
       if (sizesPersistence) {
-        multi = multi.hset(`product:${productId}:sizes`, ...RedisRawMap.toPersistence(sizesPersistence));
+        multi = multi.hset(`product:${productUuidString}:sizes`, ...RedisRawMap.toPersistence(sizesPersistence));
       }
         
       await multi.exec();
     }
   }
 
-  async delete(id: string): Promise<void> {
-    let product = await this.getProductById(id);
+  public async delete(productUuid: Uuid): Promise<void> {
+    const productUuidString = productUuid.toString();
+    let product = await this.getProductByUuidString(productUuidString);
 
     if (product) {
       let fields = this.getProductFields(product);
 
       let multi: any = this.redisClient.multi()
-        .srem('product', id)
-        .srem(`product:monitorpage:${product.monitorpageId.value}`, id)
-        .hdel(`product:${id}`, ...fields);
+        .srem('product', productUuidString)
+        .srem(`product:monitorpage:${product.monitorpageUuid.toString()}`, productUuidString)
+        .hdel(`product:${productUuidString}`, ...fields);
 
       if (product.sizes) {
         let sizesFields = product.sizes.map(o => o.value);
-        multi = multi.hdel(`product:${id}:sizes`, ...fields);
+        multi = multi.hdel(`product:${productUuidString}:sizes`, ...fields);
       }
         
       await multi.exec();
     }
+  }
+
+  private async getProductByUuidString(productUuid: string) {
+    const product = await this.redisClient.hgetall(`product:${productUuid}`);
+    const sizes = await this.redisClient.hgetall(`product:${productUuid}:sizes`);
+    let productRaw = RedisRawMap.toRaw(product);
+    productRaw.sizes = RedisRawMap.toRaw(sizes);
+    return ProductMap.toAggregate(productRaw, Uuid.create({ uuid: productUuid }));
   }
 
   private getProductFields(product: Product): string[] {

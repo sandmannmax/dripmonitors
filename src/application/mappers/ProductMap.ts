@@ -1,27 +1,23 @@
-import { UniqueEntityID } from "../../core/base/UniqueEntityID";
-import { MonitorpageId } from "../../domain/models/MonitorpageId";
+import { Uuid } from "../../core/base/Uuid";
 import { Price } from "../../domain/models/Price";
 import { Product } from "../../domain/models/Product";
+import { ProductPageId } from "../../domain/models/ProductPageId";
 import { Size } from "../../domain/models/Size";
-import { logger } from "../../util/logger";
 import { ProductDTO } from "../dto/ProductDTO";
 
 export class ProductMap {
   public static toDTO(product: Product): ProductDTO {
-    let id = product.id.toValue().toString();
-    let productId = product.productId;
-    let name = product.name;
-    let href = product.href;
-    let img = product.img;
-    let monitored = product.monitored;
-    return { id, productId, name, href, img, monitored };
+    return { 
+      uuid: product.uuid.toString(), 
+      productPageId: product.productPageId.value,
+      name: product.name, 
+      href: product.href, 
+      img: product.img, 
+      monitored: product.monitored,
+    };
   }
 
-  public static toAggregate(raw: any, id?: UniqueEntityID): Product {
-    let monitorpageId = MonitorpageId.create({
-      value: raw.monitorpageId
-    });
-
+  public static toAggregate(raw: any, uuid?: Uuid): Product {
     let price;
 
     if (raw.priceValue) {
@@ -31,16 +27,16 @@ export class ProductMap {
     let sizes: Size[] | undefined = ProductMap.getSizes({ sizesPersistence: raw.sizes });
 
     let product = Product.create({
-      productId: raw.productId,
+      productPageId: ProductPageId.create({ value: raw.productPageId }),
+      monitorpageUuid: Uuid.create({ uuid: raw.monitorpageUuid }),
       name: raw.name,
       href: raw.href,
       img: raw.img,
-      monitorpageId: monitorpageId,
       monitored: raw.monitored === '1',
       price,
       active: !!raw.active ? raw.active === '1' : undefined,
       sizes
-    }, id);
+    }, uuid);
     
     return product;    
   }
@@ -49,12 +45,12 @@ export class ProductMap {
     let result: { productPersistence: any, sizesPersistence?: any } = {
       productPersistence: {}
     };
-    result.productPersistence.productId = product.productId;
+    result.productPersistence.productPageId = product.productPageId.value;
+    result.productPersistence.monitorpageUuid = product.monitorpageUuid.toString();
     result.productPersistence.name = product.name;
     result.productPersistence.href = product.href;
     result.productPersistence.img = product.img;
     result.productPersistence.monitored = product.monitored ? '1' : '0';
-    result.productPersistence.monitorpageId = product.monitorpageId.value;
     if (!!product.active)
       result.productPersistence.active = product.active ? '1' : '0';
     if (!!product.price) {

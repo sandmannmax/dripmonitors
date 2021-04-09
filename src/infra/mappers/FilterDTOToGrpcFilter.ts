@@ -4,7 +4,6 @@ import { Filter } from "../../proto/monitor/v1/monitor_pb";
 export class FilterDTOToGrpcFilter {
   public static Map(filter: FilterDTO): Filter {
     let mappedFilter: Filter = new Filter;
-    mappedFilter.setId(filter.id);
     mappedFilter.setValue(filter.value);
     return mappedFilter;
   }

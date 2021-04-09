@@ -4,7 +4,8 @@ import { Product } from "../../proto/monitor/v1/monitor_pb";
 export class ProductDTOToGrpcProduct {
   public static Map(product: ProductDTO): Product {
     let mappedProduct: Product = new Product;
-    mappedProduct.setId(product.id);
+    mappedProduct.setProductUuid(product.uuid);
+    mappedProduct.setProductPageId(product.productPageId);
     mappedProduct.setName(product.name);
     mappedProduct.setHref(product.href);
     mappedProduct.setImg(product.img);

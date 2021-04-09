@@ -1,26 +1,28 @@
-import { IFilterRepo } from "../../domain/repos/IFilterRepo";
 import { IProductRepo } from "../../domain/repos/IProductRepo";
-import { RunMonitorCommandDTO } from "../dto/RunMonitorCommandDTO";
 import { NotifySubjectDTO } from "../dto/NotifySubjectDTO";
 import { ProductScrapedDTO } from "../dto/ProductScrapedDTO";
 import { INotificationService } from "../interface/INotificationService";
 import { IScraperService } from "../interface/IScraperService";
 import { BaseMonitor } from "./BaseMonitor";
 import cheerio from 'cheerio';
+import { RunMonitorpageCommandDTO } from "../../domain/interfaces/IMonitorpageFunctionality";
+import { CountryCode } from "../../domain/models/CountryCode";
+import { Uuid } from "../../core/base/Uuid";
+import { MonitorpageName } from "../../domain/models/MonitorpageName";
 
 export class SoleboxMonitor extends BaseMonitor {
-  constructor(scraperService: IScraperService, productRepo: IProductRepo, filterRepo: IFilterRepo, notificationService: INotificationService) {
-    super('solebox', scraperService, productRepo, filterRepo, notificationService);
+  constructor(monitorpageUuid: Uuid, monitorpageName: MonitorpageName, productRepo: IProductRepo, scraperService: IScraperService,  notificationService: INotificationService) {
+    super(monitorpageUuid, monitorpageName, productRepo, scraperService, notificationService);
   }
 
-  public async run(command: RunMonitorCommandDTO): Promise<void> {
+  public async run(command: RunMonitorpageCommandDTO): Promise<void> {
     this.logger.info('Starteddddd.');
 
     try {
       let products = await this.scrapeProducts(command);
 
       if (products.length > 0) {
-        let p = await this.complementProduct(products[0], command.proxy);
+        let p = await this.complementProduct(products[0], command.cc);
       }
 
       // if (products.length == 0) {
@@ -35,26 +37,26 @@ export class SoleboxMonitor extends BaseMonitor {
     }
   }
 
-  protected async updateMonitoredProducts(productsScraped: ProductScrapedDTO[], command: RunMonitorCommandDTO): Promise<void> {
-    let products = await this.productRepo.getProductsByMonitorpageId(this.monitorpageId);
+  protected async updateMonitoredProducts(productsScraped: ProductScrapedDTO[], command: RunMonitorpageCommandDTO): Promise<void> {
+    let products = await this.productRepo.getProductsByMonitorpageUuid(this.monitorpageUuid);
 
     products = products.filter(p => p.monitored === true);
     
     for (let i = 0; i < products.length; i++) {
       let product = products[i];
-      let productScraped = productsScraped.find(p => p.productId === product.productId);
+      let productScraped = productsScraped.find(p => p.productPageId === product.productPageId.value);
 
       if (productScraped == undefined) {
         this.logger.warn('product not scraped.');
       } else {
-        let complementedProduct = await this.complementProduct(productScraped, command.proxy);
+        let complementedProduct = await this.complementProduct(productScraped, command.cc);
 
         if (complementedProduct != null) {
           product.updateMonitoredPropertiesFromScraped(complementedProduct);
 
           if (product.shouldNotify) {
             let notifySubject: NotifySubjectDTO = product.createNotifySubject()
-            await this.notificationService.notify(notifySubject, command.targets);
+            await this.notificationService.notify(notifySubject);
           }
 
           if (product.shouldSave) {
@@ -67,11 +69,11 @@ export class SoleboxMonitor extends BaseMonitor {
     }
   }
 
-  protected async scrapeProducts(command: RunMonitorCommandDTO): Promise<ProductScrapedDTO[]> {
+  protected async scrapeProducts(command: RunMonitorpageCommandDTO): Promise<ProductScrapedDTO[]> {
     let products: ProductScrapedDTO[] = [];
 
     for (let i = 0; i < command.urls.length; i++) {
-      let scrapeResponse = await this.scraperService.scrape({ url: command.urls[i], proxy: command.proxy, isHtml: true });
+      let scrapeResponse = await this.scraperService.scrape({ url: command.urls[i].value, cc: command.cc.value, isHtml: true });
 
       if (scrapeResponse.proxyError) {
         this.logger.info('Proxy Error.');
@@ -111,7 +113,7 @@ export class SoleboxMonitor extends BaseMonitor {
         const imgSrc = img.split(', ')[0];
 
         const product: ProductScrapedDTO = {
-          productId: this.monitorpageId + '_' + data.id,
+          productPageId: this.monitorpageName.value + '_' + data.id,
           name: data.name,
           href: 'https://www.solebox.com' + href,
           img: imgSrc
@@ -124,8 +126,8 @@ export class SoleboxMonitor extends BaseMonitor {
     return products;
   }
 
-  private async complementProduct(product: ProductScrapedDTO, proxy: string): Promise<ProductScrapedDTO | null> {
-    let scrapeResponse = await this.scraperService.scrape({ url: product.href, proxy, isHtml: true });
+  private async complementProduct(product: ProductScrapedDTO, cc: CountryCode): Promise<ProductScrapedDTO | null> {
+    let scrapeResponse = await this.scraperService.scrape({ url: product.href, cc: cc.value, isHtml: true });
 
     if (scrapeResponse.proxyError) {
       this.logger.info('Proxy Error.');

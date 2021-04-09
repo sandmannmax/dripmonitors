@@ -4,7 +4,7 @@ import { IsWebhookDTO, WebhookDTO } from '../../application/dto/WebhookDTO';
 import { INotificationService } from '../../application/interface/INotificationService';
 import { logger } from '../../util/logger';
 
-export class DiscordService implements INotificationService {
+export class DiscordService {
   async notify(subject: NotifySubjectDTO, targets: WebhookDTO[]): Promise<void> {
     for (let i = 0; i < targets.length; i++) {
       let target = targets[i];

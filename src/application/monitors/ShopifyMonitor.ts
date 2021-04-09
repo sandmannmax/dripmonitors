@@ -1,6 +1,7 @@
-import { IFilterRepo } from "../../domain/repos/IFilterRepo";
+import { Uuid } from "../../core/base/Uuid";
+import { RunMonitorpageCommandDTO } from "../../domain/interfaces/IMonitorpageFunctionality";
+import { MonitorpageName } from "../../domain/models/MonitorpageName";
 import { IProductRepo } from "../../domain/repos/IProductRepo";
-import { RunMonitorCommandDTO } from "../dto/RunMonitorCommandDTO";
 import { PriceDTO } from "../dto/PriceDTO";
 import { ProductScrapedDTO } from "../dto/ProductScrapedDTO";
 import { SizeDTO } from "../dto/SizeDTO";
@@ -8,16 +9,16 @@ import { INotificationService } from "../interface/INotificationService";
 import { IScraperService } from "../interface/IScraperService";
 import { BaseMonitor } from "./BaseMonitor";
 
-export class AfewMonitor extends BaseMonitor {
-  constructor(monitorpageId: string, scraperService: IScraperService, productRepo: IProductRepo, filterRepo: IFilterRepo, notificationService: INotificationService) {
-    super(monitorpageId, scraperService, productRepo, filterRepo, notificationService);
+export class ShopifyMonitor extends BaseMonitor {
+  constructor(monitorpageUuid: Uuid, monitorpageName: MonitorpageName, productRepo: IProductRepo, scraperService: IScraperService,  notificationService: INotificationService) {
+    super(monitorpageUuid, monitorpageName, productRepo, scraperService, notificationService);
   }
 
-  protected async scrapeProducts(command: RunMonitorCommandDTO): Promise<ProductScrapedDTO[]> {
+  protected async scrapeProducts(command: RunMonitorpageCommandDTO): Promise<ProductScrapedDTO[]> {
     let products: ProductScrapedDTO[] = [];
 
     for (let i = 0; i < command.urls.length; i++) {
-      let scrapeResponse = await this.scraperService.scrape({ url: command.urls[i], proxy: command.proxy, isHtml: true });
+      let scrapeResponse = await this.scraperService.scrape({ url: command.urls[i].value, cc: command.cc.value, isHtml: true });
 
       if (scrapeResponse.proxyError) {
         this.logger.info('Proxy Error.');
@@ -74,7 +75,7 @@ export class AfewMonitor extends BaseMonitor {
     }
 
     const product: ProductScrapedDTO = { 
-      productId: this.monitorpageId + '_' + object.id.toString(),
+      productPageId: this.monitorpageName.value + '_' + object.id.toString(),
       name: object.title,
       href: 'https://afew-store.com/products/' + object.handle,
       img,

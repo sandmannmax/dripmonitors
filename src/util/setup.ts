@@ -5,14 +5,14 @@ import { RedisController } from '../infra/controllers/RedisController';
 import { MonitorServiceService } from '../proto/monitor/v1/monitor_grpc_pb';
 import { MonitorServer } from '../infra/controllers/MonitorServer';
 import { ProductsService } from '../application/services/ProductsService';
-import { FiltersService } from '../application/services/FiltersService';
-import { MonitorService } from '../application/services/MonitorService';
-import { NikeMonitor } from '../application/monitors/NikeMonitor';
+import { MonitorpageService } from '../application/services/MonitorpageService';
 import { ProductRepo } from '../infra/repos/ProductRepo';
-import { FilterRepo } from '../infra/repos/FilterRepo';
-import { AddFilterRequest, AddFilterResponse, ActivateProductMonitoringRequest, ActivateProductMonitoringResponse, GetFiltersRequest, GetFiltersResponse, GetProductsRequest, GetProductsResponse, RemoveFilterRequest, RemoveFilterResponse, DisableProductMonitoringRequest, DisableProductMonitoringResponse } from '../proto/monitor/v1/monitor_pb';
+import { MonitorpageRepo } from '../infra/repos/MonitorpageRepo';
+import { AddFilterRequest, AddFilterResponse, ActivateProductMonitoringRequest, ActivateProductMonitoringResponse, GetFiltersRequest, GetFiltersResponse, GetProductsRequest, GetProductsResponse, RemoveFilterRequest, RemoveFilterResponse, DisableProductMonitoringRequest, DisableProductMonitoringResponse, GetMonitorpagesRequest, GetMonitorpagesResponse, GetMonitorpageRequest, GetMonitorpageResponse, GetProductRequest, GetProductResponse, GetUrlsResponse, GetUrlsRequest, AddUrlRequest, AddUrlResponse, RemoveUrlRequest, RemoveUrlResponse, StartMonitorpageRequest, StartMonitorpageResponse, StopMonitorpageRequest, StopMonitorpageResponse } from '../proto/monitor/v1/monitor_pb';
 import { ScraperClientService } from '../infra/services/ScraperClientService';
-import { DiscordService } from '../infra/services/DiscordService';
+import { NotificationService } from '../infra/services/NotificationService';
+import { MonitorpageSetup } from './Monitorpages';
+import { ScheduleService } from '../infra/services/ScheduleService';
 
 export async function Start(): Promise<void> {
   ConfigSetup();
@@ -24,28 +24,32 @@ export async function Start(): Promise<void> {
   const subscriber = client.duplicate();
 
   const productRepo = new ProductRepo(client);
-  const filterRepo = new FilterRepo(client);
-
-  const discordService = new DiscordService();
-
   const scraperService = new ScraperClientService();
-  const monitorService = new MonitorService(scraperService, productRepo, filterRepo, discordService);
-  const redisController = new RedisController({ client: subscriber, monitorService });
+  const notificationService = new NotificationService();
+  const monitorpageSetups = MonitorpageSetup(productRepo, scraperService, notificationService);
+
+  const monitorpageRepo = new MonitorpageRepo(monitorpageSetups, client);
+  const scheduleService = new ScheduleService();
+  const monitorpageService = new MonitorpageService(monitorpageRepo, scheduleService);
+
+  const redisController = new RedisController({ client: subscriber, monitorpageService });
 
   const productsService = new ProductsService(productRepo);
-  const filtersService = new FiltersService(filterRepo);
-  const monitorServer = new MonitorServer({ productsService, filtersService });
+  const monitorServer = new MonitorServer({ monitorpageService, productsService });
 
-  GrpcSetup({ monitorServer });
+  GrpcSetup(monitorServer);
 }
 
-function GrpcSetup({ monitorServer }: { monitorServer: MonitorServer}) {
+function GrpcSetup(monitorServer: MonitorServer) {
   const server = new Server();
   server.addService(MonitorServiceService, {
+    getMonitorpages: (call: ServerUnaryCall<GetMonitorpagesRequest, GetMonitorpagesResponse>, callback: sendUnaryData<GetMonitorpagesResponse>) => monitorServer.getMonitorpages(call, callback),
+    getMonitorpage: (call: ServerUnaryCall<GetMonitorpageRequest, GetMonitorpageResponse>, callback: sendUnaryData<GetMonitorpageResponse>) => monitorServer.getMonitorpage,
     getProducts: (
       call: ServerUnaryCall<GetProductsRequest, GetProductsResponse>,
       callback: sendUnaryData<GetProductsResponse>,
     ) => monitorServer.getProducts(call, callback),
+    getProduct: (call: ServerUnaryCall<GetProductRequest, GetProductResponse>, callback: sendUnaryData<GetProductResponse>) => monitorServer.getProduct(call, callback),
     activateProductMonitoring: (
       call: ServerUnaryCall<ActivateProductMonitoringRequest, ActivateProductMonitoringResponse>,
       callback: sendUnaryData<ActivateProductMonitoringResponse>,
@@ -66,6 +70,11 @@ function GrpcSetup({ monitorServer }: { monitorServer: MonitorServer}) {
       call: ServerUnaryCall<RemoveFilterRequest, RemoveFilterResponse>,
       callback: sendUnaryData<RemoveFilterResponse>,
     ) => monitorServer.removeFilter(call, callback),
+    getUrls: (call: ServerUnaryCall<GetUrlsRequest, GetUrlsResponse>, callback: sendUnaryData<GetUrlsResponse>) => monitorServer.getUrls(call, callback),
+    addUrl: (call: ServerUnaryCall<AddUrlRequest, AddUrlResponse>, callback: sendUnaryData<AddUrlResponse>) => monitorServer.addUrl(call, callback),
+    removeUrl: (call: ServerUnaryCall<RemoveUrlRequest, RemoveUrlResponse>, callback: sendUnaryData<RemoveUrlResponse>) => monitorServer.removeUrl(call, callback),
+    startMonitorpage: (call: ServerUnaryCall<StartMonitorpageRequest, StartMonitorpageResponse>, callback: sendUnaryData<StartMonitorpageResponse>) => monitorServer.startMonitorpage(call, callback),
+    stopMonitorpage: (call: ServerUnaryCall<StopMonitorpageRequest, StopMonitorpageResponse>, callback: sendUnaryData<StopMonitorpageResponse>) => monitorServer.stopMonitorpage(call,callback),
   });
   server.bindAsync(`0.0.0.0:${config.port}`, ServerCredentials.createInsecure(), () => {
     server.start();

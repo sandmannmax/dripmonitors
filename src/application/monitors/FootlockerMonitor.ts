@@ -1,6 +1,8 @@
-import { IFilterRepo } from "../../domain/repos/IFilterRepo";
+import { Uuid } from "../../core/base/Uuid";
+import { RunMonitorpageCommandDTO } from "../../domain/interfaces/IMonitorpageFunctionality";
+import { CountryCode } from "../../domain/models/CountryCode";
+import { MonitorpageName } from "../../domain/models/MonitorpageName";
 import { IProductRepo } from "../../domain/repos/IProductRepo";
-import { RunMonitorCommandDTO } from "../dto/RunMonitorCommandDTO";
 import { NotifySubjectDTO } from "../dto/NotifySubjectDTO";
 import { ProductScrapedDTO } from "../dto/ProductScrapedDTO";
 import { INotificationService } from "../interface/INotificationService";
@@ -8,30 +10,30 @@ import { IScraperService } from "../interface/IScraperService";
 import { BaseMonitor } from "./BaseMonitor";
 
 export class FootlockerMonitor extends BaseMonitor {
-  constructor(monitorpageId: string, scraperService: IScraperService, productRepo: IProductRepo, filterRepo: IFilterRepo, notificationService: INotificationService) {
-    super(monitorpageId, scraperService, productRepo, filterRepo, notificationService);
+  constructor(monitorpageUuid: Uuid, monitorpageName: MonitorpageName, productRepo: IProductRepo, scraperService: IScraperService, notificationService: INotificationService) {
+    super(monitorpageUuid, monitorpageName, productRepo, scraperService, notificationService);
   }
 
-  protected async updateMonitoredProducts(productsScraped: ProductScrapedDTO[], command: RunMonitorCommandDTO): Promise<void> {
-    let products = await this.productRepo.getProductsByMonitorpageId(this.monitorpageId);
+  protected async updateMonitoredProducts(productsScraped: ProductScrapedDTO[], command: RunMonitorpageCommandDTO): Promise<void> {
+    let products = await this.productRepo.getProductsByMonitorpageUuid(this.monitorpageUuid);
 
     products = products.filter(p => p.monitored === true);
     
     for (let i = 0; i < products.length; i++) {
       let product = products[i];
-      let productScraped = productsScraped.find(p => p.productId === product.productId);
+      let productScraped = productsScraped.find(p => p.productPageId === product.productPageId.value);
 
       if (productScraped == undefined) {
         this.logger.warn('product not scraped.');
       } else {
-        let complementedProduct = await this.complementProduct(productScraped, command.proxy);
+        let complementedProduct = await this.complementProduct(productScraped, command.cc);
 
         if (complementedProduct != null) {
           product.updateMonitoredPropertiesFromScraped(complementedProduct);
 
           if (product.shouldNotify) {
             let notifySubject: NotifySubjectDTO = product.createNotifySubject()
-            await this.notificationService.notify(notifySubject, command.targets);
+            await this.notificationService.notify(notifySubject);
           }
 
           if (product.shouldSave) {
@@ -44,11 +46,11 @@ export class FootlockerMonitor extends BaseMonitor {
     }
   }
 
-  protected async scrapeProducts(command: RunMonitorCommandDTO): Promise<ProductScrapedDTO[]> {
+  protected async scrapeProducts(command: RunMonitorpageCommandDTO): Promise<ProductScrapedDTO[]> {
     let products: ProductScrapedDTO[] = [];
 
     for (let i = 0; i < command.urls.length; i++) {
-      let scrapeResponse = await this.scraperService.scrape({ url: command.urls[i], proxy: command.proxy, isHtml: false });
+      let scrapeResponse = await this.scraperService.scrape({ url: command.urls[i].value, cc: command.cc.value, isHtml: false });
 
       if (scrapeResponse.proxyError) {
         this.logger.info('Proxy Error.');
@@ -82,7 +84,7 @@ export class FootlockerMonitor extends BaseMonitor {
     let productWithVariants: ProductScrapedDTO[] = [];
 
     productWithVariants.push({ 
-      productId: this.monitorpageId + '_' + object.sku,
+      productPageId: this.monitorpageName.value + '_' + object.sku,
       name: object.name,
       href: 'https://www.footlocker.de/de/product/~/' + object.sku + '.html',
       img: 'https://images.footlocker.com/is/image/FLEU/' + object.sku + '_01?wid=585&hei=585&fmt=png-alpha',
@@ -91,7 +93,7 @@ export class FootlockerMonitor extends BaseMonitor {
     for (let i = 0; i < object.variantOptions; i++) {
       const variantSku = object.variantOptions[i].sku;
       productWithVariants.push({ 
-        productId: this.monitorpageId + '_' + variantSku,
+        productPageId: this.monitorpageName.value + '_' + variantSku,
         name: object.name,
         href: 'https://www.footlocker.de/de/product/~/' + variantSku + '.html',
         img: 'https://images.footlocker.com/is/image/FLEU/' + variantSku + '_01?wid=585&hei=585&fmt=png-alpha',
@@ -101,11 +103,11 @@ export class FootlockerMonitor extends BaseMonitor {
     return productWithVariants;
   }
 
-  private async complementProduct(product: ProductScrapedDTO, proxy: string): Promise<ProductScrapedDTO | null> {
-    const sku = product.productId.split('_')[1];
+  private async complementProduct(product: ProductScrapedDTO, cc: CountryCode): Promise<ProductScrapedDTO | null> {
+    const sku = product.productPageId.split('_')[1];
     const url = 'https://www.footlocker.de/api/products/pdp/' + sku;
 
-    let scrapeResponse = await this.scraperService.scrape({ url, proxy, isHtml: false });
+    let scrapeResponse = await this.scraperService.scrape({ url, cc: cc.value, isHtml: false });
 
     if (scrapeResponse.statusCode == undefined || (scrapeResponse.statusCode != 400 && scrapeResponse.statusCode != 200) || scrapeResponse.content == undefined) {
       return null;

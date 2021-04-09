@@ -1,31 +1,24 @@
-import { AggregateRoot } from "../../core/base/AggregateRoot";
-import { UniqueEntityID } from "../../core/base/UniqueEntityID";
+import { ValueObject } from "../../core/base/ValueObject";
 import { Validator } from "../../core/logic/Validator";
-import { MonitorpageId } from "./MonitorpageId";
 import { Product } from "./Product";
 
 interface FilterProps {
   value: string;
-  monitorpageId: MonitorpageId;
 }
 
-export class Filter extends AggregateRoot<FilterProps> {
+export class Filter extends ValueObject<FilterProps> {
 
-  private constructor(props: FilterProps, id?: UniqueEntityID) {
-    super(props, id);
+  private constructor(props: FilterProps) {
+    super(props);
   }
 
-  public static create(props: FilterProps, id?: UniqueEntityID): Filter {
-    Validator.notNullOrUndefinedBulk([
-      { argument: props.value, argumentName: 'value' },
-      { argument: props.monitorpageId, argumentName: 'monitorpageId' }
-    ]);
+  public static create(props: FilterProps): Filter {
+    Validator.notNullOrUndefined(props.value, 'value');
     
-    return new Filter(props, id);
+    return new Filter(props);
   }
 
   get value(): string { return this.props.value; }
-  get monitorpageId(): MonitorpageId { return this.props.monitorpageId; }
 
   public useFilter(product: Product): boolean {
     let filterParts = this.props.value.split(' ');

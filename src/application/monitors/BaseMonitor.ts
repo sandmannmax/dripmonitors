@@ -1,37 +1,37 @@
-import { MonitorpageId } from "../../domain/models/MonitorpageId";
+import { MonitorpageName } from "../../domain/models/MonitorpageName";
 import { Product } from "../../domain/models/Product";
-import { IFilterRepo } from "../../domain/repos/IFilterRepo";
 import { IProductRepo } from "../../domain/repos/IProductRepo";
 import { UseFilterUseCase } from "../../domain/services/UseFilterUseCase";
 import { logger as parentLogger } from "../../util/logger";
-import { RunMonitorCommandDTO } from "../dto/RunMonitorCommandDTO";
 import { NotifySubjectDTO } from "../dto/NotifySubjectDTO";
 import { ProductScrapedDTO } from "../dto/ProductScrapedDTO";
 import { INotificationService } from "../interface/INotificationService";
 import { IScraperService } from "../interface/IScraperService";
-import { IMonitor } from "./IMonitor";
+import { IMonitorpageFunctionality, RunMonitorpageCommandDTO } from "../../domain/interfaces/IMonitorpageFunctionality";
 import { Logger } from 'pino';
+import { Uuid } from "../../core/base/Uuid";
+import { ProductPageId } from "../../domain/models/ProductPageId";
 
-export abstract class BaseMonitor implements IMonitor {
-  protected monitorpageId: string;
+export abstract class BaseMonitor implements IMonitorpageFunctionality {
+  protected monitorpageUuid: Uuid;
+  protected monitorpageName: MonitorpageName;
   protected scraperService: IScraperService;
   protected productRepo: IProductRepo;
-  protected filterRepo: IFilterRepo;
   protected notificationService: INotificationService;
   protected useFilterUseCase: UseFilterUseCase;
   protected logger: Logger;
 
-  constructor(monitorpageId: string, scraperService: IScraperService, productRepo: IProductRepo, filterRepo: IFilterRepo, notificationService: INotificationService) {
-    this.monitorpageId = monitorpageId;
+  constructor(monitorpageUuid: Uuid, monitorpageName: MonitorpageName, productRepo: IProductRepo, scraperService: IScraperService,  notificationService: INotificationService) {
+    this.monitorpageUuid = monitorpageUuid;
+    this.monitorpageName = monitorpageName;
     this.scraperService = scraperService;
     this.productRepo = productRepo;
-    this.filterRepo = filterRepo;
     this.notificationService = notificationService;
     this.useFilterUseCase = new UseFilterUseCase();
-    this.logger = parentLogger.child({ monitorpage: this.monitorpageId });
+    this.logger = parentLogger.child({ monitorpage: this.monitorpageName.value });
   }
 
-  public async run(command: RunMonitorCommandDTO): Promise<void> {
+  public async run(command: RunMonitorpageCommandDTO): Promise<void> {
     this.logger.info('Started.');
 
     try {
@@ -49,26 +49,24 @@ export abstract class BaseMonitor implements IMonitor {
     }
   }
 
-  protected async updateProducts(productsScraped: ProductScrapedDTO[], command: RunMonitorCommandDTO): Promise<void> {
-    let filters = await this.filterRepo.getFiltersByMonitorpageId(this.monitorpageId);
-    
+  protected async updateProducts(productsScraped: ProductScrapedDTO[], command: RunMonitorpageCommandDTO): Promise<void> {    
     for (let i = 0; i < productsScraped.length; i++) {
-      let id = Product.calculateUuid(productsScraped[i].productId);
-      const exists = await this.productRepo.exists(id.toValue().toString());
+      let id = Uuid.create({ base: productsScraped[i].productPageId });
+      const exists = await this.productRepo.exists(id);
       let product: Product;
 
       if (!exists) {
         product = Product.create({
-          productId: productsScraped[i].productId,
+          productPageId: ProductPageId.create({ value: productsScraped[i].productPageId }),
+          monitorpageUuid: this.monitorpageUuid,
           name: productsScraped[i].name,
           href: productsScraped[i].href,
           img: productsScraped[i].img,
           monitored: false,
-          monitorpageId: MonitorpageId.create({ value: this.monitorpageId })
         });
-        product = this.useFilterUseCase.execute({ product, filters });
+        product = this.useFilterUseCase.execute({ product, filters: command.filters });
       } else {
-        product = await this.productRepo.getProductById(id.toValue().toString());
+        product = await this.productRepo.getProductByUuid(id);
       }
 
       product.updateBasicPropertiesFromScraped(productsScraped[i]);
@@ -79,14 +77,14 @@ export abstract class BaseMonitor implements IMonitor {
     }
   }
 
-  protected async updateMonitoredProducts(productsScraped: ProductScrapedDTO[], command: RunMonitorCommandDTO): Promise<void> {
-    let products = await this.productRepo.getProductsByMonitorpageId(this.monitorpageId);
+  protected async updateMonitoredProducts(productsScraped: ProductScrapedDTO[], command: RunMonitorpageCommandDTO): Promise<void> {
+    let products = await this.productRepo.getProductsByMonitorpageUuid(this.monitorpageUuid);
 
     products = products.filter(p => p.monitored === true);
     
     for (let i = 0; i < products.length; i++) {
       let product = products[i];
-      let productScraped = productsScraped.find(p => p.productId === product.productId);
+      let productScraped = productsScraped.find(p => p.productPageId === product.productPageId.value);
 
       if (productScraped == undefined) {
         this.logger.warn('product not scraped.');
@@ -95,7 +93,7 @@ export abstract class BaseMonitor implements IMonitor {
 
         if (product.shouldNotify) {
           let notifySubject: NotifySubjectDTO = product.createNotifySubject()
-          await this.notificationService.notify(notifySubject, command.targets);
+          await this.notificationService.notify(notifySubject);
         }
 
         if (product.shouldSave) {
@@ -105,5 +103,5 @@ export abstract class BaseMonitor implements IMonitor {
     }
   }
 
-  protected abstract scrapeProducts(command: RunMonitorCommandDTO): Promise<ProductScrapedDTO[]>;
+  protected abstract scrapeProducts(command: RunMonitorpageCommandDTO): Promise<ProductScrapedDTO[]>;
 }
