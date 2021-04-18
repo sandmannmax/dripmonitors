@@ -1,6 +1,5 @@
 import { Uuid } from "../../../../core/base/Uuid";
 import { MonitorsourceDTO } from "../../../monitormanagement/application/dto/MonitorsourceDTO";
-import { MonitorpageAllocation } from "../../domain/models/MonitorpageAllocation";
 import { Monitorsource } from "../../domain/models/Monitorsource";
 import { MonitorpageAllocationDTO } from "../dto/MonitorpageAllocationDTO";
 import { MonitorpageAllocationMap } from "./MonitorpageAllocationMap";
@@ -18,19 +17,20 @@ export class MonitorsourceMap {
   public static toAggregate(raw: any): Monitorsource {
     let monitorsource = Monitorsource.create({
       name: raw.name,
-      isVisible: raw.isVisible,
-      isSendingNotifications: raw.isSendingNotifications,
+      isVisible: raw.is_visible,
+      isSendingNotifications: raw.is_sending_notifications,
       monitorpageAllocations: raw.MonitorpageAllocations.map((m: any) => MonitorpageAllocationMap.toAggregate(m)),
-    }, Uuid.create({ from: 'uuid', uuid: raw.id }));
+    }, Uuid.create({ from: 'uuid', uuid: raw.monitorsource_uuid }));
     
     return monitorsource;
   }
 
   public static toPersistence(monitorsource: Monitorsource): any {
     const raw: any = {
+      monitorsource_uuid: monitorsource.uuid.toString(),
       name: monitorsource.name,
-      isVisible: monitorsource.isVisible,
-      isSendingNotifications: monitorsource.isSendingNotifications,
+      is_visible: monitorsource.isVisible,
+      is_sending_notifications: monitorsource.isSendingNotifications,
     };
     
     return raw;

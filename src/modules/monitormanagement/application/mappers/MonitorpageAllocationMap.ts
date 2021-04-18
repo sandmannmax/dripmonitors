@@ -16,19 +16,19 @@ export class MonitorpageAllocationMap {
 
   public static toAggregate(raw: any): MonitorpageAllocation {
     let monitorpageAllocation = MonitorpageAllocation.create({
-      monitorpageUuid: MonitorpageUuid.create(Uuid.create({ from: 'uuid', uuid: raw.monitorpageUuid })),
-      isFiltering: raw.isFiltering,
+      monitorpageUuid: MonitorpageUuid.create(Uuid.create({ from: 'uuid', uuid: raw.monitorpage_uuid })),
+      isFiltering: raw.is_filtering,
       filters: raw.Filters.map((f: any) => FilterMap.toAggregate(f)),
-    }, Uuid.create({ from: 'uuid', uuid: raw.uuid }));
+    }, Uuid.create({ from: 'uuid', uuid: raw.monitorpage_allocation_uuid }));
     
     return monitorpageAllocation;
   }
 
-  public static toPersistence(monitorpageAllocation: MonitorpageAllocation, monitorUuid: Uuid): any {
+  public static toPersistence(monitorpageAllocation: MonitorpageAllocation): any {
     const raw: any = {
-      isFiltering: monitorpageAllocation.isFiltering,
-      monitorpageUuid: monitorpageAllocation.monitorpageUuid.uuid.toString(),
-      monitorUuid: monitorUuid.toString(),
+      monitorpage_allocation_uuid: monitorpageAllocation.uuid.toString(),
+      is_filtering: monitorpageAllocation.isFiltering,
+      monitorpage_uuid: monitorpageAllocation.monitorpageUuid.uuid.toString(),
     };
     
     return raw;

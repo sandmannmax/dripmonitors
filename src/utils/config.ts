@@ -1,5 +1,8 @@
 export default {
-  port: process.env.API_PORT,
+  environment: process.env.NODE_ENV,
+  isDevelopment: process.env.NODE_ENV === 'development',
+  isProduction: process.env.NODE_ENV === 'production',
+  port: Number.parseInt(process.env.API_PORT!),
   logLevel: process.env.API_LOG_LEVEL,
   httpLogLevel: process.env.API_HTTP_LOG_LEVEL,
   auth0_tenant: process.env.API_AUTH0_TENANT,
@@ -23,7 +26,7 @@ export default {
 }
 
 export function ConfigSetup() {
-  const envs = ['API_PORT', 'API_LOG_LEVEL', 'API_HTTP_LOG_LEVEL', 'API_AUTH0_TENANT', 'API_AUTH0_AUDIENCE', 'API_AUTH0_CLIENT_ID', 'API_AUTH0_CLIENT_SECRET', 'AWS_REGION', 'AWS_ACCESS_KEY', 'AWS_SECRET_ACCESS_KEY', 'REDIS_HOST', 'REDIS_PORT', 'API_MONITOR_HOST', 'API_MONITOR_PORT', 'API_SCRAPER_HOST', 'API_SCRAPER_PORT', 'POSTGRES_HOST', 'POSTGRES_PORT', 'POSTGRES_USER', 'POSTGRES_PASSWORD', 'POSTGRES_DB']
+  const envs = ['NODE_ENV', 'API_PORT', 'API_LOG_LEVEL', 'API_HTTP_LOG_LEVEL', 'API_AUTH0_TENANT', 'API_AUTH0_AUDIENCE', 'API_AUTH0_CLIENT_ID', 'API_AUTH0_CLIENT_SECRET', 'AWS_REGION', 'AWS_ACCESS_KEY', 'AWS_SECRET_ACCESS_KEY', 'REDIS_HOST', 'REDIS_PORT', 'API_MONITOR_HOST', 'API_MONITOR_PORT', 'API_SCRAPER_HOST', 'API_SCRAPER_PORT', 'POSTGRES_HOST', 'POSTGRES_PORT', 'POSTGRES_USER', 'POSTGRES_PASSWORD', 'POSTGRES_DB']
 
   for (let i = 0; i < envs.length; i++) {
     if (!process.env[envs[i]]) {

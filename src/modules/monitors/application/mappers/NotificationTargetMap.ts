@@ -13,9 +13,9 @@ export class NotificationTargetMap {
 
   public static toAggregate(raw: any): NotificationTarget {
     let notificationTarget = NotificationTarget.create({
-      webhookId: DiscordId.create(raw.webhookId),
-      webhookToken: raw.webhookToken,
-      isInvalid: raw.isInvalid,
+      webhookId: DiscordId.create(raw.webhook_id),
+      webhookToken: raw.webhook_token,
+      isInvalid: raw.is_invalid,
     });
     
     return notificationTarget;

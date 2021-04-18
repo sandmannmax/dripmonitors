@@ -27,7 +27,7 @@ export class RoleRepo implements IRoleRepo {
     const roleRaw = RoleMap.toPersistence(role, monitorUuid);
 
     const query = this.createBaseQuery();
-    query['where'].uuid = role.uuid;
+    query.where.role_uuid = role.uuid;
     const roleInstance = await RoleModel.findOne(query);
 
     if (roleInstance === null) {

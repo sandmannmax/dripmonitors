@@ -21,28 +21,29 @@ export class MonitorMap {
 
   public static toAggregate(raw: any): Monitor {
     let monitor = Monitor.create({
-      serverUuid: ServerUuid.create(Uuid.create({ from: 'uuid', uuid: raw.serverUuid })),
+      serverUuid: ServerUuid.create(Uuid.create({ from: 'uuid', uuid: raw.server_uuid })),
       name: raw.name,
       image: ImageUrl.create({ value: raw.image }),
       running: raw.running,
       notificationTarget: NotificationTargetMap.toAggregate(raw),
       roles: raw.Roles.map((r: any) => RoleMap.toAggregate(r)),
-      monitorsource: MonitorsourceUuid.create(Uuid.create({ from: 'uuid', uuid: raw.monitorsourceUuid })),
-    }, Uuid.create({ from: 'uuid', uuid: raw.uuid }));
+      monitorsource: MonitorsourceUuid.create(Uuid.create({ from: 'uuid', uuid: raw.monitorsource_uuid })),
+    }, Uuid.create({ from: 'uuid', uuid: raw.monitor_uuid }));
     
     return monitor;
   }
 
   public static toPersistence(monitor: Monitor): any {
     const raw: any = {
-      serverUuid: monitor.serverUuid.uuid.toString(),
+      monitor_uuid: monitor.uuid.toString(),
+      server_uuid: monitor.serverUuid.uuid.toString(),
       name: monitor.name,
       image: monitor.image.value,
       running: monitor.running,
-      webhookId: monitor.notificationTarget.webhookId,
-      webhookToken: monitor.notificationTarget.webhookToken,
-      isInvalid: monitor.notificationTarget.isInvalid,
-      monitorsourceUuid: monitor.monitorsource.uuid.toString(),
+      webhook_id: monitor.notificationTarget.webhookId,
+      webhook_token: monitor.notificationTarget.webhookToken,
+      is_invalid: monitor.notificationTarget.isInvalid,
+      monitorsource_uuid: monitor.monitorsource.uuid.toString(),
     };
     
     return raw;

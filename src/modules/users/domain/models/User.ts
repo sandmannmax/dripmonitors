@@ -4,6 +4,7 @@ import { Uuid } from "../../../../core/base/Uuid";
 import { ServerNotFoundException } from "../../../../core/exceptions/ServerNotFoundException";
 import { Validator } from "../../../../core/logic/Validator";
 import { Server } from "./Server";
+import { ServerUuid } from "./ServerUuid";
 
 interface UserProps {
   userDiscordId: DiscordId;
@@ -42,5 +43,15 @@ export class User extends AggregateRoot<UserProps> {
     if (!this.props.servers[serverIndex].serverDiscordId.equals(serverDiscordId)) {
       throw new ServerNotFoundException();
     }
+  }
+
+  public checkServerActive(serverUuid: ServerUuid): boolean {
+    let serverIndex = this.props.servers.findIndex(s => s.uuid.equals(serverUuid.uuid));
+    
+    if (serverIndex === -1) {
+      throw new ServerNotFoundException();
+    }
+
+    return this.props.servers[serverIndex].isMonitorSubscriptionActive;
   }
 }

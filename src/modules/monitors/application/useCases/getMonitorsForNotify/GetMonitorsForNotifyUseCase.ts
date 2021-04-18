@@ -1,5 +1,6 @@
 import { UseCase } from '../../../../../core/base/UseCase';
 import { MonitorsourceUuid } from '../../../../monitormanagement/domain/models/MonitorsourceUuid';
+import { IUserService } from '../../../../users/application/services/UserService';
 import { Monitor } from '../../../domain/models/Monitor';
 import { IMonitorRepo } from '../../../domain/repos/IMonitorRepo';
 import { MonitorForNotifyDTO } from './dtos/MonitorForNotifyDTO';
@@ -10,9 +11,11 @@ export interface GetMonitorsForNotifyUseCaseRequest {
 
 export class GetMonitorsForNotifyUseCase implements UseCase<GetMonitorsForNotifyUseCaseRequest, MonitorForNotifyDTO[]> {
   private monitorRepo: IMonitorRepo;
+  private userService: IUserService;
 
-  constructor(monitorRepo: IMonitorRepo) {
+  constructor(monitorRepo: IMonitorRepo, userService: IUserService) {
     this.monitorRepo = monitorRepo;
+    this.userService = userService;
   }
 
   public async execute(request: GetMonitorsForNotifyUseCaseRequest): Promise<MonitorForNotifyDTO[]> {
@@ -28,7 +31,7 @@ export class GetMonitorsForNotifyUseCase implements UseCase<GetMonitorsForNotify
     for (let i = 0; i < monitorArrays.length; i++) {
       for (let j = 0; j < monitorArrays.length; j++) {
         const monitor = monitorArrays[i][j];
-        if (monitor.canNotify() === true) {
+        if (monitor.canNotify() === true && (await this.userService.checkServerActive({ serverUuid: monitor.serverUuid })) === true) {
           monitors.push({
             name: monitor.name,
             image: monitor.image.value,

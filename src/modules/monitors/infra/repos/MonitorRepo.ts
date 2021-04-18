@@ -39,8 +39,8 @@ export class MonitorRepo implements IMonitorRepo {
   public async getMonitors(userUuid: Uuid, serverUuid: Uuid): Promise<Monitor[]> {
     const MonitorModel = this.models.Monitorsource;
     const query = this.createBaseQuery();
-    query.where.Server.userUuid = userUuid.toString();
-    query.where.serverUuid = serverUuid.toString();
+    query.where.Server.user_uuid = userUuid.toString();
+    query.where.server_uuid = serverUuid.toString();
     const sequelizeMonitorInstances = await MonitorModel.findAll(query);
     const monitors: Monitor[] = [];
     sequelizeMonitorInstances.forEach((m: any) => {
@@ -52,7 +52,7 @@ export class MonitorRepo implements IMonitorRepo {
   public async getMonitorsByMonitorsourceUuid(monitorsourceUuid: MonitorsourceUuid): Promise<Monitor[]> {
     const MonitorModel = this.models.Monitorsource;
     const query = this.createBaseQuery();
-    query.where.monitorsourceUuid = monitorsourceUuid.uuid.toString();
+    query.where.monitorsource_uuid = monitorsourceUuid.uuid.toString();
     const sequelizeMonitorInstances = await MonitorModel.findAll(query);
     const monitors: Monitor[] = [];
     sequelizeMonitorInstances.forEach((m: any) => {
@@ -64,9 +64,9 @@ export class MonitorRepo implements IMonitorRepo {
   public async getMonitorByUuid(userUuid: Uuid, serverUuid: Uuid, monitorUuid: Uuid): Promise<Monitor> {
     const MonitorModel = this.models.Monitorsource;
     const query = this.createBaseQuery();
-    query.where.Server.userUuid = userUuid.toString();
-    query.where.serverUuid = serverUuid.toString();
-    query.where.uuid = monitorUuid.toString();
+    query.where.Server.user_uuid = userUuid.toString();
+    query.where.server_uuid = serverUuid.toString();
+    query.where.monitor_uuid = monitorUuid.toString();
     const sequelizeMonitorInstance = await MonitorModel.findOne(query);
     return MonitorMap.toAggregate(sequelizeMonitorInstance);
   }
@@ -74,7 +74,7 @@ export class MonitorRepo implements IMonitorRepo {
   public async exists(monitorUuid: Uuid): Promise<boolean> {
     const MonitorModel = this.models.Monitorsource;
     const query = this.createBaseQuery();
-    query.where.uuid = monitorUuid.toString();
+    query.where.monitor_uuid = monitorUuid.toString();
     const sequelizeMonitorInstance = await MonitorModel.findOne(query);
     return sequelizeMonitorInstance !== null;
   }
@@ -84,7 +84,7 @@ export class MonitorRepo implements IMonitorRepo {
     const monitorRaw = MonitorMap.toPersistence(monitor);
 
     const query = this.createBaseQuery();
-    query['where'].uuid = monitor.uuid.toString();
+    query.where.monitor_uuid = monitor.uuid.toString();
     const monitorInstance = await MonitorModel.findOne(query);
 
     const t = await this.sequelize.transaction();

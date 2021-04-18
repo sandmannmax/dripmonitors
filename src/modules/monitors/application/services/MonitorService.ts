@@ -49,7 +49,7 @@ export class MonitorService implements IMonitorService {
   ) {
     this.monitorRepo = monitorRepo;
     this.getMonitorsUseCase = new GetMonitorsUseCase(monitorRepo, monitorsourceService);
-    this.getMonitorsForNotifyUseCase = new GetMonitorsForNotifyUseCase(monitorRepo);
+    this.getMonitorsForNotifyUseCase = new GetMonitorsForNotifyUseCase(monitorRepo, userService);
     this.createMonitorUseCase = new CreateMonitorUseCase(monitorRepo, userService, webhookChecker);
   }
 

@@ -2,6 +2,7 @@ import { Sequelize } from 'sequelize';
 import { DiscordId } from "../../../../core/base/DiscordId";
 import { Uuid } from "../../../../core/base/Uuid";
 import { UserMap } from '../../application/mappers/UserMap';
+import { ServerUuid } from '../../domain/models/ServerUuid';
 import { User } from "../../domain/models/User";
 import { IUserRepo } from "../../domain/repos/IUserRepo";
 import { IServerRepo } from './ServerRepo';
@@ -36,7 +37,15 @@ export class UserRepo implements IUserRepo {
   public async getUserByUuid(userUuid: Uuid): Promise<User> {
     const UserModel = this.models.User;
     const query = this.createBaseQuery();
-    query.where.uuid = userUuid.toString();
+    query.where.user_uuid = userUuid.toString();
+    const userInstance = await UserModel.findOne(query);
+    return UserMap.toAggregate(userInstance);
+  }
+
+  public async getUserByServerUuid(serverUuid: ServerUuid): Promise<User> {
+    const UserModel = this.models.User;
+    const query = this.createBaseQuery();
+    query.where.Servers.server_uuid = serverUuid.uuid.toString();
     const userInstance = await UserModel.findOne(query);
     return UserMap.toAggregate(userInstance);
   }
@@ -44,7 +53,7 @@ export class UserRepo implements IUserRepo {
   public async exists(userUuid: Uuid): Promise<boolean> {
     const UserModel = this.models.User;
     const query = this.createBaseQuery();
-    query.where.uuid = userUuid.toString();
+    query.where.user_uuid = userUuid.toString();
     const userInstance = await UserModel.findOne(query);
     return userInstance !== null;
   }
@@ -58,7 +67,7 @@ export class UserRepo implements IUserRepo {
     const userTaw = UserMap.toPersistence(user);
 
     const query = this.createBaseQuery();
-    query['where'].uuid = user.uuid.toString();
+    query.where.user_uuid = user.uuid.toString();
     const userInstance = await UserModel.findOne(query);
 
     const t = await this.sequelize.transaction();

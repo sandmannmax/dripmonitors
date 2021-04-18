@@ -14,20 +14,21 @@ export class ServerMap {
 
   public static toAggregate(raw: any): Server {
     let server = Server.create({
-      serverName: raw.serverName,
-      serverDiscordId: DiscordId.create(raw.serverDiscordId),
-      isMonitorSubscriptionActive: raw.isMonitorSubscriptionActive,
-    }, Uuid.create({ from: 'uuid', uuid: raw.uuid }));
+      serverName: raw.server_name,
+      serverDiscordId: DiscordId.create(raw.server_discord_id),
+      isMonitorSubscriptionActive: raw.is_monitor_subscription_active,
+    }, Uuid.create({ from: 'uuid', uuid: raw.server_uuid }));
     
     return server;
   }
 
   public static toPersistence(server: Server, userUuid: Uuid): any {
     const raw: any = {
-      serverName: server.serverName,
-      serverDiscordId: server.serverDiscordId.toString(),
-      isMonitorSubscriptionActive: server.isMonitorSubscriptionActive,
-      userUuid: userUuid.toString(),
+      server_uuid: server.uuid.toString(),
+      server_name: server.serverName,
+      server_discord_id: server.serverDiscordId.toString(),
+      is_monitor_subscription_active: server.isMonitorSubscriptionActive,
+      user_uuid: userUuid.toString(),
     };
     
     return raw;

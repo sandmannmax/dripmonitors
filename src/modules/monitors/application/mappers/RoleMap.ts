@@ -23,18 +23,19 @@ export class RoleMap {
 
   public static toAggregate(raw: any): Role {
     let role = Role.create({
-      discordId: DiscordId.create(raw.discordId),
+      discordId: DiscordId.create(raw.discord_id),
       name: raw.name,
-    }, Uuid.create({ from: 'uuid', uuid: raw.uuid }));
+    }, Uuid.create({ from: 'uuid', uuid: raw.role_uuid }));
     
     return role;
   }
 
   public static toPersistence(role: Role, monitorUuid: Uuid): any {
     const raw: any = {
-      discordId: role.discordId.toString(),
+      role_uuid: role.uuid.toString(),
+      discord_id: role.discordId.toString(),
       name: role.name,
-      monitorUuid: monitorUuid.toString(),
+      monitor_uuid: monitorUuid.toString(),
     };
     
     return raw;

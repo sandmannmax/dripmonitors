@@ -27,7 +27,7 @@ export class ServerRepo implements IServerRepo {
   public async exists(serverDiscordId: DiscordId): Promise<boolean> {
     const ServerModel = this.models.Server;
     const query = this.createBaseQuery();
-    query.where.serverDiscordId = serverDiscordId.toString();
+    query.where.server_discord_id = serverDiscordId.toString();
     const serverInstance = await ServerModel.findOne(query);
     return serverInstance !== null;
   }
@@ -37,7 +37,7 @@ export class ServerRepo implements IServerRepo {
     const serverRaw = ServerMap.toPersistence(server, userUuid);
 
     const query = this.createBaseQuery();
-    query['where'].uuid = server.uuid;
+    query.where.server_uuid = server.uuid;
     const serverInstance = await ServerModel.findOne(query);
 
     if (serverInstance === null) {

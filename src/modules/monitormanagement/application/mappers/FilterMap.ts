@@ -6,15 +6,16 @@ export class FilterMap {
   public static toAggregate(raw: any): Filter {
     let filter = Filter.create({
       value: raw.value,
-    }, Uuid.create({ from: 'uuid', uuid: raw.uuid }));
+    }, Uuid.create({ from: 'uuid', uuid: raw.filter_uuid }));
     
     return filter;
   }
 
   public static toPersistence(filter: Filter, monitorpageAllocationUuid: Uuid): any {
     const raw: any = {
+      filter_uuid: filter.uuid.toString(),
       value: filter.value,
-      monitorpageAllocationUuid: monitorpageAllocationUuid.toString(),
+      monitorpage_allocation_uuid: monitorpageAllocationUuid.toString(),
     };
     
     return raw;

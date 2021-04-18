@@ -1,4 +1,3 @@
-import 'reflect-metadata';
-import { Start } from './setup';
+import { Start } from './utils/setup';
 
 Start();
