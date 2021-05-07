@@ -2,6 +2,7 @@ import { DiscordId } from '../../../../core/base/DiscordId';
 import { Uuid } from '../../../../core/base/Uuid';
 import { ServerDuplicateException } from '../../../../core/exceptions/ServerDuplicateException';
 import { UserDuplicateException } from '../../../../core/exceptions/UserDuplicateException';
+import { logger } from '../../../../utils/logger';
 import { Server } from '../../domain/models/Server';
 import { User } from '../../domain/models/User';
 import { IUserRepo } from '../../domain/repos/IUserRepo';
@@ -28,7 +29,7 @@ export class UserService implements IUserService {
   }
 
   public async checkUser(userDiscordId: string): Promise<CheckUserDTO> {
-    const userDiscordIdObject = DiscordId.create(userDiscordId);
+    const userDiscordIdObject = DiscordId.create(userDiscordId, 'userDiscordId');
     const userUuid = Uuid.create({ from: 'base', base: userDiscordIdObject.toString() });
     const userExists = await this.userRepo.exists(userUuid);
 
@@ -44,9 +45,9 @@ export class UserService implements IUserService {
   }
 
   public async createUser({ userDiscordId, serverName, serverDiscordId }: { userDiscordId: string, serverName: string, serverDiscordId: string }): Promise<void> {
-    const userDiscordIdObject = DiscordId.create(userDiscordId);
+    const userDiscordIdObject = DiscordId.create(userDiscordId, 'userDiscordId');
     const userUuid = Uuid.create({ from: 'base', base: userDiscordIdObject.toString() });
-    const serverDiscordIdObject = DiscordId.create(serverDiscordId);
+    const serverDiscordIdObject = DiscordId.create(serverDiscordId, 'serverDiscordId');
 
     const userExists = await this.userRepo.exists(userUuid);
     if (userExists) {
@@ -64,9 +65,11 @@ export class UserService implements IUserService {
   }
 
   public async checkWebhookUsability({ userUuid, serverUuid, webhookServerDiscordId }: { userUuid: string, serverUuid: string, webhookServerDiscordId: string }): Promise<void> {
-    const userUuidObject = Uuid.create({ from: 'uuid', uuid: userUuid });
-    const serverUuidObject = Uuid.create({ from: 'uuid', uuid: serverUuid });
-    const webhookServerDiscordIdObject = DiscordId.create(webhookServerDiscordId);
+
+    const userUuidObject = Uuid.create({ from: 'uuid', uuid: userUuid, name: 'userUuid' });
+    const serverUuidObject = Uuid.create({ from: 'uuid', uuid: serverUuid, name: 'serverUuid' });
+    const webhookServerDiscordIdObject = DiscordId.create(webhookServerDiscordId, 'webhookServerDiscordId');
+    
 
     const user = await this.userRepo.getUserByUuid(userUuidObject);
     user.checkWebhookUsability(serverUuidObject, webhookServerDiscordIdObject);

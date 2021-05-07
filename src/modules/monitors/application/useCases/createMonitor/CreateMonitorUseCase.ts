@@ -10,6 +10,12 @@ import { IUserService } from "../../../../users/application/services/UserService
 import { NotificationTarget } from "../../../domain/models/NotificationTarget";
 import { MonitorsourceUuid } from "../../../../monitormanagement/domain/models/MonitorsourceUuid";
 import { Monitor } from "../../../domain/models/Monitor";
+import { Validator } from "../../../../../core/logic/Validator";
+import { DiscordWebhook } from "../../../../../core/base/DiscordWebhook";
+import { logger } from "../../../../../utils/logger";
+import { IMonitorsourceRepo } from "../../../../monitormanagement/domain/repos/IMonitorsourceRepo";
+import { MonitorsourceNotFoundException } from "../../../../monitormanagement/domain/exceptions/MonitorsourceNotFoundException";
+import { IMonitorsourceService } from "../../../../monitormanagement/application/services/MonitorsourceService";
 
 export interface CreateMonitorUseCaseRequest {
   userDiscordId: string;
@@ -17,27 +23,30 @@ export interface CreateMonitorUseCaseRequest {
   name: string;
   image: string;
   webhook: string;
-  monitorpageUuid: string;
+  monitorsourceUuid: string;
 }
 
 export class CreateMonitorUseCase implements UseCase<CreateMonitorUseCaseRequest, void> {
   private monitorRepo: IMonitorRepo;
+  private monitorsourceService: IMonitorsourceService;
   private userService: IUserService;
   private webhookChecker: IWebhookChecker;
 
-  constructor(monitorRepo: IMonitorRepo, userService: IUserService, webhookChecker: IWebhookChecker) {
+  constructor(monitorRepo: IMonitorRepo, monitorsourceService: IMonitorsourceService, userService: IUserService, webhookChecker: IWebhookChecker) {
     this.monitorRepo = monitorRepo;
+    this.monitorsourceService = monitorsourceService;
     this.userService = userService;
     this.webhookChecker = webhookChecker;
   }
 
   public async execute(request: CreateMonitorUseCaseRequest): Promise<void> {
-    const userDiscordId = DiscordId.create(request.userDiscordId);
-    const userUuid = Uuid.create({ from: 'base', base: userDiscordId.toString() });
-    const serverUuid = ServerUuid.create(Uuid.create({ from: 'uuid', uuid: request.serverUuid }));
-    const image = ImageUrl.create({ value: request.image });
+    const userDiscordId = DiscordId.create(request.userDiscordId, 'userDiscordId');
+    const userUuid = Uuid.create({ from: 'base', base: userDiscordId.toString(), name: 'userUuid' });
+    const serverUuid = ServerUuid.create(Uuid.create({ from: 'uuid', uuid: request.serverUuid, name: 'serverUuid' }));
+    const image = ImageUrl.create({ value: request.image });    
+    const discordWebhook = DiscordWebhook.create(request.webhook, "webhook");
 
-    const webhookProperties = await this.webhookChecker.getWebhookProperties(request.webhook);
+    const webhookProperties = await this.webhookChecker.getWebhookProperties(discordWebhook);  
 
     if (!webhookProperties.isExisting || webhookProperties.serverId == undefined) {
       throw new InvalidWebhookUrlException('Webhook is not existing.');
@@ -46,7 +55,15 @@ export class CreateMonitorUseCase implements UseCase<CreateMonitorUseCaseRequest
     }
 
     const notificationTarget = NotificationTarget.createFromUrl({ webhookUrl: request.webhook, isInvalid: false });
-    const monitorsource = MonitorsourceUuid.create(Uuid.create({ from: 'uuid', uuid: request.monitorpageUuid }));
+    const monitorsource = MonitorsourceUuid.create(Uuid.create({ from: 'uuid', uuid: request.monitorsourceUuid, name: 'monitorsourceUuid' }));
+
+    const monitorsourceExists = await this.monitorsourceService.checkMonitorsourceExisting(monitorsource.uuid);
+
+    if (!monitorsourceExists) {
+      throw new MonitorsourceNotFoundException(`Monitorsource with uuid ${monitorsource.uuid.toString()} is not existing.`);
+    }
+
+    logger.info(notificationTarget)
 
     const newMonitor = Monitor.create({
       serverUuid,

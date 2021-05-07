@@ -1,5 +1,6 @@
 import { Sequelize } from "sequelize";
 import { Uuid } from "../../../../core/base/Uuid";
+import { logger } from "../../../../utils/logger";
 import { MonitorsourceUuid } from "../../../monitormanagement/domain/models/MonitorsourceUuid";
 import { MonitorMap } from "../../application/mappers/MonitorMap";
 import { Monitor } from "../../domain/models/Monitor";
@@ -37,10 +38,14 @@ export class MonitorRepo implements IMonitorRepo {
   }
 
   public async getMonitors(userUuid: Uuid, serverUuid: Uuid): Promise<Monitor[]> {
-    const MonitorModel = this.models.Monitorsource;
+    const MonitorModel = this.models.Monitor;
     const query = this.createBaseQuery();
-    query.where.Server.user_uuid = userUuid.toString();
     query.where.server_uuid = serverUuid.toString();
+    query.include = [{
+      model: this.models.Server,
+      as: 'Server',
+      where: { user_uuid: userUuid.toString() }
+    }];
     const sequelizeMonitorInstances = await MonitorModel.findAll(query);
     const monitors: Monitor[] = [];
     sequelizeMonitorInstances.forEach((m: any) => {

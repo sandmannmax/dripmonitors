@@ -7,7 +7,12 @@ module.exports = function(sequelize, DataTypes) {
     },
     monitorpage_uuid: {
       type: DataTypes.UUID,
-      allowNull: false
+      allowNull: false,
+      references: {
+        model: 'monitorpage',
+        key: 'monitorpage_uuid'
+      },
+      onDelete: 'CASCADE'
     },
     is_filtering: {
       type: DataTypes.BOOLEAN,

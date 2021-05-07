@@ -11,12 +11,12 @@ export class DiscordId extends ValueObject<DiscordIdProps> {
     super(props);
   }
 
-  public static create(value: string): DiscordId {
-    Validator.notNullOrUndefined(value, 'value');
+  public static create(value: string, name: string): DiscordId {
+    Validator.notNullOrUndefined(value, name);
 
     const regex = /^[0-9]{18}$/;
     if (!regex.test(value)) {
-      throw new InvalidDiscordIdException(`{${value}} is an invalid DiscordId.`);
+      throw new InvalidDiscordIdException(`\'${value}\' is an invalid DiscordId.`);
     }
     
     const discordId = new DiscordId({ value });

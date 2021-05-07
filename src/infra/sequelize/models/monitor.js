@@ -27,7 +27,7 @@ module.exports = function(sequelize, DataTypes) {
       allowNull: false
     },
     webhook_id: {
-      type: DataTypes.STRING(18),
+      type: new DataTypes.STRING(18),
       allowNull: false
     },
     webhook_token: {

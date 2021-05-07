@@ -9,7 +9,7 @@ export abstract class Entity<T> {
   protected readonly props: T;
 
   constructor (props: T, uuid?: Uuid) {
-    this._uuid = uuid ? uuid : Uuid.create({});
+    this._uuid = uuid ? uuid : Uuid.create({ from: 'new' });
     this.props = props;
   }
 

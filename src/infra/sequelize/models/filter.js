@@ -7,7 +7,11 @@ module.exports = function(sequelize, DataTypes) {
     },
     monitorpage_allocation_uuid: {
       type: DataTypes.UUID,
-      allowNull: false
+      allowNull: false,
+      references: {
+        model: 'monitorpage_allocation',
+        key: 'monitorpage_allocation_uuid'
+      }
     },
     value: {
       type: DataTypes.STRING,

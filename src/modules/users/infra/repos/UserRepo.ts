@@ -1,6 +1,7 @@
 import { Sequelize } from 'sequelize';
 import { DiscordId } from "../../../../core/base/DiscordId";
 import { Uuid } from "../../../../core/base/Uuid";
+import { logger } from '../../../../utils/logger';
 import { UserMap } from '../../application/mappers/UserMap';
 import { ServerUuid } from '../../domain/models/ServerUuid';
 import { User } from "../../domain/models/User";
@@ -64,7 +65,7 @@ export class UserRepo implements IUserRepo {
   
   public async save(user: User): Promise<void> {
     const UserModel = this.models.User;
-    const userTaw = UserMap.toPersistence(user);
+    const userRaw = UserMap.toPersistence(user);
 
     const query = this.createBaseQuery();
     query.where.user_uuid = user.uuid.toString();
@@ -72,15 +73,16 @@ export class UserRepo implements IUserRepo {
 
     const t = await this.sequelize.transaction();
 
-    try {
-      await Promise.all(user.servers.map(r => this.serverRepo.save(r, user.uuid, t)));
+    logger.info(userRaw);
 
+    try {
       if (userInstance === null) {
-        await UserModel.create(userTaw, { transaction: t });
+        await UserModel.create(userRaw, { transaction: t });
       } else {
-        await userInstance.update(userTaw, { transaction: t });
+        await userInstance.update(userRaw, { transaction: t });
       }
 
+      await Promise.all(user.servers.map(r => this.serverRepo.save(r, user.uuid, t)));
       await t.commit();
     } catch (error) {
       await t.rollback();

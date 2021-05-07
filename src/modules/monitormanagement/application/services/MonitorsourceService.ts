@@ -27,6 +27,7 @@ import { MonitorsourceMap } from "../mappers/MonitorsourceMap";
 
 export interface IMonitorsourceService {
   getVisibleMonitorsources(): Promise<MonitorsourceVisibleDTO[]>;
+  checkMonitorsourceExisting(uuid: Uuid): Promise<boolean>;
   getMonitorsources(): Promise<MonitorsourceDTO[]>;
   createMonitorsource(command: CreateMonitorsourceCommandDTO): Promise<void>;
   makeMonitorsourceVisible(command: MakeMonitorsourceVisibleCommandDTO): Promise<void>;
@@ -43,19 +44,21 @@ export interface IMonitorsourceService {
 export class MonitorsourceService implements IMonitorsourceService {
   private monitorsourceRepo: IMonitorsourceRepo;
   private monitorpageService: IMonitorpageService;
-  private monitorService: IMonitorService;
+  private monitorService!: IMonitorService;
   private notificationService: INotificationService;
 
   constructor(
     monitorsourceRepo: IMonitorsourceRepo,
     monitorpageService: IMonitorpageService,
-    monitorService: IMonitorService,
     notificationService: INotificationService,
   ) {
     this.monitorsourceRepo = monitorsourceRepo;
     this.monitorpageService = monitorpageService;
-    this.monitorService = monitorService;
     this.notificationService = notificationService;
+  }
+
+  public setMonitorService(monitorService: IMonitorService) {
+    this.monitorService = monitorService;
   }
 
   public async getVisibleMonitorsources(): Promise<MonitorsourceVisibleDTO[]> {
@@ -70,6 +73,10 @@ export class MonitorsourceService implements IMonitorsourceService {
     }
 
     return monitorsourceVisibleDTOs;
+  }
+
+  public async checkMonitorsourceExisting(uuid: Uuid): Promise<boolean> {
+    return await this.monitorsourceRepo.exists(uuid);
   }
 
   public async getMonitorsources(): Promise<MonitorsourceDTO[]> {

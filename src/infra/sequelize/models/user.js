@@ -6,7 +6,7 @@ module.exports = function(sequelize, DataTypes) {
       primaryKey: true
     },
     user_discord_id: {
-      type: DataTypes.STRING(18),
+      type: new DataTypes.STRING(18),
       allowNull: false
     }
   },{

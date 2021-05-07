@@ -1,6 +1,6 @@
 import jwt from 'express-jwt';
 import jwks from 'jwks-rsa';
-import config from '../config';
+import config from '../utils/config';
 import jwtAuthz from 'express-jwt-authz';
 
 export class Auth {

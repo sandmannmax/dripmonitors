@@ -19,7 +19,7 @@ module.exports = function(sequelize, DataTypes) {
       allowNull: false
     },
     server_discord_id: {
-      type: DataTypes.STRING(18),
+      type: new DataTypes.STRING(18),
       allowNull: false
     },
     is_monitor_subscription_active: {

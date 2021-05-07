@@ -5,6 +5,7 @@ import { IMonitorsourceService } from '../../../../monitormanagement/application
 import { IMonitorRepo } from '../../../domain/repos/IMonitorRepo';
 import { MonitorDTO } from './dtos/MonitorDTO';
 import { MonitorMap } from '../../mappers/MonitorMap';
+import { logger } from '../../../../../utils/logger';
 
 export interface GetMonitorsUseCaseRequest {
   userDiscordId: string;
@@ -21,9 +22,9 @@ export class GetMonitorsUseCase implements UseCase<GetMonitorsUseCaseRequest, Mo
   }
 
   public async execute(request: GetMonitorsUseCaseRequest): Promise<MonitorDTO[]> {
-    const userDiscordId = DiscordId.create(request.userDiscordId);
-    const userUuid = Uuid.create({ from: 'base', base: userDiscordId.toString() });
-    const serverUuid = Uuid.create({ from: 'uuid', uuid: request.serverUuid });
+    const userDiscordId = DiscordId.create(request.userDiscordId, "userDiscordId");
+    const userUuid = Uuid.create({ from: 'base', base: userDiscordId.toString(), name: 'userUuid' });
+    const serverUuid = Uuid.create({ from: 'uuid', uuid: request.serverUuid, name: 'serverUuid' });
     const monitors = await this.monitorRepo.getMonitors(userUuid, serverUuid);
     const monitorDTOs: MonitorDTO[] = [];
     const monitorsources = await this.monitorsourceService.getVisibleMonitorsources();

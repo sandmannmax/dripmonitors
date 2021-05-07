@@ -40,7 +40,7 @@ export class MonitorMap {
       name: monitor.name,
       image: monitor.image.value,
       running: monitor.running,
-      webhook_id: monitor.notificationTarget.webhookId,
+      webhook_id: monitor.notificationTarget.webhookId.toString(),
       webhook_token: monitor.notificationTarget.webhookToken,
       is_invalid: monitor.notificationTarget.isInvalid,
       monitorsource_uuid: monitor.monitorsource.uuid.toString(),

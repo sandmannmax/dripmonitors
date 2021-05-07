@@ -50,7 +50,7 @@ export class MonitorService implements IMonitorService {
     this.monitorRepo = monitorRepo;
     this.getMonitorsUseCase = new GetMonitorsUseCase(monitorRepo, monitorsourceService);
     this.getMonitorsForNotifyUseCase = new GetMonitorsForNotifyUseCase(monitorRepo, userService);
-    this.createMonitorUseCase = new CreateMonitorUseCase(monitorRepo, userService, webhookChecker);
+    this.createMonitorUseCase = new CreateMonitorUseCase(monitorRepo, monitorsourceService, userService, webhookChecker);
   }
 
   public async getMonitors(request: GetMonitorsUseCaseRequest): Promise<MonitorDTO[]> { return await this.getMonitorsUseCase.execute(request); }
@@ -81,7 +81,7 @@ export class MonitorService implements IMonitorService {
   
   public async addRole(command: AddRoleCommandDTO): Promise<void> {
     const monitor = await this.getMonitor(command.userDiscordId, command.serverUuid, command.monitorUuid);
-    const roleDiscordId = DiscordId.create(command.roleDiscordId);
+    const roleDiscordId = DiscordId.create(command.roleDiscordId, 'roleDiscordId');
     const role = Role.create({ discordId: roleDiscordId, name: command.roleName });
     monitor.addRole(role);
     await this.monitorRepo.save(monitor);
@@ -107,10 +107,10 @@ export class MonitorService implements IMonitorService {
   }  
 
   private async getMonitor(userDiscordIdString: string, serverUuidString: string, monitorUuidString: string): Promise<Monitor> {
-    const userDiscordId = DiscordId.create(userDiscordIdString);
-    const userUuid = Uuid.create({ from: 'base', base: userDiscordId.toString() });
-    const serverUuid = Uuid.create({ from: 'uuid', uuid: serverUuidString });
-    const monitorUuid = Uuid.create({ from: 'uuid', uuid: monitorUuidString });
+    const userDiscordId = DiscordId.create(userDiscordIdString, 'userDiscordId');
+    const userUuid = Uuid.create({ from: 'base', base: userDiscordId.toString(), name: 'userUuid' });
+    const serverUuid = Uuid.create({ from: 'uuid', uuid: serverUuidString, name: 'serverUuid' });
+    const monitorUuid = Uuid.create({ from: 'uuid', uuid: monitorUuidString, name: 'monitorUuid' });
     return await this.monitorRepo.getMonitorByUuid(userUuid, serverUuid, monitorUuid);
   }
 }

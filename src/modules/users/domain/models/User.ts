@@ -3,6 +3,7 @@ import { DiscordId } from "../../../../core/base/DiscordId";
 import { Uuid } from "../../../../core/base/Uuid";
 import { ServerNotFoundException } from "../../../../core/exceptions/ServerNotFoundException";
 import { Validator } from "../../../../core/logic/Validator";
+import { logger } from "../../../../utils/logger";
 import { Server } from "./Server";
 import { ServerUuid } from "./ServerUuid";
 
@@ -37,11 +38,11 @@ export class User extends AggregateRoot<UserProps> {
     let serverIndex = this.props.servers.findIndex(s => s.uuid.equals(serverUuid));
 
     if (serverIndex === -1) {
-      throw new ServerNotFoundException();
+      throw new ServerNotFoundException('Discord Webhook is not from your Server');
     }
 
     if (!this.props.servers[serverIndex].serverDiscordId.equals(serverDiscordId)) {
-      throw new ServerNotFoundException();
+      throw new ServerNotFoundException('Discord Webhook is not from your Server');
     }
   }
 

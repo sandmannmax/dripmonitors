@@ -1,10 +1,12 @@
-import { v4 as uuidv4, validate } from 'uuid';
+import { v4 as uuidv4 } from 'uuid';
+import validate from 'uuid-validate';
 import md5 from 'md5';
 import { ValueObject } from './ValueObject';
 import { InvalidUuidException } from '../exceptions/InvalidUuidException';
 import { Validator } from '../logic/Validator';
 import { NullOrUndefinedException } from '../exceptions/NullOrUndefinedException';
 import { InvalidUuidParametersException } from '../exceptions/InvalidUuidParametersException';
+import { logger } from '../../utils/logger';
 
 interface UuidProps {
   value: string;
@@ -15,7 +17,7 @@ export class Uuid extends ValueObject<UuidProps> {
     super(props);
   }
 
-  public static create({ from, uuid, base }: { from: "new" | "base" | "uuid", uuid?: string, base?: string }): Uuid {
+  public static create({ from, uuid, base, name }: { from: "new" | "base" | "uuid", uuid?: string, base?: string, name?: string }): Uuid {
     if (Validator.isNullOrUndefined(from)) {
       throw new NullOrUndefinedException('from can\'t be null for Uuid.');
     }
@@ -24,12 +26,21 @@ export class Uuid extends ValueObject<UuidProps> {
       return new Uuid({ value: uuidv4() });
     } else if (from === 'uuid') {
       if (uuid != undefined && uuid != null) {
-        if (!validate(uuid)) {
-          throw new InvalidUuidException();
+        if (!validate(uuid, 4)) {
+          let message = 'Invalid Uuid';
+          if (name != undefined) {
+            message = 'Invalid ' + name;
+          }          
+          throw new InvalidUuidException(message);
         }
         return new Uuid({ value: uuid })
       } else {
-        throw new InvalidUuidParametersException('uuid is missing.');
+        let message = 'uuid';
+        if (name != undefined) {
+          message = name;
+        }     
+        message += ' is missing';   
+        throw new InvalidUuidParametersException(message);
       }
     } else if (from === 'base') {
       if (base != undefined && base != null) {

@@ -61,10 +61,10 @@ export class MonitorsourceRepo implements IMonitorsourceRepo {
   }
 
   public async exists(monitorsourceUuid: Uuid): Promise<boolean> {
-    const MonitorsourceUuid = this.models.MonitorsourceUuid;
+    const Monitorsource = this.models.Monitorsource;
     const query = this.createBaseQuery();
-    query['where'].uuid = monitorsourceUuid.toString();
-    const monitorsource = await MonitorsourceUuid.findOne(query);
+    query['where'].monitorsource_uuid = monitorsourceUuid.toString();
+    const monitorsource = await Monitorsource.findOne(query);
     return monitorsource !== null;
   }
 
