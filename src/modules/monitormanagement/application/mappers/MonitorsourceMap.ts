@@ -7,6 +7,7 @@ import { MonitorpageAllocationMap } from "./MonitorpageAllocationMap";
 export class MonitorsourceMap {
   public static toDTO(monitorsource: Monitorsource, monitorpageAllocations: MonitorpageAllocationDTO[]): MonitorsourceDTO {
     return {
+      uuid: monitorsource.uuid.toString(),
       name: monitorsource.name,
       monitorpageAllocations,
       isSendingNotifications: monitorsource.isSendingNotifications,

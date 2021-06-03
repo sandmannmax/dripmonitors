@@ -23,6 +23,7 @@ export class MonitorpageAllocation extends Entity<MonitorpageAllocationProps> {
     ]);
 
     const monitorpageAllocation = new MonitorpageAllocation(props, uuid);
+    monitorpageAllocation.deleted = false;
     return monitorpageAllocation;
   }
 
@@ -30,4 +31,5 @@ export class MonitorpageAllocation extends Entity<MonitorpageAllocationProps> {
   public get monitorpageUuid(): MonitorpageUuid { return this.props.monitorpageUuid; }
   public get isFiltering(): boolean { return this.props.isFiltering; }
   public get filters(): Filter[] { return this.props.filters; }
+  public deleted: boolean = false;
 }

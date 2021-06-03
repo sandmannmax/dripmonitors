@@ -6,4 +6,5 @@ export interface IMonitorsourceRepo {
   getMonitorsourceByUuid(monitorsourceUuid: Uuid): Promise<Monitorsource>;
   exists(monitorsourceUuid: Uuid): Promise<boolean>;
   save(monitorsource: Monitorsource): Promise<void>;
+  delete(monitorsource: Monitorsource): Promise<void>;
 }

@@ -7,6 +7,7 @@ import pinoHttp from 'pino-http';
 import { logger } from '../../utils/logger';
 import sanitize from 'sanitize';
 import { IError } from '../../core/base/IError';
+import { BaseException } from '../../core/exceptions/BaseException';
 
 export function HttpSetup() {
   const app = express();
@@ -48,8 +49,9 @@ export function HttpSetup() {
       res.status(err.status || 500);
       if (err.status == 403 && (!err || !err.message))
         res.end();
-      else
-        res.json({message: err.message});
+      else {
+        res.json({ message: err.message });
+      }
     }    
   });
 

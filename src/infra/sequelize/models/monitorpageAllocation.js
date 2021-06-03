@@ -14,6 +14,15 @@ module.exports = function(sequelize, DataTypes) {
       },
       onDelete: 'CASCADE'
     },
+    monitorsource_uuid: {
+      type: DataTypes.UUID,
+      allowNull: false,
+      references: {
+        model: 'monitorsource',
+        key: 'monitorsource_uuid'
+      },
+      onDelete: 'CASCADE'
+    },
     is_filtering: {
       type: DataTypes.BOOLEAN,
       allowNull: false

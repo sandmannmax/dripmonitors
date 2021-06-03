@@ -1,4 +1,5 @@
 import { Uuid } from "../../../../core/base/Uuid";
+import { logger } from "../../../../utils/logger";
 import { IMonitorService } from "../../../monitors/application/services/MonitorService";
 import { Filter } from "../../domain/models/Filter";
 import { MonitorpageAllocation } from "../../domain/models/MonitorpageAllocation";
@@ -9,6 +10,7 @@ import { IMonitorsourceRepo } from "../../domain/repos/IMonitorsourceRepo";
 import { AddFilterToMonitorpageAllocationCommandDTO } from "../dto/AddFilterToMonitorpageAllocationCommandDTO";
 import { AddMonitorpageAllocationCommandDTO } from "../dto/AddMonitorpageAllocationCommandDTO";
 import { CreateMonitorsourceCommandDTO } from "../dto/CreateMonitorsourceCommandDTO";
+import { DeleteMonitorsourceCommandDTO } from "../dto/DeleteMonitorsourceCommandDTO";
 import { GetMonitorsourcesForProductCommandDTO } from "../dto/GetMonitorsourcesForProductCommandDTO";
 import { MakeMonitorsourceInvisibleCommandDTO } from "../dto/MakeMonitorsourceInvisbleCommandDTO";
 import { MakeMonitorsourceVisibleCommandDTO } from "../dto/MakeMonitorsourceVisibleCommandDTO";
@@ -30,6 +32,7 @@ export interface IMonitorsourceService {
   checkMonitorsourceExisting(uuid: Uuid): Promise<boolean>;
   getMonitorsources(): Promise<MonitorsourceDTO[]>;
   createMonitorsource(command: CreateMonitorsourceCommandDTO): Promise<void>;
+  deleteMonitorsource(command: DeleteMonitorsourceCommandDTO): Promise<void>;
   makeMonitorsourceVisible(command: MakeMonitorsourceVisibleCommandDTO): Promise<void>;
   makeMonitorsourceInvisible(command: MakeMonitorsourceInvisibleCommandDTO): Promise<void>;
   startMonitorsource(command: StartMonitorsourceCommandDTO): Promise<void>;
@@ -81,7 +84,6 @@ export class MonitorsourceService implements IMonitorsourceService {
 
   public async getMonitorsources(): Promise<MonitorsourceDTO[]> {
     const monitorsources = await this.monitorsourceRepo.getMonitorsources();
-
     const monitorsourceDTOPromises: Promise<MonitorsourceDTO>[] = [];
 
     for (let i = 0; i < monitorsources.length; i++) {
@@ -101,6 +103,13 @@ export class MonitorsourceService implements IMonitorsourceService {
       monitorpageAllocations: [],
     });
     await this.monitorsourceRepo.save(newMonitorsource);
+  }
+
+  public async deleteMonitorsource(command: DeleteMonitorsourceCommandDTO): Promise<void> {
+    const monitorsourceUuid = Uuid.create({ from: 'uuid', uuid: command.monitorsourceUuid, name: 'monitorsourceUuid' });
+    const monitorsource = await this.monitorsourceRepo.getMonitorsourceByUuid(monitorsourceUuid);
+    logger.info('HERE')
+    await this.monitorsourceRepo.delete(monitorsource);
   }
 
   public async makeMonitorsourceVisible(command: MakeMonitorsourceVisibleCommandDTO): Promise<void> {
@@ -132,9 +141,10 @@ export class MonitorsourceService implements IMonitorsourceService {
   }
 
   public async addMonitorpageAllocation(command: AddMonitorpageAllocationCommandDTO): Promise<void> {
-    const monitorsourceUuid = Uuid.create({ from: 'uuid', uuid: command.monitorsourceUuid });
+    const monitorsourceUuid = Uuid.create({ from: 'uuid', uuid: command.monitorsourceUuid, name: 'monitorsourceUuid' });
     const monitorsource = await this.monitorsourceRepo.getMonitorsourceByUuid(monitorsourceUuid);
-    const monitorpageUuid = MonitorpageUuid.create(Uuid.create({ from: 'uuid', uuid: command.monitorpageUuid }));
+    const monitorpageUuid = MonitorpageUuid.create(Uuid.create({ from: 'uuid', uuid: command.monitorpageUuid, name: 'monitorpageUuid' }));
+    await this.monitorpageService.getMonitorpageByUuid(monitorpageUuid);
     const monitorpageAllocation = MonitorpageAllocation.create({ monitorpageUuid, isFiltering: command.isFiltering, filters: [] });
     monitorsource.addMonitorpageAllocation(monitorpageAllocation);
     await this.monitorsourceRepo.save(monitorsource);
@@ -149,9 +159,9 @@ export class MonitorsourceService implements IMonitorsourceService {
   }
 
   public async addFilterToMonitorpageAllocation(command: AddFilterToMonitorpageAllocationCommandDTO): Promise<void> {
-    const monitorsourceUuid = Uuid.create({ from: 'uuid', uuid: command.monitorsourceUuid });
+    const monitorsourceUuid = Uuid.create({ from: 'uuid', uuid: command.monitorsourceUuid, name: 'monitorsourceUuid' });
     const monitorsource = await this.monitorsourceRepo.getMonitorsourceByUuid(monitorsourceUuid);
-    const monitorpageAllocationUuid = Uuid.create({ from: 'uuid', uuid: command.monitorpageAllocationUuid });
+    const monitorpageAllocationUuid = Uuid.create({ from: 'uuid', uuid: command.monitorpageAllocationUuid, name: 'monitorpageAllocationUuid' });
     const filter = Filter.create({ value: command.filterValue });
     monitorsource.addFilterToMonitorpageAllocation(monitorpageAllocationUuid, filter);
     await this.monitorsourceRepo.save(monitorsource);

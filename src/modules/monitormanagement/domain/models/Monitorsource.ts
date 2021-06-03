@@ -65,13 +65,13 @@ export class Monitorsource extends AggregateRoot<MonitorsourceProps> {
   }
 
   public removeMonitorpageAllocation(monitorpageAllocationUuid: Uuid) {
-    const monitorpageIndex = this.props.monitorpageAllocations.findIndex(m => m.uuid.equals(monitorpageAllocationUuid));
+    const monitorpageAllocationIndex = this.props.monitorpageAllocations.findIndex(m => m.uuid.equals(monitorpageAllocationUuid));
 
-    if (monitorpageIndex === -1) {
+    if (monitorpageAllocationIndex === -1) {
       throw new MonitorpageAllocationNotFoundException(`Monitorsource {${this._uuid}} has not MonitorpageAllocation with uuid {${monitorpageAllocationUuid.toString()}}.`);
     }
 
-    this.props.monitorpageAllocations.splice(monitorpageIndex, 1);
+    this.props.monitorpageAllocations[monitorpageAllocationIndex].deleted = true;
   }
 
   public addFilterToMonitorpageAllocation(monitorpageAllocationUuid: Uuid, filter: Filter) {

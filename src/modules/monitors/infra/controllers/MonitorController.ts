@@ -44,6 +44,7 @@ export class MonitorController {
         const userDiscordId = UserDiscordIdExtractor.ExtractDiscordId(user);
         await this.monitorService.createMonitor({ userDiscordId, serverUuid, image: imageUrl, monitorsourceUuid, name, webhook });
         res.status(200);
+        res.end();
       } catch (error) {
         ExceptionHandling.HandleException({ error, next });
 
@@ -59,6 +60,7 @@ export class MonitorController {
         const userDiscordId = UserDiscordIdExtractor.ExtractDiscordId(user);
         await this.monitorService.updateName({ userDiscordId, monitorUuid, name, serverUuid });
         res.status(200);
+        res.end();
       } catch (error) {
         ExceptionHandling.HandleException({ error, next });
 
@@ -74,6 +76,7 @@ export class MonitorController {
         const userDiscordId = UserDiscordIdExtractor.ExtractDiscordId(user);
         await this.monitorService.updateImage({ userDiscordId, monitorUuid, image, serverUuid });
         res.status(200);
+        res.end();
       } catch (error) {
         ExceptionHandling.HandleException({ error, next });
 
@@ -89,6 +92,7 @@ export class MonitorController {
         const userDiscordId = UserDiscordIdExtractor.ExtractDiscordId(user);
         await this.monitorService.updateWebhook({ userDiscordId, monitorUuid, webhook, serverUuid });
         res.status(200);
+        res.end();
       } catch (error) {
         ExceptionHandling.HandleException({ error, next });
 
@@ -104,6 +108,7 @@ export class MonitorController {
         const userDiscordId = UserDiscordIdExtractor.ExtractDiscordId(user);
         await this.monitorService.startMonitor({ userDiscordId, monitorUuid, serverUuid });
         res.status(200);
+        res.end();
       } catch (error) {
         ExceptionHandling.HandleException({ error, next });
 
@@ -119,6 +124,7 @@ export class MonitorController {
         const userDiscordId = UserDiscordIdExtractor.ExtractDiscordId(user);
         await this.monitorService.stopMonitor({ userDiscordId, monitorUuid, serverUuid });
         res.status(200);
+        res.end();
       } catch (error) {
         ExceptionHandling.HandleException({ error, next });
 
@@ -134,6 +140,7 @@ export class MonitorController {
         const userDiscordId = UserDiscordIdExtractor.ExtractDiscordId(user);
         await this.monitorService.addRole({ userDiscordId, monitorUuid, serverUuid, roleDiscordId, roleName });
         res.status(200);
+        res.end();
       } catch (error) {
         ExceptionHandling.HandleException({ error, next });
 
@@ -150,6 +157,7 @@ export class MonitorController {
         const userDiscordId = UserDiscordIdExtractor.ExtractDiscordId(user);
         await this.monitorService.deleteRole({ userDiscordId, monitorUuid, serverUuid, roleUuid });
         res.status(200);
+        res.end();
       } catch (error) {
         ExceptionHandling.HandleException({ error, next });
 

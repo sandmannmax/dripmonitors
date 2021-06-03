@@ -35,6 +35,7 @@ export class UserController {
         const userDiscordId = UserDiscordIdExtractor.ExtractDiscordId(user);
         await this.userService.createUser({ userDiscordId, serverDiscordId, serverName });
         res.status(200);
+        res.end();
       } catch (error) {
         ExceptionHandling.HandleException({ error, next });
         

@@ -13,7 +13,7 @@ export class Filter extends Entity<FilterProps> {
   }
 
   public static create(props: FilterProps, uuid?: Uuid): Filter {
-    Validator.notNullOrUndefined(props.value, 'value');
+    Validator.notNullOrUndefined(props.value, 'filterValue');
     
     return new Filter(props, uuid);
   }

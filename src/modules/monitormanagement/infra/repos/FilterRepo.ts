@@ -1,5 +1,6 @@
 import { Transaction } from "sequelize";
 import { Uuid } from "../../../../core/base/Uuid";
+import { logger } from "../../../../utils/logger";
 import { FilterMap } from "../../application/mappers/FilterMap";
 import { Filter } from "../../domain/models/Filter";
 
@@ -27,7 +28,7 @@ export class FilterRepo implements IFilterRepo {
     const filterRaw = FilterMap.toPersistence(filter, monitorpageAllocationUuid);
 
     const query = this.createBaseQuery();
-    query['where'].uuid = filter.uuid;
+    query['where'].filter_uuid = filter.uuid.toString();
     const filterInstance = await FilterModel.findOne(query);
 
     if (filterInstance === null) {

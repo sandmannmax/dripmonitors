@@ -5,6 +5,7 @@ import { Monitorsource } from '../../domain/models/Monitorsource';
 import { IMonitorsourceRepo } from '../../domain/repos/IMonitorsourceRepo';
 import { Sequelize } from 'sequelize';
 import { IMonitorpageAllocationRepo } from './MonitorpageAllocationRepo';
+import { logger } from '../../../../utils/logger';
 
 export class MonitorsourceRepo implements IMonitorsourceRepo {
   private sequelize: Sequelize;
@@ -52,7 +53,7 @@ export class MonitorsourceRepo implements IMonitorsourceRepo {
   public async getMonitorsourceByUuid(monitorsourceUuid: Uuid): Promise<Monitorsource> {
     const MonitorsourceModel = this.models.Monitorsource;
     const query = this.createBaseQuery();
-    query['where'].uuid = monitorsourceUuid.toString();
+    query['where'].monitorsource_uuid = monitorsourceUuid.toString();
     const sequelizeMonitorsourceInstance = await MonitorsourceModel.findOne(query);
     if (sequelizeMonitorsourceInstance === null) {
       throw new MonitorsourceNotFoundException();
@@ -73,7 +74,7 @@ export class MonitorsourceRepo implements IMonitorsourceRepo {
     const monitorsourceRaw = MonitorsourceMap.toPersistence(monitorsource);
 
     const query = this.createBaseQuery();
-    query['where'].uuid = monitorsource.uuid.toString();
+    query['where'].monitorsource_uuid = monitorsource.uuid.toString();
     const monitorsourceInstance = await MonitorsourceModel.findOne(query);
 
     const t = await this.sequelize.transaction();
@@ -92,5 +93,19 @@ export class MonitorsourceRepo implements IMonitorsourceRepo {
       await t.rollback();
       throw error;
     }
-  }  
+  }
+
+  public async delete(monitorsource: Monitorsource): Promise<void> {
+    const MonitorsourceModel = this.models.Monitorsource;
+
+    const query = this.createBaseQuery();
+    query['where'].monitorsource_uuid = monitorsource.uuid.toString();
+    const monitorsourceInstance = await MonitorsourceModel.findOne(query);
+
+    if (monitorsourceInstance == null){
+      throw new MonitorsourceNotFoundException();
+    }
+
+    await monitorsourceInstance.destroy();
+  }
 }
