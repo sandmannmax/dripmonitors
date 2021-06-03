@@ -5,6 +5,4 @@ const logger = pino({
   level: config.logLevel
 });
 
-export {
-  logger,
-};
+export { logger };

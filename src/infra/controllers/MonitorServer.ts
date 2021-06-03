@@ -6,6 +6,8 @@ import { ProductDTOToGrpcProduct } from '../mappers/ProductDTOToGrpcProduct';
 import { FilterDTOToGrpcFilter } from '../mappers/FilterDTOToGrpcFilter';
 import { MonitorpageDTOToGrpcMonitorpage } from '../mappers/MonitorpageDTOToGrpcMonitorpage';
 import { UrlDTOToGrpcFilter } from '../mappers/UrlDTOToGrpcUrl';
+import { logger } from '../../util/logger';
+import { MonitorpageNotExistingException } from '../../core/exceptions/MonitorpageNotExistingException';
 
 export class MonitorServer {
   private monitorpageService: IMonitorpageService;

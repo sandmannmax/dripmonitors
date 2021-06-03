@@ -1,4 +1,5 @@
-import { v4 as uuidv4, validate } from 'uuid';
+import { v4 as uuidv4 } from 'uuid';
+import validate from 'uuid-validate';
 import md5 from 'md5';
 import { ValueObject } from './ValueObject';
 import { InvalidUuidException } from '../exceptions/InvalidUuidException';

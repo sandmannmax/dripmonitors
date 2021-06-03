@@ -10,6 +10,7 @@ import { UrlMap } from '../mappers/UrlMap';
 import { Url } from '../../domain/models/Url';
 import { IScheduleService } from '../interface/IScheduleService';
 import { IntervalTime } from '../../domain/models/IntervalTime';
+import { logger } from '../../util/logger';
 
 export interface IMonitorpageService {
   getMonitorpages(): Promise<MonitorpageDTO[]>;

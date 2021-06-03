@@ -52,7 +52,7 @@ function GrpcSetup(monitorServer: MonitorServer) {
   const server = new Server();
   server.addService(MonitorServiceService, {
     getMonitorpages: (call: ServerUnaryCall<GetMonitorpagesRequest, GetMonitorpagesResponse>, callback: sendUnaryData<GetMonitorpagesResponse>) => monitorServer.getMonitorpages(call, callback),
-    getMonitorpage: (call: ServerUnaryCall<GetMonitorpageRequest, GetMonitorpageResponse>, callback: sendUnaryData<GetMonitorpageResponse>) => monitorServer.getMonitorpage,
+    getMonitorpage: (call: ServerUnaryCall<GetMonitorpageRequest, GetMonitorpageResponse>, callback: sendUnaryData<GetMonitorpageResponse>) => monitorServer.getMonitorpage(call, callback),
     getProducts: (
       call: ServerUnaryCall<GetProductsRequest, GetProductsResponse>,
       callback: sendUnaryData<GetProductsResponse>,

@@ -244,6 +244,7 @@ export class Product extends AggregateRoot<ProductProps> {
       price: this.props.price.toString(),
       sizes,
       hasATC: this.hasATC,
+      monitorpageUuid: this.props.monitorpageUuid.toString(),
     };
     this._shouldNotify = false;
     this._sizesForNotify = [];

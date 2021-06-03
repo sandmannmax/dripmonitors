@@ -8,6 +8,7 @@ import { Filter } from "../../domain/models/Filter";
 import { Url } from "../../domain/models/Url";
 import { Uuid } from "../../core/base/Uuid";
 import { IntervalTime } from "../../domain/models/IntervalTime";
+import { logger } from "../../util/logger";
 
 export class MonitorpageRepo implements IMonitorpageRepo {
   private monitorpageSetups: MonitorpageSetupDTO[];
@@ -35,10 +36,10 @@ export class MonitorpageRepo implements IMonitorpageRepo {
     const monitorpage = this.monitorpageSetups.find(m => m.uuid.equals(monitorpageUuid));
 
     if (monitorpage === undefined) {
-      throw new MonitorpageNotExistingException();
+      throw new MonitorpageNotExistingException("Monitorpage is not existing");
     }
 
-    const monitorpageIdString = monitorpageUuid.toString();
+    const monitorpageIdString = monitorpageUuid.toString();    
 
     const urlStrings = await this.redisClient.smembers(`monitorpage:${monitorpageIdString}:url`);
     const filterStrings = await this.redisClient.smembers(`monitorpage:${monitorpageIdString}:filter`);

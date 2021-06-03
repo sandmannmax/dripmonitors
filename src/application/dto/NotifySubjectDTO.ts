@@ -7,4 +7,5 @@ export interface NotifySubjectDTO {
   price: string;
   sizes: NotifySizeDTO[];
   hasATC: boolean;
+  monitorpageUuid: string;
 }
