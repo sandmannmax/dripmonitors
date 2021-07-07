@@ -1,5 +1,5 @@
 <template>
-  <div class="container mx-auto" v-if="$auth.loggedIn">
+  <!-- <div class="container mx-auto" v-if="$auth.loggedIn">
     <div class="md:px-12 px-4 pb-4 flex flex-col">
       <h1 class="md:text-4xl text-3xl font-semibold mb-4">Hello {{ $auth.user.nickname }} &#128075;</h1>
       <div v-if="scope != 'none'">
@@ -32,63 +32,75 @@
         </div>
       </div>
     </div>   
+  </div> -->
+  <div class="min-h-screen bg-secondary flex flex-col justify-center items-center">
+    <img class="h-32 w-32 mb-4" src="/logo.png"/>
+    <div>
+      <div class="text-xl text-white">
+        <p>Monitors are turned off until further notice.</p>
+        <p>For more information join our <a href="https://www.lazyshoebot.com/discord" target="blank" class="text-blue-400 hover:text-blue-500 transition-colors duration-150"> Discord Server</a>.</p>
+      </div>
+    </div>    
   </div>
 </template>
 
 <script lang="ts">
 import { Component, Vue } from 'vue-property-decorator';
-import { namespace } from 'vuex-class';
-import MonitorSmall from '../components/MonitorSmall.vue';
+// import { namespace } from 'vuex-class';
+// import MonitorSmall from '../components/MonitorSmall.vue';
 
-const userModule = namespace('userModule');
-const monitorModule = namespace('monitorModule');
+// const userModule = namespace('userModule');
+// const monitorModule = namespace('monitorModule');
 
+// @Component({
+//   components: { MonitorSmall }
+// })
 @Component({
-  components: { MonitorSmall }
+  layout: 'fullpage'
 })
 export default class Index extends Vue {
   $auth;
-  $router;
-  $nuxt;
+  // $router;
+  // $nuxt;
 
-  @userModule.Action getScope;
-  @userModule.Action setBetaScope;
-  @userModule.Getter scope;
-  @monitorModule.Action getMonitors;
-  @monitorModule.Getter monitors;
+  // @userModule.Action getScope;
+  // @userModule.Action setBetaScope;
+  // @userModule.Getter scope;
+  // @monitorModule.Action getMonitors;
+  // @monitorModule.Getter monitors;
 
-  accesskey = '';
+  // accesskey = '';
 
-  get runningMonitors() {
-    return this.monitors.filter(monitor => monitor.running == true);
-  }
+  // get runningMonitors() {
+  //   return this.monitors.filter(monitor => monitor.running == true);
+  // }
 
-  error = '';
+  // error = '';
 
   async mounted() {
     if (this.$auth.loggedIn) {
-      await this.load();
+      console.log(this.$auth.strategy.token.get());
     }
   }
 
-  async load() {
-    this.error = await this.getScope({ auth: this.$auth });
-    if (this.error === '') {
-      if (this.scope != 'none') {
-        this.error = await this.getMonitors({ auth: this.$auth });
-        if (this.error != '')
-          setTimeout(() => this.error = '', 5000);
-      }
-    } else
-      setTimeout(() => this.error = '', 5000);
-  }
+  // async load() {
+  //   this.error = await this.getScope({ auth: this.$auth });
+  //   if (this.error === '') {
+  //     if (this.scope != 'none') {
+  //       this.error = await this.getMonitors({ auth: this.$auth });
+  //       if (this.error != '')
+  //         setTimeout(() => this.error = '', 5000);
+  //     }
+  //   } else
+  //     setTimeout(() => this.error = '', 5000);
+  // }
 
-  async becomeBeta() {
-    this.error = await this.setBetaScope({ accesskey: this.accesskey, auth: this.$auth });
-    if (this.error === '') {
-      this.$router.push('/logout');
-    } else
-      setTimeout(() => this.error = '', 5000);
-  }
+  // async becomeBeta() {
+  //   this.error = await this.setBetaScope({ accesskey: this.accesskey, auth: this.$auth });
+  //   if (this.error === '') {
+  //     this.$router.push('/logout');
+  //   } else
+  //     setTimeout(() => this.error = '', 5000);
+  // }
 }
 </script>

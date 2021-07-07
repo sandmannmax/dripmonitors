@@ -17,6 +17,7 @@
     "core-js": "^3.8.3",
     "nanoid": "^2.1.11",
     "nuxt": "^2.14.12",
+    "vue-class-component": "^7.2.6",
     "vue-clickaway": "^2.2.2",
     "vue-codemirror": "^4.0.6",
     "vue-property-decorator": "^9.1.2",

@@ -13,17 +13,17 @@
 
 <script lang="ts">
 import { Component, Vue } from 'vue-property-decorator';
-import { Action, Getter } from 'vuex-class';
+// import { Action, Getter } from 'vuex-class';
 
 @Component({
   layout: 'fullpage'
 })
 export default class NotAuthenticated extends Vue { 
-  @Getter apiState;
-  @Action getStatus;
+  // @Getter apiState;
+  // @Action getStatus;
 
-  async mounted() {
-    await this.getStatus();
-  }
+  // async mounted() {
+  //   await this.getStatus();
+  // }
 }
 </script>

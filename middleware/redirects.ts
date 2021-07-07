@@ -13,11 +13,14 @@ export default function (req) {
     }
     else
       req.redirect('/notauthenticated');
-  } else if (!req.$auth.loggedIn && req.route.path != '/notauthenticated') {
-    req.redirect('/notauthenticated');
-  } else if (req.route.path.split('/')[1] == 'admin' && req.store.getters['userModule/scope'] != 'admin') {
-    req.redirect('/');
-  } else if (req.route.path.split('/')[1] == 'monitor' && req.store.getters['userModule/scope'] == 'none') {
+  } else if (req.route.path != '/') {
     req.redirect('/');
   }
+  // } else if (!req.$auth.loggedIn && req.route.path != '/notauthenticated') {
+  //   req.redirect('/notauthenticated');
+  // } else if (req.route.path.split('/')[1] == 'admin' && req.store.getters['userModule/scope'] != 'admin') {
+  //   req.redirect('/');
+  // } else if (req.route.path.split('/')[1] == 'monitor' && req.store.getters['userModule/scope'] == 'none') {
+  //   req.redirect('/');
+  // }
 }
