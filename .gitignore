@@ -177,3 +177,5 @@ pnpm-debug.log*
 .env*
 *__pycache__*
 
+/_doc.txt
+
