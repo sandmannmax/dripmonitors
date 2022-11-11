@@ -1,0 +1,29 @@
+{
+  "name": "discord",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "start": "nodemon",
+    "build": "tsc --build"
+  },
+  "author": "LazyShoeBot UG",
+  "license": "ISC",
+  "devDependencies": {
+    "@types/node": "^14.14.35",
+    "@types/pino": "^6.3.6",
+    "@types/validator": "^13.1.3",
+    "@types/ws": "^7.4.0",
+    "nodemon": "^2.0.7",
+    "ts-node": "^9.1.1",
+    "typescript": "^4.2.3"
+  },
+  "dependencies": {
+    "discord.js": "^12.5.1",
+    "pg": "^8.5.1",
+    "pino": "^6.11.2",
+    "reflect-metadata": "^0.1.13",
+    "sequelize": "^6.6.2",
+    "typedi": "^0.10.0"
+  }
+}
